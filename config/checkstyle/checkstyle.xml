@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Copyright (c) 2012, 2015 by Delphix. All rights reserved.
+-->
+
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+    <!-- Check for Delphix copyright headers in all Java files. -->
+    <module name="RegexpHeader">
+        <property name="id" value="copyrightHeader"/>
+        <property name="headerFile" value="config/checkstyle/java.header"/>
+        <property name="fileExtensions" value="java"/>
+        <message key="header.missing" value="Invalid or missing Delphix copyright header."/>
+        <message key="header.mismatch" value="Invalid or missing Delphix copyright header."/>
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="id" value="multipleBlank"/>
+        <property name="message" value="Multiple blank lines in a row are disallowed"/>
+        <!-- one for the last non-blank line, one for the first blank line, one or more for subsequent blank lines. -->
+        <property name="format" value="\n{3,}"/>
+    </module>
+
+    <module name="FileTabCharacter"/>
+
+    <module name="TreeWalker">
+        <!-- Detects improper definition of equals() and hashCode() methods. -->
+        <module name="CovariantEquals">
+            <property name="id" value="covariantEquals"/>
+            <message key="covariant.equals" value="Class defines covariant equals() without overriding equals(java.lang.Object)."/>
+        </module>
+
+        <!-- Detects multiple statements on a single line. -->
+        <module name="OneStatementPerLine">
+            <property name="id" value="oneStatement"/>
+        </module>
+
+        <!-- Detects improper modifier order. -->
+        <module name="ModifierOrder">
+            <property name="id" value="modifierOrder"/>
+        </module>
+
+        <!-- Detects overly-complicated boolean logic. -->
+        <module name="SimplifyBooleanExpression">
+            <property name="id" value="simplifyBoolean"/>
+            <message key="simplify.expression" value="Expression contains unecessary comparison with literal true/false."/>
+        </module>
+
+        <module name="SimplifyBooleanReturn">
+            <property name="id" value="simplifyBoolean"/>
+            <message key="simplify.boolreturn" value="Conditional return unecessary, return boolean expression directly."/>
+        </module>
+
+        <!-- Detects catching Exception/Throwable/RuntimeException -->
+        <module name="IllegalCatch">
+            <property name="id" value="illegalCatch"/>
+        </module>
+
+        <!-- Detect catch blocks without code or comments. -->
+        <module name="EmptyBlock">
+            <property name="id" value="ignoreException"/>
+            <property name="option" value="text"/>
+            <property name="tokens" value="LITERAL_CATCH"/>
+            <message key="block.empty" value="catch block cannot be empty, at least add a comment justifying ignoring the Exception."/>
+        </module>
+
+        <!-- Detects default cases that are not last in a switch statment. -->
+        <module name="DefaultComesLast">
+            <property name="id" value="defaultLast"/>
+        </module>
+
+        <!-- Detects extra nested blocks. -->
+        <module name="AvoidNestedBlocks">
+            <property name="id" value="nestedBlocks"/>
+            <property name="allowInSwitchCase" value="true"/>
+        </module>
+
+        <!-- Detects use of Apache Commons or Spring utilities when Guava should be used instead. -->
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.apache.commons.collections"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava's collection utilities instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.apache.commons.lang"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.springframework.util"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.testng.util"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <!--
+            Whitespace checks.
+        -->
+
+        <!-- Checks for correct use of whitespace in generics. -->
+        <module name="GenericWhitespace"/>
+
+        <!-- Detects whitespace between method name and following left parenthesis -->
+        <module name="MethodParamPad"/>
+
+        <!-- Makes sure there is whitespace around operators like '+' and keywords. -->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="ignoreEnhancedForColon" value="false"/>
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="POST_DEC, POST_INC"/>
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="allowLineBreaks" value="true"/>
+            <property name="tokens" value="SEMI, DOT"/>
+        </module>
+
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+        </module>
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI, TYPECAST"/>
+        </module>
+
+        <!-- Do not allow spaces after lparens or before rparens -->
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+
+        <module name="RegexpSinglelineJava">
+            <property name="message" value="Whitespace is disallowed at the end of a line"/>
+            <property name="format" value="\s+$"/>
+        </module>
+
+        <module name="OperatorWrap">
+            <property name="tokens" value="BAND, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR"/>
+            <property name="option" value="eol"/>
+        </module>
+
+        <!-- The '.' operator should always appear on a new line when line wrapping around it. -->
+        <module name="SeparatorWrap">
+            <property name="tokens" value="DOT"/>
+            <property name="option" value="nl"/>
+        </module>
+
+        <module name="RedundantModifier">
+            <property name="tokens" value="METHOD_DEF, VARIABLE_DEF, ANNOTATION_FIELD_DEF, INTERFACE_DEF"/>
+        </module>
+
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+        </module>
+
+        <module name="LeftCurly">
+            <property name="maxLineLength" value="120"/>
+        </module>
+
+        <module name="RightCurly">
+            <property name="option" value="alone"/>
+            <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO, STATIC_INIT, INSTANCE_INIT"/>
+        </module>
+
+        <module name="LineLength">
+            <property name="max" value="120"/>
+        </module>
+
+        <module name="AvoidStarImport"/>
+
+        <module name="AnnotationUseStyle"/>
+
+        <module name="MutableException"/>
+
+    </module>
+
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
+
+</module>

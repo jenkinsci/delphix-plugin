@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url 'http://repo.jenkins-ci.org/releases/'
+        }
+    }
+    dependencies {
+        classpath 'org.jenkins-ci.tools:gradle-jpi-plugin:0.12.2'
+    }
+}
+
+apply plugin: 'org.jenkins-ci.jpi'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'eclipse'
+apply plugin: "jacoco"
+
+group = "org.jenkins-ci.plugins"
+version = "1.0.0-SNAPSHOT"
+description = "A description of your plugin"
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+ }
+
+jenkinsPlugin {
+    coreVersion = '1.565'
+    displayName = 'Delphix Jenkins Plugin'
+    url = 'http://wiki.jenkins-ci.org/display/JENKINS/delphix-jenkins'
+    gitHubUrl = 'https://github.com/delphix/delphix-jenkins-plugin'
+    shortName = 'delphix-jenkins'
+    dependencies {
+        compile 'org.apache.httpcomponents:httpclient:4.4'
+        compile 'com.fasterxml:jackson-module-json-org:0.9.1'
+        compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+    }
+
+    developers {
+        developer {
+            id 'pvilim'
+            name 'Peter Vilim'
+            email 'peter.vilim@delphix.com'
+        }
+    }
+}
+
