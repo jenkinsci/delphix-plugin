@@ -32,7 +32,7 @@ jenkinsPlugin {
     displayName = 'Delphix Jenkins Plugin'
     url = 'http://wiki.jenkins-ci.org/display/JENKINS/delphix-jenkins'
     gitHubUrl = 'https://github.com/delphix/delphix-jenkins-plugin'
-    shortName = 'delphix-jenkins'
+    shortName = 'delphix-plugin'
     dependencies {
         compile 'org.apache.httpcomponents:httpclient:4.4'
         compile 'com.fasterxml:jackson-module-json-org:0.9.1'
