@@ -4,10 +4,14 @@
 Connect Jenkins jobs to the Delphix Engine
 
 ##Features
-- Refresh VDB build step
-- Sync source build step
 - Support for multiple engines
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584240/f1b55362-7645-11e5-9914-2bae20c3e0fc.png" width="700">
+- Refresh VDB build step
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584243/f5225748-7645-11e5-9d06-4494192b1fff.png" width="700">
+- Sync source build step
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584245/f7e856a8-7645-11e5-827a-724c2db67c83.png" width="700">
 - Job logging
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584318/68d71c82-7646-11e5-80ee-f79622efc723.png" width="700">
 - Job cancellation
 
 ##Build and Install
