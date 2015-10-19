@@ -1,4 +1,6 @@
+<img src="https://cloud.githubusercontent.com/assets/4017543/10583682/371a1daa-7643-11e5-9956-4e4a0e7d2036.png" width="300">
 #Delphix Jenkins Plugin
+
 Connect Jenkins jobs to the Delphix Engine
 
 ##Features
