@@ -15,16 +15,20 @@
 
 package com.delphix.delphix;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+
+import com.delphix.delphix.DelphixContainer.ContainerType;
+
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-import com.delphix.delphix.DelphixContainer.ContainerType;
 
 /**
  * This class controls the drop down that is presented to the user when
@@ -32,14 +36,15 @@ import com.delphix.delphix.DelphixContainer.ContainerType;
  */
 public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
 
+    @DataBoundConstructor
     public DelphixDescriptor() {
         load();
     }
 
     /**
-     * Add containers to drop down for build action
+     * Add engines to drop down for build action
      */
-    public ListBoxModel doFillDelphixContainerItems(ContainerType containerType) {
+    public ListBoxModel doFillDelphixEngineItems() {
         ArrayList<Option> options = new ArrayList<Option>();
         // Loop through all engines added to Jenkins
         for (DelphixEngine engine : GlobalConfiguration.getPluginClassDescriptor().getEngines()) {
@@ -49,16 +54,7 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
                 try {
                     delphixEngine.login();
 
-                    // List containers on engine
-                    ArrayList<DelphixContainer> containers = delphixEngine.listContainers();
-
-                    // Add containers to engine
-                    for (DelphixContainer container : containers) {
-                        if (container.getType().equals(containerType)) {
-                            options.add(new Option(container.getEngineAddress() + " - " + container.getName(),
-                                    container.getEngineAddress() + "|" + container.getReference()));
-                        }
-                    }
+                    options.add(new Option(delphixEngine.getEngineAddress(), delphixEngine.getEngineAddress()));
                 } catch (DelphixEngineException e) {
                     // Add message to drop down if unable to login to engine
                     options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
@@ -70,6 +66,117 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
                 options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
                         new String[] { delphixEngine.getEngineAddress() }), "NULL"));
             }
+        }
+
+        // If there are no engines state that in the drop down
+        if (GlobalConfiguration.getPluginClassDescriptor().getEngines().size() == 0) {
+            // Add message to drop down if no engines in Jenkins
+            options.add(new Option(Messages.getMessage(Messages.NO_ENGINES), "NULL"));
+        }
+        return new ListBoxModel(options);
+    }
+
+    /**
+     * Add groups to drop down for build action
+     */
+    public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        // Mark as N/A if engine is invalid
+        if (delphixEngine.equals("NULL")) {
+            options.add(new Option("N/A", "NULL"));
+            return new ListBoxModel(options);
+        }
+
+        if (delphixEngine.isEmpty()) {
+            return new ListBoxModel(options);
+        }
+        // Loop through all engines added to Jenkins
+        DelphixEngine engine =
+                new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
+        try {
+            // login to engine
+            try {
+                engine.login();
+
+                // Get list of groups on engine
+                ArrayList<DelphixGroup> groups = engine.listGroups();
+
+                // Add groups to list
+                for (DelphixGroup group : groups) {
+                    options.add(new Option(group.getName(), delphixEngine + "|" + group.getReference()));
+                }
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                        new String[] { engine.getEngineAddress() }), "NULL"));
+            }
+        } catch (IOException e) {
+            // Add message to drop down if unable to connect to engine
+            options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
+                    new String[] { engine.getEngineAddress() }), "NULL"));
+        }
+
+        return new ListBoxModel(options);
+    }
+
+    /**
+     * Add containers to drop down for build action
+     */
+    public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup,
+            ContainerType containerType) {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        if (delphixGroup.equals("NULL")) {
+            options.add(new Option("N/A", "NULL"));
+            return new ListBoxModel(options);
+        }
+
+        if (delphixGroup.isEmpty()) {
+            return new ListBoxModel(options);
+        }
+
+        // Get the engine and group
+        String engine = delphixGroup.split("\\|")[0];
+        String group = delphixGroup.split("\\|")[1];
+
+        DelphixEngine delphixEngine =
+                new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+
+        // Add refresh and sync all options
+        if (containerType.equals(ContainerType.VDB)) {
+            options.add(new Option("Refresh all",
+                    delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+
+        } else {
+            options.add(new Option("Sync all",
+                    delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+        }
+
+        try {
+            // login to engine
+            try {
+                delphixEngine.login();
+
+                // List containers on engine
+                LinkedHashMap<String, DelphixContainer> containers = delphixEngine.listContainers();
+
+                // Add containers to list
+                for (DelphixContainer container : containers.values()) {
+                    if (container.getType().equals(containerType) && container.getGroup().equals(group)) {
+                        options.add(new Option(container.getName(),
+                                container.getEngineAddress() + "|" + group + "|" + container.getReference()));
+                    }
+                }
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+            }
+        } catch (IOException e) {
+            // Add message to drop down if unable to connect to engine
+            options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
+                    new String[] { delphixEngine.getEngineAddress() }), "NULL"));
         }
 
         // If there are no engines state that in the drop down

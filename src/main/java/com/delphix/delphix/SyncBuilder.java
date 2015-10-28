@@ -24,6 +24,7 @@ import hudson.model.AbstractBuild;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import com.delphix.delphix.DelphixContainer.ContainerType;
 
@@ -33,8 +34,8 @@ import com.delphix.delphix.DelphixContainer.ContainerType;
 public class SyncBuilder extends DelphixBuilder {
 
     @DataBoundConstructor
-    public SyncBuilder(String delphixContainer) {
-        super(delphixContainer);
+    public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount);
     }
 
     /**
@@ -50,10 +51,24 @@ public class SyncBuilder extends DelphixBuilder {
     public static final class DescriptorImpl extends DelphixDescriptor {
 
         /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixEngineItems() {
+            return super.doFillDelphixEngineItems();
+        }
+
+        /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixGroupItems(delphixEngine);
+        }
+
+        /**
          * Add containers to drop down for Sync action
          */
-        public ListBoxModel doFillDelphixContainerItems() {
-            return super.doFillDelphixContainerItems(ContainerType.SOURCE);
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
+            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.SOURCE);
         }
 
         /**

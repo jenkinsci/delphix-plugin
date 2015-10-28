@@ -18,6 +18,7 @@ package com.delphix.delphix;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import com.delphix.delphix.DelphixContainer.ContainerType;
 
@@ -33,8 +34,8 @@ import hudson.util.ListBoxModel;
 public class RefreshBuilder extends DelphixBuilder {
 
     @DataBoundConstructor
-    public RefreshBuilder(String delphixContainer) {
-        super(delphixContainer);
+    public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount);
     }
 
     /**
@@ -52,8 +53,22 @@ public class RefreshBuilder extends DelphixBuilder {
         /**
          * Add containers to drop down for Refresh action
          */
-        public ListBoxModel doFillDelphixContainerItems() {
-            return super.doFillDelphixContainerItems(ContainerType.VDB);
+        public ListBoxModel doFillDelphixEngineItems() {
+            return super.doFillDelphixEngineItems();
+        }
+
+        /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixGroupItems(delphixEngine);
+        }
+
+        /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
+            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.VDB);
         }
 
         /**

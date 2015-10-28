@@ -86,7 +86,8 @@ public class DelphixEngineTest {
     @Test
     public void listContainersTest() throws ClientProtocolException, IOException, DelphixEngineException {
         oracleEngine.login();
-        ArrayList<DelphixContainer> containers = oracleEngine.listContainers();
+        ArrayList<DelphixContainer> containers =
+                new ArrayList<DelphixContainer>(oracleEngine.listContainers().values());
         Assert.assertEquals(3, containers.size());
     }
 
@@ -96,7 +97,7 @@ public class DelphixEngineTest {
     @Test
     public void refreshOracleVDBTest() throws IOException, DelphixEngineException, InterruptedException {
         oracleEngine.login();
-        String job = oracleEngine.refresh(TestConsts.oracleVDB1);
+        String job = oracleEngine.refreshContainer(TestConsts.oracleVDB1);
         while (oracleEngine.getJobStatus(job).getStatus().equals(JobStatus.StatusEnum.RUNNING)) {
             Thread.sleep(1000);
         }
@@ -109,7 +110,7 @@ public class DelphixEngineTest {
     @Test
     public void refreshMssqlVDBTest() throws IOException, DelphixEngineException, InterruptedException {
         mssqlEngine.login();
-        String job = mssqlEngine.refresh(TestConsts.mssqlVDB);
+        String job = mssqlEngine.refreshContainer(TestConsts.mssqlVDB);
         while (mssqlEngine.getJobStatus(job).getStatus().equals(JobStatus.StatusEnum.RUNNING)) {
             Thread.sleep(1000);
         }
@@ -122,7 +123,7 @@ public class DelphixEngineTest {
     @Test
     public void cancelJobTest() throws IOException, DelphixEngineException, InterruptedException {
         oracleEngine.login();
-        String job = oracleEngine.refresh(TestConsts.oracleVDB2);
+        String job = oracleEngine.refreshContainer(TestConsts.oracleVDB2);
         Thread.sleep(2000);
         Assert.assertTrue(oracleEngine.getJobStatus(job).getStatus().equals(JobStatus.StatusEnum.RUNNING));
         oracleEngine.cancelJob(job);

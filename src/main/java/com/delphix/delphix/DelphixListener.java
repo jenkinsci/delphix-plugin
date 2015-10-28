@@ -51,12 +51,31 @@ public class DelphixListener extends RunListener<AbstractBuild<?, ?>> {
                         delphixEngine.login();
                         delphixEngine.cancelJob(jobEngine.getKey());
                         listener.getLogger().println(Messages.getMessage(Messages.CANCELED_JOB,
-                                new String[] { jobEngine.getValue() }));
+                                new String[] { jobEngine.getValue(), jobEngine.getKey() }));
                     }
                 }
             }
-        } catch (IOException | InterruptedException | DelphixEngineException e) {
+
+            // Check all environment variables to find all running Delphix jobs
+            listener.getLogger().println("Delphix target container(s) status summary:");
+            for (Map.Entry<String, String> containerEngine : build.getEnvironment(listener).entrySet()) {
+                if (containerEngine.getKey().contains("CONTAINER")) {
+                    // Login and cancel job
+                    DelphixEngine delphixEngine = new DelphixEngine(
+                            GlobalConfiguration.getPluginClassDescriptor().getEngine(containerEngine.getValue()));
+                    delphixEngine.login();
+                    DelphixContainer container = delphixEngine.listContainers().get(containerEngine.getKey());
+                    DelphixSource source = delphixEngine.listSources().get(container.getReference());
+                    DelphixTimeflow timeflow = delphixEngine.listTimeflows().get(container.getTimeflow());
+                    listener.getLogger().println(delphixEngine.getEngineAddress() + " - " + container.getName() +
+                            " - " + timeflow.getTimestamp() + " - " + source.getStatus());
+                }
+            }
+
+        } catch (IOException | InterruptedException e) {
             listener.getLogger().println(Messages.getMessage(Messages.CANCEL_JOB_FAIL));
+        } catch (DelphixEngineException e) {
+            listener.getLogger().println(e.getMessage());
         }
         super.onCompleted(build, listener);
     }

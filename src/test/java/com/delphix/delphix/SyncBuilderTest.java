@@ -47,7 +47,9 @@ public class SyncBuilderTest {
     public void successfulBuildTest() throws Exception {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
         FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder(TestConsts.oracleEngine + "|" + TestConsts.oracleSource));
+        p.getBuildersList()
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -75,7 +77,9 @@ public class SyncBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
 
         engine.login();
-        p.getBuildersList().add(new SyncBuilder(engine.getEngineAddress() + "|" + TestConsts.oracleSource));
+        p.getBuildersList()
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         future.waitForStart();
         while (!future.isDone()) {
@@ -100,52 +104,7 @@ public class SyncBuilderTest {
         Assert.assertNotNull(build);
         Assert.assertTrue(build.getResult().equals(Result.ABORTED));
         Assert.assertTrue(
-                IOUtils.toString(build.getLogReader()).contains(Messages.getMessage(Messages.CANCELED_JOB,
-                        new String[] { TestConsts.oracleEngine })));
-    }
-
-    /**
-     * Test loading the job configuration form with no engines added in the global configuration.
-     */
-    @Test
-    public void formNoEnginesTest() throws Exception {
-        FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder("NULL"));
-
-        HtmlForm form = j.createWebClient().getPage(p, "configure").getFormByName("config");
-        HtmlSelect select = form.getSelectByName("_.delphixContainer");
-        Assert.assertEquals(1, select.getOptions().size());
-    }
-
-    /**
-     * Test loading the job configuration form with one engine added in the global configuration.
-     */
-    @Test
-    public void formOneEngineTest() throws Exception {
-        configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
-        FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder("NULL"));
-
-        HtmlForm form = j.createWebClient().getPage(p, "configure").getFormByName("config");
-        HtmlSelect select = form.getSelectByName("_.delphixContainer");
-        Assert.assertEquals(1, select.getOptions().size());
-    }
-
-    /**
-     * Test running a sync job with a bad engine specified.
-     */
-    @Test
-    public void formBadEngineTest() throws Exception {
-        configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
-        configureEngine("badengine", TestConsts.oracleUser, TestConsts.oraclePassword);
-        configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, "badpassword");
-        FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder("NULL"));
-
-        HtmlForm form = j.createWebClient().getPage(p, "configure").getFormByName("config");
-        HtmlSelect select = form.getSelectByName("_.delphixContainer");
-        Assert.assertEquals(Messages.getMessage(Messages.UNABLE_TO_LOGIN, new String[] { TestConsts.oracleEngine }),
-                select.getOptions().get(0).getText());
+                IOUtils.toString(build.getLogReader()).contains("Cancelled job " + TestConsts.oracleEngine));
     }
 
     /**
@@ -156,7 +115,7 @@ public class SyncBuilderTest {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
 
         FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder("NULL"));
+        p.getBuildersList().add(new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1"));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         FreeStyleBuild b = future.get();
         Assert.assertEquals(Result.FAILURE, b.getResult());
@@ -172,7 +131,9 @@ public class SyncBuilderTest {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
 
         FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder("badengine" + "|" + TestConsts.oracleSource));
+        p.getBuildersList()
+                .add(new SyncBuilder("badengine", "badengine" + "|" + TestConsts.oracleGroup,
+                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -192,7 +153,9 @@ public class SyncBuilderTest {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
 
         FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new SyncBuilder(TestConsts.oracleEngine + "|" + "badcontainer"));
+        p.getBuildersList()
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer", "1"));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)

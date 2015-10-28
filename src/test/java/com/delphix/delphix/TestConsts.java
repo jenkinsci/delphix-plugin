@@ -29,11 +29,13 @@ public class TestConsts {
     public static final String mssqlPassword = "delphix";
 
     // Oracle test objects
+    public static final String oracleGroup = "GROUP-1";
     public static final String oracleSource = "ORACLE_DB_CONTAINER-1";
     public static final String oracleVDB1 = "ORACLE_DB_CONTAINER-3";
     public static final String oracleVDB2 = "ORACLE_DB_CONTAINER-5";
 
     // MSSQL test objects
+    public static final String mssqlGroup = "GROUP-1";
     public static final String mssqlSource = "MSSQL_DB_CONTAINER-1";
     public static final String mssqlVDB = "MSSQL_DB_CONTAINER-5";
 }

@@ -18,6 +18,7 @@ package com.delphix.delphix;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -28,7 +29,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -55,11 +55,14 @@ public class DelphixEngine {
     private static final String PATH_SESSION = "/resources/json/delphix/session";
     private static final String PATH_LOGIN = "/resources/json/delphix/login";
     private static final String PATH_DATABASE = "/resources/json/delphix/database";
+    private static final String PATH_SOURCE = "/resources/json/delphix/source";
+    private static final String PATH_TIMEFLOW = "/resources/json/delphix/timeflow";
     private static final String PATH_REFRESH = "/resources/json/delphix/database/%s/refresh";
     private static final String PATH_SYNC = "/resources/json/delphix/database/%s/sync";
     private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
     private static final String PATH_CONTAINER = "/resources/json/delphix/database/%s";
     private static final String PATH_JOB = "/resources/json/delphix/job/%s";
+    private static final String PATH_GROUPS = "/resources/json/delphix/group";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -86,6 +89,12 @@ public class DelphixEngine {
     private static final String FIELD_TARGET = "target";
     private static final String FIELD_TIMESTAMP = "timestamp";
     private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
+    private static final String FIELD_GROUP = "group";
+    private static final String FIELD_STATUS = "status";
+    private static final String FIELD_CONTAINER = "container";
+    private static final String FIELD_PARENT_POINT = "parentPoint";
+    private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
+    private static final String FIELD_RUNTIME = "runtime";
 
     /**
      * Address of the Delphix Engine
@@ -198,10 +207,10 @@ public class DelphixEngine {
     /**
      * List containers in the Delphix Engine
      */
-    public ArrayList<DelphixContainer> listContainers()
+    public LinkedHashMap<String, DelphixContainer> listContainers()
             throws ClientProtocolException, IOException, DelphixEngineException {
         // Get containers
-        ArrayList<DelphixContainer> containers = new ArrayList<DelphixContainer>();
+        LinkedHashMap<String, DelphixContainer> containers = new LinkedHashMap<String, DelphixContainer>();
         JsonNode containersJSON = engineGET(PATH_DATABASE).get(FIELD_RESULT);
 
         // Loop through container list
@@ -222,11 +231,80 @@ public class DelphixEngine {
 
             // Create container object from JSON result
             DelphixContainer container = new DelphixContainer(engineAddress, containerJSON.get(FIELD_NAME).asText(),
-                    containerJSON.get(FIELD_REFERENCE).asText(), type);
-            containers.add(container);
+                    containerJSON.get(FIELD_REFERENCE).asText(), type, containerJSON.get(FIELD_GROUP).asText(),
+                    containerJSON.get(FIELD_CURRENT_TIMEFLOW).asText());
+            containers.put(container.getReference(), container);
         }
 
         return containers;
+    }
+
+    public ArrayList<DelphixGroup> listGroups() throws IOException, DelphixEngineException {
+        // Get containers
+        ArrayList<DelphixGroup> groups = new ArrayList<DelphixGroup>();
+        JsonNode groupsJSON = engineGET(PATH_GROUPS).get(FIELD_RESULT);
+
+        // Loop through group list
+        for (int i = 0; i < groupsJSON.size(); i++) {
+            JsonNode groupJSON = groupsJSON.get(i);
+
+            // Create group object from JSON result
+            DelphixGroup group =
+                    new DelphixGroup(groupJSON.get(FIELD_REFERENCE).asText(), groupJSON.get(FIELD_NAME).asText());
+            groups.add(group);
+        }
+        return groups;
+    }
+
+    /**
+     * List sources in the Delphix Engine
+     */
+    public LinkedHashMap<String, DelphixSource> listSources()
+            throws ClientProtocolException, IOException, DelphixEngineException {
+        // Get containers
+        LinkedHashMap<String, DelphixSource> sources = new LinkedHashMap<String, DelphixSource>();
+        JsonNode sourcesJSON = engineGET(PATH_SOURCE).get(FIELD_RESULT);
+
+        // Loop through container list
+        for (int i = 0; i < sourcesJSON.size(); i++) {
+            JsonNode sourceJSON = sourcesJSON.get(i);
+            // Create container object from JSON result
+            DelphixSource source =
+                    new DelphixSource(sourceJSON.get(FIELD_REFERENCE).asText(), sourceJSON.get(FIELD_NAME).asText(),
+                            sourceJSON.get(FIELD_CONTAINER).asText(),
+                            sourceJSON.get(FIELD_RUNTIME).get(FIELD_STATUS).asText());
+            sources.put(source.getContainer(), source);
+        }
+
+        return sources;
+    }
+
+    /**
+     * List timeflows in the Delphix Engine
+     */
+    public LinkedHashMap<String, DelphixTimeflow> listTimeflows()
+            throws ClientProtocolException, IOException, DelphixEngineException {
+        // Get containers
+        LinkedHashMap<String, DelphixTimeflow> timeflows = new LinkedHashMap<String, DelphixTimeflow>();
+        JsonNode timeflowsJSON = engineGET(PATH_TIMEFLOW).get(FIELD_RESULT);
+
+        // Loop through container list
+        for (int i = 0; i < timeflowsJSON.size(); i++) {
+            JsonNode timeflowJSON = timeflowsJSON.get(i);
+            // Create container object from JSON result
+            JsonNode parentPoint = timeflowJSON.get(FIELD_PARENT_POINT);
+            String timestamp = "N/A";
+            if (!parentPoint.isNull()) {
+                timestamp = parentPoint.get(FIELD_TIMESTAMP).asText();
+            }
+            DelphixTimeflow timeflow =
+                    new DelphixTimeflow(timeflowJSON.get(FIELD_REFERENCE).asText(),
+                            timeflowJSON.get(FIELD_NAME).asText(),
+                            timestamp, timeflowJSON.get(FIELD_CONTAINER).asText());
+            timeflows.put(timeflow.getReference(), timeflow);
+        }
+
+        return timeflows;
     }
 
     /**
@@ -257,7 +335,7 @@ public class DelphixEngine {
     /**
      * Refresh a virtual database on the Delphix Engine
      */
-    public String refresh(String vdbRef) throws IOException, DelphixEngineException {
+    public String refreshContainer(String vdbRef) throws IOException, DelphixEngineException {
         // Construct parameters to send to engine
         String type;
         if (getContainerType(vdbRef).equals("OracleDatabaseContainer")) {

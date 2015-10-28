@@ -40,6 +40,7 @@ public final class Messages {
     public static final String REFRESH_OPERATION = "refresh.operation";
     public static final String SYNC_OPERATION = "sync.operation";
     public static final String PLUGIN_NAME = "plugin.name";
+    public static final String RETRY = "retry";
 
     private static ResourceBundle messages = ResourceBundle.getBundle(MESSAGE_BUNDLE, Locale.getDefault());
 

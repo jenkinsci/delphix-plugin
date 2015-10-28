@@ -21,31 +21,33 @@ package com.delphix.delphix;
 public class DelphixContainer {
     public enum ContainerType {
         SOURCE,
-        VDB
+        VDB,
+        NULL
     }
 
-    /**
-     * Address of the Delphix Engine
-     */
     private String engineAddress;
 
-    /**
-     * Name of the container
-     */
     private String name;
 
-    /**
-     * Reference for the container
-     */
     private String reference;
 
+    private String group;
+
+    private String timeflow;
+
+    /**
+     * The type of the container such as a source or a virtual database
+     */
     private ContainerType type;
 
-    public DelphixContainer(String engineAddress, String name, String reference, ContainerType type) {
+    public DelphixContainer(String engineAddress, String name, String reference, ContainerType type, String group,
+            String timeflow) {
         this.engineAddress = engineAddress;
         this.name = name;
         this.reference = reference;
         this.type = type;
+        this.group = group;
+        this.timeflow = timeflow;
     }
 
     public String getEngineAddress() {
@@ -62,5 +64,13 @@ public class DelphixContainer {
 
     public ContainerType getType() {
         return type;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public String getTimeflow() {
+        return timeflow;
     }
 }
