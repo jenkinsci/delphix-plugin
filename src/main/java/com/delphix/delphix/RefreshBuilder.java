@@ -44,7 +44,7 @@ public class RefreshBuilder extends DelphixBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, true);
+        return super.perform(build, listener, DelphixEngine.OperationType.REFRESH);
     }
 
     @Extension

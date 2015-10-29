@@ -22,7 +22,8 @@ public class DelphixContainer {
     public enum ContainerType {
         SOURCE,
         VDB,
-        NULL
+        NULL,
+        ALL
     }
 
     private String engineAddress;

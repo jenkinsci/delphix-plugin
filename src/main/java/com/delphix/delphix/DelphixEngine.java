@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -35,11 +37,16 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import com.delphix.delphix.DelphixContainer.ContainerType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Used for interacting with a Delphix Engine
  */
 public class DelphixEngine {
+
+    public enum OperationType {
+        REFRESH, SYNC, PROVISIONVDB
+    }
 
     /*
      * Miscellaneous constants
@@ -62,6 +69,8 @@ public class DelphixEngine {
     private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
     private static final String PATH_CONTAINER = "/resources/json/delphix/database/%s";
     private static final String PATH_JOB = "/resources/json/delphix/job/%s";
+    private static final String PATH_PROVISION_DEFAULTS = "/resources/json/delphix/database/provision/defaults";
+    private static final String PATH_PROVISION = "/resources/json/delphix/database/provision";
     private static final String PATH_GROUPS = "/resources/json/delphix/group";
 
     /*
@@ -74,6 +83,8 @@ public class DelphixEngine {
     private static final String CONTENT_REFRESH = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
             "\"type\": \"TimeflowPointSemantic\",\"container\": \"%s\"" + "}}";
     private static final String CONTENT_SYNC = "{\"type\": \"%s\"}";
+    private static final String CONTENT_PROVISION_DEFAULTS =
+            "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\"}";
 
     /*
      * Fields used in JSON requests and responses
@@ -87,6 +98,7 @@ public class DelphixEngine {
     private static final String FIELD_NAME = "name";
     private static final String FIELD_REFERENCE = "reference";
     private static final String FIELD_TARGET = "target";
+    private static final String FIELD_TARGET_NAME = "targetName";
     private static final String FIELD_TIMESTAMP = "timestamp";
     private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
     private static final String FIELD_GROUP = "group";
@@ -168,7 +180,7 @@ public class DelphixEngine {
         JsonNode jsonResult = MAPPER.readTree(result);
         EntityUtils.consume(response.getEntity());
         if (jsonResult.get(FIELD_TYPE).asText().equals(ERROR_RESULT)) {
-            throw new DelphixEngineException(jsonResult.get("error").get("details").asText());
+            throw new DelphixEngineException(jsonResult.get("error").get("details").toString());
         }
         return jsonResult;
     }
@@ -219,9 +231,9 @@ public class DelphixEngine {
             ContainerType type;
 
             /*
-             * Set the type of the container.
-             * Versions of Delphix before 4.4 classify transformation containers and restoration datasets as VDBs.  They
-             *  are differentiated in 4.4.
+             * Set the type of the container. Versions of Delphix before 4.4
+             * classify transformation containers and restoration datasets as
+             * VDBs. They are differentiated in 4.4.
              */
             if (containerJSON.get(FIELD_PROVISION_CONTAINER).asText().equals("null")) {
                 type = ContainerType.SOURCE;
@@ -249,8 +261,8 @@ public class DelphixEngine {
             JsonNode groupJSON = groupsJSON.get(i);
 
             // Create group object from JSON result
-            DelphixGroup group =
-                    new DelphixGroup(groupJSON.get(FIELD_REFERENCE).asText(), groupJSON.get(FIELD_NAME).asText());
+            DelphixGroup group = new DelphixGroup(groupJSON.get(FIELD_REFERENCE).asText(),
+                    groupJSON.get(FIELD_NAME).asText());
             groups.add(group);
         }
         return groups;
@@ -269,10 +281,9 @@ public class DelphixEngine {
         for (int i = 0; i < sourcesJSON.size(); i++) {
             JsonNode sourceJSON = sourcesJSON.get(i);
             // Create container object from JSON result
-            DelphixSource source =
-                    new DelphixSource(sourceJSON.get(FIELD_REFERENCE).asText(), sourceJSON.get(FIELD_NAME).asText(),
-                            sourceJSON.get(FIELD_CONTAINER).asText(),
-                            sourceJSON.get(FIELD_RUNTIME).get(FIELD_STATUS).asText());
+            DelphixSource source = new DelphixSource(sourceJSON.get(FIELD_REFERENCE).asText(),
+                    sourceJSON.get(FIELD_NAME).asText(), sourceJSON.get(FIELD_CONTAINER).asText(),
+                    sourceJSON.get(FIELD_RUNTIME).get(FIELD_STATUS).asText());
             sources.put(source.getContainer(), source);
         }
 
@@ -297,10 +308,8 @@ public class DelphixEngine {
             if (!parentPoint.isNull()) {
                 timestamp = parentPoint.get(FIELD_TIMESTAMP).asText();
             }
-            DelphixTimeflow timeflow =
-                    new DelphixTimeflow(timeflowJSON.get(FIELD_REFERENCE).asText(),
-                            timeflowJSON.get(FIELD_NAME).asText(),
-                            timestamp, timeflowJSON.get(FIELD_CONTAINER).asText());
+            DelphixTimeflow timeflow = new DelphixTimeflow(timeflowJSON.get(FIELD_REFERENCE).asText(),
+                    timeflowJSON.get(FIELD_NAME).asText(), timestamp, timeflowJSON.get(FIELD_CONTAINER).asText());
             timeflows.put(timeflow.getReference(), timeflow);
         }
 
@@ -329,7 +338,8 @@ public class DelphixEngine {
         String summary =
                 recentEvent.get(FIELD_TIMESTAMP).asText() + " - " + recentEvent.get(FIELD_MESSAGE_DETAILS).asText();
         String target = jobStatus.get(FIELD_TARGET).asText();
-        return new JobStatus(status, summary, target);
+        String targetName = jobStatus.get(FIELD_TARGET_NAME).asText();
+        return new JobStatus(status, summary, target, targetName);
     }
 
     /**
@@ -345,8 +355,8 @@ public class DelphixEngine {
         }
 
         // Do refresh
-        JsonNode result = enginePOST(String.format(PATH_REFRESH, vdbRef), String.format(CONTENT_REFRESH, type,
-                getParentContainer(vdbRef)));
+        JsonNode result = enginePOST(String.format(PATH_REFRESH, vdbRef),
+                String.format(CONTENT_REFRESH, type, getParentContainer(vdbRef)));
         return result.get(FIELD_JOB).asText();
     }
 
@@ -381,6 +391,43 @@ public class DelphixEngine {
         // Do sync
         JsonNode result = enginePOST(String.format(PATH_SYNC, sourceRef), String.format(CONTENT_SYNC, type));
         return result.get(FIELD_JOB).asText();
+    }
+
+    private String getProvisionDefaults(String containerRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(PATH_PROVISION_DEFAULTS, String.format(CONTENT_PROVISION_DEFAULTS, containerRef));
+        return result.get(FIELD_RESULT).toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public String provisionVDB(String containerRef) throws IOException, DelphixEngineException {
+        String defaultParams = getProvisionDefaults(containerRef);
+        // Strip out null values from provision parameters
+        defaultParams = defaultParams.replaceAll("(\"[^\"]+\":null,?|,?\"[^\"]+\":null)", "");
+        JsonNode params = MAPPER.readTree(defaultParams);
+        JsonNode result;
+        try {
+            result = enginePOST(PATH_PROVISION, params.toString());
+        } catch (DelphixEngineException e) {
+            // Handle the case where some of the fields in the defaults are read only by removing those fields
+            if (e.getMessage().contains("This field is read-only")) {
+                JsonNode errors = MAPPER.readTree(e.getMessage());
+                List<String> list1 = IteratorUtils.toList(errors.fieldNames());
+                for (String field1 : list1) {
+                    List<String> list2 = IteratorUtils.toList(errors.get(field1).fieldNames());
+                    for (String field2 : list2) {
+                        // Field1 is the outer field and field2 is the inner field
+                        ObjectNode node = (ObjectNode) params.get(field1);
+                        // Remove the inner field
+                        node.remove(field2);
+                    }
+                }
+                result = enginePOST(PATH_PROVISION, params.toString());
+            } else {
+                throw e;
+            }
+        }
+        return result.get(FIELD_JOB).asText();
+
     }
 
     public String getEngineAddress() {

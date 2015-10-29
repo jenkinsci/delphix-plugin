@@ -92,8 +92,8 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
             return new ListBoxModel(options);
         }
         // Loop through all engines added to Jenkins
-        DelphixEngine engine =
-                new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
+        DelphixEngine engine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
         try {
             // login to engine
             try {
@@ -108,13 +108,15 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
                 }
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
-                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                        new String[] { engine.getEngineAddress() }), "NULL"));
+                options.add(new Option(
+                        Messages.getMessage(Messages.UNABLE_TO_LOGIN, new String[] { engine.getEngineAddress() }),
+                        "NULL"));
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine
-            options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                    new String[] { engine.getEngineAddress() }), "NULL"));
+            options.add(new Option(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { engine.getEngineAddress() }),
+                    "NULL"));
         }
 
         return new ListBoxModel(options);
@@ -123,8 +125,7 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
     /**
      * Add containers to drop down for build action
      */
-    public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup,
-            ContainerType containerType) {
+    public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup, ContainerType containerType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
         if (delphixGroup.equals("NULL")) {
@@ -140,17 +141,15 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
         String engine = delphixGroup.split("\\|")[0];
         String group = delphixGroup.split("\\|")[1];
 
-        DelphixEngine delphixEngine =
-                new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+        DelphixEngine delphixEngine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
 
         // Add refresh and sync all options
         if (containerType.equals(ContainerType.VDB)) {
-            options.add(new Option("Refresh all",
-                    delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+            options.add(new Option("Refresh all", delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
 
-        } else {
-            options.add(new Option("Sync all",
-                    delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+        } else if (containerType.equals(ContainerType.SOURCE)) {
+            options.add(new Option("Sync all", delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
         }
 
         try {
@@ -163,7 +162,8 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
 
                 // Add containers to list
                 for (DelphixContainer container : containers.values()) {
-                    if (container.getType().equals(containerType) && container.getGroup().equals(group)) {
+                    if ((container.getType().equals(containerType) || containerType.equals(ContainerType.ALL)) &&
+                            container.getGroup().equals(group)) {
                         options.add(new Option(container.getName(),
                                 container.getEngineAddress() + "|" + group + "|" + container.getReference()));
                     }
@@ -175,8 +175,9 @@ public abstract class DelphixDescriptor extends BuildStepDescriptor<Builder> {
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine
-            options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                    new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+            options.add(new Option(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    "NULL"));
         }
 
         // If there are no engines state that in the drop down

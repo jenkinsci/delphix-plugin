@@ -1,0 +1,13 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:section title="Virtual Database">
+            <f:entry title="Delphix Engine" field="delphixEngine">
+                <f:select onchange="updateListBox('list','descriptorByName/com.delphix.delphix.ProvisionBuilder/fillDelphixGroupItems?delphixEngine='+encode(this.value))"/>
+            </f:entry>
+            <f:entry title="Group" field="delphixGroup">
+                <f:select onchange="updateListBox('list','descriptorByName/com.delphix.delphix.ProvisionBuilder/fillDelphixContainerItems?delphixGroup='+encode(this.value))"/>
+            </f:entry>
+            <f:entry title="Container" field="delphixContainer">
+                <f:select />
+            </f:entry>
+    </f:section>
+</j:jelly>

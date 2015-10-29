@@ -39,16 +39,22 @@ public class JobStatus {
      */
     private String target;
 
+    /**
+     * English name of the target
+     */
+    private String targetName;
+
     public JobStatus() {
         this.status = StatusEnum.RUNNING;
         this.summary = "";
         this.target = "";
     }
 
-    public JobStatus(StatusEnum status, String summary, String target) {
+    public JobStatus(StatusEnum status, String summary, String target, String targetName) {
         this.status = status;
         this.summary = summary;
         this.target = target;
+        this.targetName = targetName;
     }
 
     public StatusEnum getStatus() {
@@ -61,5 +67,9 @@ public class JobStatus {
 
     public String getTarget() {
         return target;
+    }
+
+    public String getTargetName() {
+        return targetName;
     }
 }

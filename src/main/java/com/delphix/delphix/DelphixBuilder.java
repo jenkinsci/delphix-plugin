@@ -28,9 +28,9 @@ import hudson.model.BuildListener;
 import hudson.tasks.Builder;
 
 /**
- * Describes a build step for the Delphix plugin. The refresh and sync build
- * steps inherit from this class. These build steps can be added in the job
- * configuration page in Jenkins.
+ * Describes a build step for the Delphix plugin. The refresh, sync, and
+ * provision build steps inherit from this class. These build steps can be added
+ * in the job configuration page in Jenkins.
  */
 public class DelphixBuilder extends Builder {
 
@@ -50,10 +50,10 @@ public class DelphixBuilder extends Builder {
     }
 
     /**
-     * Run the refresh job
+     * Run the job
      */
-    public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener, boolean refresh)
-            throws InterruptedException {
+    public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener,
+            DelphixEngine.OperationType operationType) throws InterruptedException {
         // Check if the input is not a valid target
         if (delphixContainer.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_CONTAINER));
@@ -110,8 +110,8 @@ public class DelphixBuilder extends Builder {
             return false;
         } catch (IOException e) {
             // Print error if unable to connect to engine and abort Jenkins job
-            listener.getLogger().println(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                    new String[] { delphixEngine.getEngineAddress() }));
+            listener.getLogger().println(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }));
             return false;
         }
 
@@ -124,7 +124,7 @@ public class DelphixBuilder extends Builder {
         // Tracks the state of the jobs as a group
         boolean running = true;
 
-        // Login to Delphix Engine and run either a refresh or sync job for all targets
+        // Login to Delphix Engine and run the job on the target(s)
         while (running) {
             // Set running to false and set it back to running if checks pass at the end of this loop
             running = false;
@@ -135,14 +135,20 @@ public class DelphixBuilder extends Builder {
                 try {
                     String job = "";
                     // Refresh operation
-                    if (refresh && target.getType() == ContainerType.VDB && target.getGroup().equals(group)) {
+                    if (operationType.equals(DelphixEngine.OperationType.REFRESH) &&
+                            target.getType() == ContainerType.VDB && target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference());
-                    } else
-                        // Sync operation
-                        if (!refresh && target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
+                    } else if (operationType.equals(DelphixEngine.OperationType.SYNC) &&
+                    // Sync operation
+                    target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.sync(target.getReference());
+                    } else if (operationType.equals(DelphixEngine.OperationType.PROVISIONVDB) &&
+                            target.getGroup().equals(group)) {
+                        // Provision operation
+                        build.addAction(new PublishEnvVarAction(target.getReference(), engine));
+                        job = delphixEngine.provisionVDB(target.getReference());
                     }
                     // Add job reference to environment variables so that it can be used by run listener
                     if (!job.isEmpty()) {
@@ -151,9 +157,8 @@ public class DelphixBuilder extends Builder {
                     }
                 } catch (DelphixEngineException e) {
                     // Print error from engine if job fails and add container back to targets to retry the operation
-                    listener.getLogger()
-                            .println(delphixEngine.getEngineAddress() + " - " + target.getName() + " - " +
-                                    e.getMessage());
+                    listener.getLogger().println(
+                            delphixEngine.getEngineAddress() + " - " + target.getName() + " - " + e.getMessage());
                     if (retries.get(target.getReference()).compareTo(Integer.decode(retryCount)) < 0) {
                         listener.getLogger()
                                 .println(Messages.getMessage(Messages.RETRY, new String[] { target.getName() }));
@@ -198,8 +203,7 @@ public class DelphixBuilder extends Builder {
                 // Update status if it has changed on engine
                 if (!status.get(job).getSummary().equals(lastStatus.get(job).getSummary())) {
                     listener.getLogger().println(delphixEngine.getEngineAddress() + " - " +
-                            containers.get(status.get(job).getTarget()).getName() + " - " +
-                            status.get(job).getSummary());
+                            status.get(job).getTargetName() + status.get(job).getSummary());
                     lastStatus.put(job, status.get(job));
                 }
 

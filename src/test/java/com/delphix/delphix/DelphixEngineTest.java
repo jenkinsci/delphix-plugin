@@ -167,4 +167,12 @@ public class DelphixEngineTest {
         oracleEngine.login();
         oracleEngine.getJobStatus("badjob");
     }
+
+    /**
+     * Test provision operation
+     */
+    public void provisionVDBTest() throws IOException, DelphixEngineException {
+        mssqlEngine.login();
+        mssqlEngine.provisionVDB(TestConsts.mssqlSource);
+    }
 }

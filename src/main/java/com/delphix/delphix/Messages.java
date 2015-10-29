@@ -38,6 +38,7 @@ public final class Messages {
     public static final String TEST_LOGIN_FAILURE = "test.login.failure";
     public static final String TEST_LOGIN_CONNECT = "test.login.connect";
     public static final String REFRESH_OPERATION = "refresh.operation";
+    public static final String PROVISION_OPERATION = "provision.operation";
     public static final String SYNC_OPERATION = "sync.operation";
     public static final String PLUGIN_NAME = "plugin.name";
     public static final String RETRY = "retry";

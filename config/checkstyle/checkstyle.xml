@@ -80,31 +80,6 @@
             <property name="allowInSwitchCase" value="true"/>
         </module>
 
-        <!-- Detects use of Apache Commons or Spring utilities when Guava should be used instead. -->
-        <module name="IllegalImport">
-            <property name="id" value="wrongUtilUse"/>
-            <property name="illegalPkgs" value="org.apache.commons.collections"/>
-            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava's collection utilities instead."/>
-        </module>
-
-        <module name="IllegalImport">
-            <property name="id" value="wrongUtilUse"/>
-            <property name="illegalPkgs" value="org.apache.commons.lang"/>
-            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
-        </module>
-
-        <module name="IllegalImport">
-            <property name="id" value="wrongUtilUse"/>
-            <property name="illegalPkgs" value="org.springframework.util"/>
-            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
-        </module>
-
-        <module name="IllegalImport">
-            <property name="id" value="wrongUtilUse"/>
-            <property name="illegalPkgs" value="org.testng.util"/>
-            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
-        </module>
-
         <!--
             Whitespace checks.
         -->

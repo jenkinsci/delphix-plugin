@@ -15,12 +15,6 @@
 
 package com.delphix.delphix;
 
-import hudson.Extension;
-import hudson.Launcher;
-import hudson.model.BuildListener;
-import hudson.util.ListBoxModel;
-import hudson.model.AbstractBuild;
-
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -28,47 +22,54 @@ import org.kohsuke.stapler.QueryParameter;
 
 import com.delphix.delphix.DelphixContainer.ContainerType;
 
+import hudson.Extension;
+import hudson.Launcher;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.util.ListBoxModel;
+
 /**
- * Describes a source Sync build step for the Delphix plugin
+ * Describes a VDB Provision build step for the Delphix plugin
  */
-public class SyncBuilder extends DelphixBuilder {
+public class ProvisionBuilder extends DelphixBuilder {
 
     @DataBoundConstructor
-    public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount);
+    public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer) {
+        // Hard wire retry count to 0 since we don't want to try to provision multiple times
+        super(delphixEngine, delphixGroup, delphixContainer, "0");
     }
 
     /**
-     * Run the sync job
+     * Run the provision job
      */
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.OperationType.SYNC);
+        return super.perform(build, listener, DelphixEngine.OperationType.PROVISIONVDB);
     }
 
     @Extension
-    public static final class DescriptorImpl extends DelphixDescriptor {
+    public static final class ProvisionDescriptor extends DelphixDescriptor {
 
         /**
-         * Add containers to drop down for Refresh action
+         * Add containers to drop down for Provision action
          */
         public ListBoxModel doFillDelphixEngineItems() {
             return super.doFillDelphixEngineItems();
         }
 
         /**
-         * Add containers to drop down for Refresh action
+         * Add containers to drop down for Provision action
          */
         public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
             return super.doFillDelphixGroupItems(delphixEngine);
         }
 
         /**
-         * Add containers to drop down for Sync action
+         * Add containers to drop down for Provision action
          */
         public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
-            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.SOURCE);
+            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.ALL);
         }
 
         /**
@@ -76,7 +77,7 @@ public class SyncBuilder extends DelphixBuilder {
          */
         @Override
         public String getDisplayName() {
-            return Messages.getMessage(Messages.SYNC_OPERATION);
+            return Messages.getMessage(Messages.PROVISION_OPERATION);
         }
     }
 }
