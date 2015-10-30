@@ -175,4 +175,12 @@ public class DelphixEngineTest {
         mssqlEngine.login();
         mssqlEngine.provisionVDB(TestConsts.mssqlSource, "");
     }
+
+    /**
+     * Test refreshing an environment
+     */
+    public void refreshEnvironmentTest() throws IOException, DelphixEngineException {
+        oracleEngine.login();
+        oracleEngine.refreshEnvironment(TestConsts.oracleEnvironment);
+    }
 }

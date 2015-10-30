@@ -32,7 +32,7 @@ import hudson.tasks.Builder;
  * provision build steps inherit from this class. These build steps can be added
  * in the job configuration page in Jenkins.
  */
-public class DelphixBuilder extends Builder {
+public class ContainerBuilder extends Builder {
 
     /**
      * The container to operate on for the build step
@@ -43,7 +43,7 @@ public class DelphixBuilder extends Builder {
     public final String retryCount;
     public final String containerName;
 
-    public DelphixBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
+    public ContainerBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
             String containerName) {
         this.delphixEngine = delphixEngine;
         this.delphixGroup = delphixGroup;

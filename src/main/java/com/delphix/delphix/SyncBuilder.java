@@ -31,7 +31,7 @@ import com.delphix.delphix.DelphixContainer.ContainerType;
 /**
  * Describes a source Sync build step for the Delphix plugin
  */
-public class SyncBuilder extends DelphixBuilder {
+public class SyncBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
     public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
@@ -48,7 +48,7 @@ public class SyncBuilder extends DelphixBuilder {
     }
 
     @Extension
-    public static final class DescriptorImpl extends DelphixDescriptor {
+    public static final class DescriptorImpl extends ContainerDescriptor {
 
         /**
          * Add containers to drop down for Refresh action

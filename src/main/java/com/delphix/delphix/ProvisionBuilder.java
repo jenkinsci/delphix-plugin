@@ -31,7 +31,7 @@ import hudson.util.ListBoxModel;
 /**
  * Describes a VDB Provision build step for the Delphix plugin
  */
-public class ProvisionBuilder extends DelphixBuilder {
+public class ProvisionBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
     public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String containerName) {
@@ -49,7 +49,7 @@ public class ProvisionBuilder extends DelphixBuilder {
     }
 
     @Extension
-    public static final class ProvisionDescriptor extends DelphixDescriptor {
+    public static final class ProvisionDescriptor extends ContainerDescriptor {
 
         /**
          * Add containers to drop down for Provision action

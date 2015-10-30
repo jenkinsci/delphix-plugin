@@ -20,8 +20,6 @@ import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
-import com.delphix.delphix.DelphixContainer.ContainerType;
-
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -31,11 +29,11 @@ import hudson.util.ListBoxModel;
 /**
  * Describes a VDB Refresh build step for the Delphix plugin
  */
-public class RefreshBuilder extends ContainerBuilder {
+public class EnvironmentRefreshBuilder extends EnvironmentBuilder {
 
     @DataBoundConstructor
-    public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "");
+    public EnvironmentRefreshBuilder(String delphixEngine, String delphixEnvironment) {
+        super(delphixEngine, delphixEnvironment);
     }
 
     /**
@@ -44,11 +42,11 @@ public class RefreshBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.OperationType.REFRESH);
+        return super.perform(build, listener);
     }
 
     @Extension
-    public static final class RefreshDescriptor extends ContainerDescriptor {
+    public static final class RefreshDescriptor extends EnvironmentDescriptor {
 
         /**
          * Add containers to drop down for Refresh action
@@ -60,15 +58,8 @@ public class RefreshBuilder extends ContainerBuilder {
         /**
          * Add containers to drop down for Refresh action
          */
-        public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
-            return super.doFillDelphixGroupItems(delphixEngine);
-        }
-
-        /**
-         * Add containers to drop down for Refresh action
-         */
-        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
-            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.VDB);
+        public ListBoxModel doFillDelphixEnvironmentItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixEnvironmentItems(delphixEngine);
         }
 
         /**
@@ -76,7 +67,7 @@ public class RefreshBuilder extends ContainerBuilder {
          */
         @Override
         public String getDisplayName() {
-            return Messages.getMessage(Messages.REFRESH_OPERATION);
+            return Messages.getMessage(Messages.ENVIRONMENT_REFRESH_OPERATION);
         }
     }
 }

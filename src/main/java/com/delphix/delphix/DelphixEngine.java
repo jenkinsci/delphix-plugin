@@ -73,6 +73,8 @@ public class DelphixEngine {
     private static final String PATH_PROVISION = "/resources/json/delphix/database/provision";
     private static final String PATH_GROUPS = "/resources/json/delphix/group";
     private static final String PATH_DELETE_CONTAINER = "/resources/json/delphix/database/%s/delete";
+    private static final String PATH_REFRESH_ENVIRONMENT = "/resources/json/delphix/environment/%s/refresh";
+    private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -87,6 +89,7 @@ public class DelphixEngine {
     private static final String CONTENT_PROVISION_DEFAULTS =
             "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\"}";
     private static final String CONTENT_DELETE_CONTAINER = "{\"type\": \"DeleteParameters\"}";
+    private static final String CONTENT_REFRESH_ENVIRONMENT = "{}";
 
     /*
      * Fields used in JSON requests and responses
@@ -319,6 +322,26 @@ public class DelphixEngine {
     }
 
     /**
+     * List environments in the Delphix Engine
+     */
+    public LinkedHashMap<String, DelphixEnvironment> listEnvironments()
+            throws ClientProtocolException, IOException, DelphixEngineException {
+        // Get containers
+        LinkedHashMap<String, DelphixEnvironment> environments = new LinkedHashMap<String, DelphixEnvironment>();
+        JsonNode environmentsJSON = engineGET(PATH_ENVIRONMENT).get(FIELD_RESULT);
+
+        // Loop through container list
+        for (int i = 0; i < environmentsJSON.size(); i++) {
+            JsonNode environmentJSON = environmentsJSON.get(i);
+            DelphixEnvironment environment = new DelphixEnvironment(environmentJSON.get(FIELD_REFERENCE).asText(),
+                    environmentJSON.get(FIELD_NAME).asText());
+            environments.put(environment.getReference(), environment);
+        }
+
+        return environments;
+    }
+
+    /**
      * Cancel a job running on the Delphix Engine
      */
     public void cancelJob(String jobRef) throws ClientProtocolException, IOException, DelphixEngineException {
@@ -451,5 +474,11 @@ public class DelphixEngine {
 
     public String getEnginePassword() {
         return enginePassword;
+    }
+
+    public String refreshEnvironment(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(String.format(PATH_REFRESH_ENVIRONMENT, environmentRef),
+                CONTENT_REFRESH_ENVIRONMENT);
+        return result.get(FIELD_JOB).asText();
     }
 }

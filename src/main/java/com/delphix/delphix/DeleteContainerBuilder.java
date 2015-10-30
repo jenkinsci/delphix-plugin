@@ -31,7 +31,7 @@ import hudson.util.ListBoxModel;
 /**
  * Describes a dSource/VDB Delete build step for the Delphix plugin
  */
-public class DeleteContainerBuilder extends DelphixBuilder {
+public class DeleteContainerBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
     public DeleteContainerBuilder(String delphixEngine, String delphixGroup, String delphixContainer,
@@ -49,7 +49,7 @@ public class DeleteContainerBuilder extends DelphixBuilder {
     }
 
     @Extension
-    public static final class DeleteDescriptor extends DelphixDescriptor {
+    public static final class DeleteDescriptor extends ContainerDescriptor {
 
         /**
          * Add containers to drop down for Delete action

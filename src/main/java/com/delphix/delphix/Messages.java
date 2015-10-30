@@ -31,6 +31,7 @@ public final class Messages {
     public static final String CANCEL_JOB_FAIL = "cancel.job.fail";
     public static final String NO_ENGINES = "no.engines";
     public static final String INVALID_ENGINE_CONTAINER = "invalid.engine.container";
+    public static final String INVALID_ENGINE_ENVIRONMENT = "invalid.engine.environment";
     public static final String UNABLE_TO_LOGIN = "unable.to.login";
     public static final String UNABLE_TO_CONNECT = "unable.to.connect";
     public static final String CANCELED_JOB = "canceled.job";
@@ -40,6 +41,7 @@ public final class Messages {
     public static final String REFRESH_OPERATION = "refresh.operation";
     public static final String PROVISION_OPERATION = "provision.operation";
     public static final String SYNC_OPERATION = "sync.operation";
+    public static final String ENVIRONMENT_REFRESH_OPERATION = "environment.refresh.operation";
     public static final String PLUGIN_NAME = "plugin.name";
     public static final String RETRY = "retry";
     public static final String DELETE_CONTAINER_OPERATION = "delete.container.operation";
