@@ -173,6 +173,6 @@ public class DelphixEngineTest {
      */
     public void provisionVDBTest() throws IOException, DelphixEngineException {
         mssqlEngine.login();
-        mssqlEngine.provisionVDB(TestConsts.mssqlSource);
+        mssqlEngine.provisionVDB(TestConsts.mssqlSource, "");
     }
 }

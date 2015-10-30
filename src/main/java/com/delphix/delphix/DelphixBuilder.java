@@ -41,12 +41,15 @@ public class DelphixBuilder extends Builder {
     public final String delphixGroup;
     public final String delphixContainer;
     public final String retryCount;
+    public final String containerName;
 
-    public DelphixBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
+    public DelphixBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
+            String containerName) {
         this.delphixEngine = delphixEngine;
         this.delphixGroup = delphixGroup;
         this.delphixContainer = delphixContainer;
         this.retryCount = retryCount;
+        this.containerName = containerName;
     }
 
     /**
@@ -148,7 +151,7 @@ public class DelphixBuilder extends Builder {
                             target.getGroup().equals(group)) {
                         // Provision operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
-                        job = delphixEngine.provisionVDB(target.getReference());
+                        job = delphixEngine.provisionVDB(target.getReference(), containerName);
                     } else if (operationType.equals(DelphixEngine.OperationType.DELETECONTAINER) &&
                             target.getGroup().equals(group)) {
                         // Delete operation

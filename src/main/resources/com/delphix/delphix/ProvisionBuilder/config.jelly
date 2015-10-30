@@ -9,5 +9,10 @@
             <f:entry title="Container" field="delphixContainer">
                 <f:select />
             </f:entry>
+            <f:advanced>
+                <f:entry title="Name" field="containerName">
+                    <f:textbox default=""/>
+                </f:entry>
+            </f:advanced>
     </f:section>
 </j:jelly>

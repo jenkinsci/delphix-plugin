@@ -35,7 +35,7 @@ public class RefreshBuilder extends DelphixBuilder {
 
     @DataBoundConstructor
     public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount);
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "");
     }
 
     /**

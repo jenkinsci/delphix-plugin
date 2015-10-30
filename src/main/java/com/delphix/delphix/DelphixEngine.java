@@ -401,11 +401,15 @@ public class DelphixEngine {
     }
 
     @SuppressWarnings("unchecked")
-    public String provisionVDB(String containerRef) throws IOException, DelphixEngineException {
+    public String provisionVDB(String containerRef, String containerName) throws IOException, DelphixEngineException {
         String defaultParams = getProvisionDefaults(containerRef);
         // Strip out null values from provision parameters
         defaultParams = defaultParams.replaceAll("(\"[^\"]+\":null,?|,?\"[^\"]+\":null)", "");
         JsonNode params = MAPPER.readTree(defaultParams);
+        if (!containerName.isEmpty()) {
+            ObjectNode containerNode = (ObjectNode) params.get("container");
+            containerNode.put("name", containerName);
+        }
         JsonNode result;
         try {
             result = enginePOST(PATH_PROVISION, params.toString());

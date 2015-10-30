@@ -34,9 +34,9 @@ import hudson.util.ListBoxModel;
 public class ProvisionBuilder extends DelphixBuilder {
 
     @DataBoundConstructor
-    public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer) {
+    public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String containerName) {
         // Hard wire retry count to 0 since we don't want to try to provision multiple times
-        super(delphixEngine, delphixGroup, delphixContainer, "0");
+        super(delphixEngine, delphixGroup, delphixContainer, "0", containerName);
     }
 
     /**
