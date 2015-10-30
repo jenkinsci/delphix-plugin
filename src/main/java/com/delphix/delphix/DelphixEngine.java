@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class DelphixEngine {
 
     public enum OperationType {
-        REFRESH, SYNC, PROVISIONVDB
+        REFRESH, SYNC, PROVISIONVDB, DELETECONTAINER
     }
 
     /*
@@ -72,6 +72,7 @@ public class DelphixEngine {
     private static final String PATH_PROVISION_DEFAULTS = "/resources/json/delphix/database/provision/defaults";
     private static final String PATH_PROVISION = "/resources/json/delphix/database/provision";
     private static final String PATH_GROUPS = "/resources/json/delphix/group";
+    private static final String PATH_DELETE_CONTAINER = "/resources/json/delphix/database/%s/delete";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -85,6 +86,7 @@ public class DelphixEngine {
     private static final String CONTENT_SYNC = "{\"type\": \"%s\"}";
     private static final String CONTENT_PROVISION_DEFAULTS =
             "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\"}";
+    private static final String CONTENT_DELETE_CONTAINER = "{\"type\": \"DeleteParameters\"}";
 
     /*
      * Fields used in JSON requests and responses
@@ -428,6 +430,11 @@ public class DelphixEngine {
         }
         return result.get(FIELD_JOB).asText();
 
+    }
+
+    public String deleteContainer(String containerRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(String.format(PATH_DELETE_CONTAINER, containerRef), CONTENT_DELETE_CONTAINER);
+        return result.get(FIELD_JOB).asText();
     }
 
     public String getEngineAddress() {

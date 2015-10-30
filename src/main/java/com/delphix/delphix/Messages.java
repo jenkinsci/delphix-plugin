@@ -42,6 +42,9 @@ public final class Messages {
     public static final String SYNC_OPERATION = "sync.operation";
     public static final String PLUGIN_NAME = "plugin.name";
     public static final String RETRY = "retry";
+    public static final String DELETE_CONTAINER_OPERATION = "delete.container.operation";
+    public static final String CONTAINER_BUILDER_SUMMARY = "container.builder.summary";
+    public static final String CONTAINER_NOT_PRESENT = "container.not.present";
 
     private static ResourceBundle messages = ResourceBundle.getBundle(MESSAGE_BUNDLE, Locale.getDefault());
 

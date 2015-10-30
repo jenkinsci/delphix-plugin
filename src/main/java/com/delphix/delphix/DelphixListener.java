@@ -57,18 +57,24 @@ public class DelphixListener extends RunListener<AbstractBuild<?, ?>> {
             }
 
             // Check all environment variables to find all running Delphix jobs
-            listener.getLogger().println("Delphix target container(s) status summary:");
+            listener.getLogger().println(Messages.getMessage(Messages.CONTAINER_BUILDER_SUMMARY));
             for (Map.Entry<String, String> containerEngine : build.getEnvironment(listener).entrySet()) {
                 if (containerEngine.getKey().contains("CONTAINER")) {
                     // Login and cancel job
                     DelphixEngine delphixEngine = new DelphixEngine(
                             GlobalConfiguration.getPluginClassDescriptor().getEngine(containerEngine.getValue()));
                     delphixEngine.login();
-                    DelphixContainer container = delphixEngine.listContainers().get(containerEngine.getKey());
-                    DelphixSource source = delphixEngine.listSources().get(container.getReference());
-                    DelphixTimeflow timeflow = delphixEngine.listTimeflows().get(container.getTimeflow());
-                    listener.getLogger().println(delphixEngine.getEngineAddress() + " - " + container.getName() +
-                            " - " + timeflow.getTimestamp() + " - " + source.getStatus());
+                    if (delphixEngine.listContainers().containsKey(containerEngine.getKey())) {
+                        DelphixContainer container = delphixEngine.listContainers().get(containerEngine.getKey());
+                        DelphixSource source = delphixEngine.listSources().get(container.getReference());
+                        DelphixTimeflow timeflow = delphixEngine.listTimeflows().get(container.getTimeflow());
+                        listener.getLogger().println(delphixEngine.getEngineAddress() + " - " + container.getName() +
+                                " - " + timeflow.getTimestamp() + " - " + source.getStatus());
+                    } else {
+                        listener.getLogger()
+                                .println(Messages.getMessage(Messages.CONTAINER_NOT_PRESENT,
+                                        new String[] { delphixEngine.getEngineAddress(), containerEngine.getKey() }));
+                    }
                 }
             }
 

@@ -140,8 +140,8 @@ public class DelphixBuilder extends Builder {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference());
                     } else if (operationType.equals(DelphixEngine.OperationType.SYNC) &&
-                    // Sync operation
-                    target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
+                            target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
+                        // Sync operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.sync(target.getReference());
                     } else if (operationType.equals(DelphixEngine.OperationType.PROVISIONVDB) &&
@@ -149,6 +149,11 @@ public class DelphixBuilder extends Builder {
                         // Provision operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.provisionVDB(target.getReference());
+                    } else if (operationType.equals(DelphixEngine.OperationType.DELETECONTAINER) &&
+                            target.getGroup().equals(group)) {
+                        // Delete operation
+                        build.addAction(new PublishEnvVarAction(target.getReference(), engine));
+                        job = delphixEngine.deleteContainer(target.getReference());
                     }
                     // Add job reference to environment variables so that it can be used by run listener
                     if (!job.isEmpty()) {
