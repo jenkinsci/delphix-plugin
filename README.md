@@ -6,12 +6,25 @@ Connect Jenkins jobs to the Delphix Engine
 ##Features
 - Support for multiple engines
 <br><img src="https://cloud.githubusercontent.com/assets/4017543/10584240/f1b55362-7645-11e5-9914-2bae20c3e0fc.png" width="700">
-- Refresh VDB build step
-<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584243/f5225748-7645-11e5-9d06-4494192b1fff.png" width="700">
+- Refresh Virtual Database build step
+<br>Can refresh all in group or individual virtual database
+<br>Ability to retry
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860086/149121c0-7f21-11e5-829c-1f525a01130b.png" width="700">
 - Sync source build step
-<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584245/f7e856a8-7645-11e5-827a-724c2db67c83.png" width="700">
+<br>Can sync all in group or individual source
+<br>Ability to retry
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860087/1491f4d8-7f21-11e5-9560-479d80589281.png" width="700">
+- Refresh environment build step
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860084/148ceee8-7f21-11e5-99cd-c0be60c031a3.png" width="700">
+- Provision Virtual Database build step
+<br>Can choose name of new virtual database
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860085/148d043c-7f21-11e5-8c3f-7be0f67f1cbc.png" width="700">
+- Delete dSource or Virtual Database build step
+<br>Ability to retry
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860207/a6cd251a-7f22-11e5-80e0-0293b575a92a.png" width="700">
+
 - Job logging
-<br><img src="https://cloud.githubusercontent.com/assets/4017543/10584318/68d71c82-7646-11e5-80ee-f79622efc723.png" width="700">
+<br><img src="https://cloud.githubusercontent.com/assets/4017543/10860247/eda87b38-7f22-11e5-87d8-f8dd85c32ec2.png" width="700">
 - Job cancellation
 
 ##Build and Install
