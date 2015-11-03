@@ -21,7 +21,7 @@ package com.delphix.delphix;
 public class JobStatus {
 
     public enum StatusEnum {
-        RUNNING, ABORTED, CANCELED, COMPLETED
+        RUNNING, ABORTED, CANCELED, COMPLETED, FAILED
     }
 
     /**

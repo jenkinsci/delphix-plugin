@@ -17,42 +17,53 @@ package com.delphix.delphix;
 
 import java.io.IOException;
 
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+
+import com.delphix.delphix.DelphixContainer.ContainerType;
+
+import hudson.Extension;
+import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.tasks.Builder;
+import hudson.util.ListBoxModel;
 
 /**
- * Describes a build step for the Delphix plugin. The refresh and sync build
- * steps inherit from this class. These build steps can be added in the job
- * configuration page in Jenkins.
+ * Describes a build step to create an environment
+ * Currently only Unix single host environments are supported.
  */
-public class EnvironmentBuilder extends Builder {
+public class EnvironmentCreateBuilder extends Builder {
 
     /**
      * The environment to operate on for the build step
      */
-    public final String delphixEngine;
-    public final String delphixEnvironment;
+    public final String engine;
+    public final String address;
+    public final String user;
+    public final String password;
+    public final String toolkit;
 
-    public EnvironmentBuilder(String delphixEngine, String delphixEnvironment) {
-        this.delphixEngine = delphixEngine;
-        this.delphixEnvironment = delphixEnvironment;
+    @DataBoundConstructor
+    public EnvironmentCreateBuilder(String engine, String address, String user, String password, String toolkit) {
+        this.engine = engine;
+        this.address = address;
+        this.user = user;
+        this.password = password;
+        this.toolkit = toolkit;
     }
 
     /**
-     * Run the refresh job
+     * Run the environment creation job
      */
-    public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener)
-            throws InterruptedException {
+    @Override
+    public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
+            throws IOException, InterruptedException {
         // Check if the input engine is not valid
-        if (delphixEnvironment.equals("NULL")) {
+        if (engine.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
             return false;
         }
-
-        // Get the engine and the environment on the engine on which to operate
-        String engine = delphixEnvironment.split("\\|")[0];
-        String environment = delphixEnvironment.split("\\|")[1];
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
@@ -65,7 +76,7 @@ public class EnvironmentBuilder extends Builder {
         String job;
         try {
             delphixEngine.login();
-            job = delphixEngine.refreshEnvironment(environment);
+            job = delphixEngine.createEnvironment(address, user, password, toolkit);
         } catch (DelphixEngineException e) {
             // Print error from engine if job fails and abort Jenkins job
             listener.getLogger().println(e.getMessage());
@@ -78,7 +89,6 @@ public class EnvironmentBuilder extends Builder {
         }
 
         // Make job state available to clean up after run completes
-        build.addAction(new PublishEnvVarAction(environment, engine));
         build.addAction(new PublishEnvVarAction(job, engine));
         JobStatus status = new JobStatus();
         JobStatus lastStatus = new JobStatus();
@@ -109,5 +119,24 @@ public class EnvironmentBuilder extends Builder {
 
         // Job completed
         return !status.getStatus().equals(JobStatus.StatusEnum.FAILED);
+    }
+
+    @Extension
+    public static final class RefreshDescriptor extends EnvironmentDescriptor {
+
+        /**
+         * Add engines to list of places where the environment can be created
+         */
+        public ListBoxModel doFillEngineItems() {
+            return super.doFillDelphixEngineItems();
+        }
+
+        /**
+         * Name to display for build step
+         */
+        @Override
+        public String getDisplayName() {
+            return Messages.getMessage(Messages.ENVIRONMENT_CREATE_OPERATION);
+        }
     }
 }

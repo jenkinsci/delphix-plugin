@@ -90,6 +90,12 @@ public class DelphixEngine {
             "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\"}";
     private static final String CONTENT_DELETE_CONTAINER = "{\"type\": \"DeleteParameters\"}";
     private static final String CONTENT_REFRESH_ENVIRONMENT = "{}";
+    private static final String CONTENT_ADD_UNIX_ENVIRONMENT =
+            "{\"type\": \"HostEnvironmentCreateParameters\",\"primaryUser\": {\"type\": \"EnvironmentUser\"," +
+                    "\"name\": \"%s\",\"credential\": {\"type\": \"PasswordCredential\",\"password\": \"%s\"}}," +
+                    "\"hostEnvironment\": {\"type\": \"UnixHostEnvironment\"},\"hostParameters\": {\"type\": " +
+                    "\"UnixHostCreateParameters\",\"host\": {\"type\": \"UnixHost\",\"address\": " +
+                    "\"%s\",\"toolkitPath\": \"%s\"}}}";
 
     /*
      * Fields used in JSON requests and responses
@@ -210,8 +216,8 @@ public class DelphixEngine {
     }
 
     /**
-     * Login to Delphix Engine
-     * Will throw a DelphixEngineException if the login fails due to bad username or password
+     * Login to Delphix Engine Will throw a DelphixEngineException if the login
+     * fails due to bad username or password
      */
     public void login() throws IOException, DelphixEngineException {
         // Get session
@@ -457,6 +463,13 @@ public class DelphixEngine {
         }
         return result.get(FIELD_JOB).asText();
 
+    }
+
+    public String createEnvironment(String address, String user, String password, String toolkit)
+            throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(PATH_ENVIRONMENT,
+                String.format(CONTENT_ADD_UNIX_ENVIRONMENT, user, password, address, toolkit));
+        return result.get(FIELD_JOB).asText();
     }
 
     public String deleteContainer(String containerRef) throws IOException, DelphixEngineException {

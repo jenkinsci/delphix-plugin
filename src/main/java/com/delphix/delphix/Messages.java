@@ -40,6 +40,7 @@ public final class Messages {
     public static final String TEST_LOGIN_CONNECT = "test.login.connect";
     public static final String REFRESH_OPERATION = "refresh.operation";
     public static final String PROVISION_OPERATION = "provision.operation";
+    public static final String ENVIRONMENT_CREATE_OPERATION = "environment.create.operation";
     public static final String SYNC_OPERATION = "sync.operation";
     public static final String ENVIRONMENT_REFRESH_OPERATION = "environment.refresh.operation";
     public static final String PLUGIN_NAME = "plugin.name";
