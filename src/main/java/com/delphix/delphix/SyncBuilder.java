@@ -44,7 +44,7 @@ public class SyncBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.OperationType.SYNC);
+        return super.perform(build, listener, DelphixEngine.ContainerOperationType.SYNC);
     }
 
     @Extension

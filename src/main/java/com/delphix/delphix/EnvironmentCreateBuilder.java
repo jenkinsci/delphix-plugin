@@ -18,9 +18,6 @@ package com.delphix.delphix;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-
-import com.delphix.delphix.DelphixContainer.ContainerType;
 
 import hudson.Extension;
 import hudson.Launcher;

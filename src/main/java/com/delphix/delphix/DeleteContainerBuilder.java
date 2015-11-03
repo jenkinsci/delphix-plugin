@@ -45,7 +45,7 @@ public class DeleteContainerBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.OperationType.DELETECONTAINER);
+        return super.perform(build, listener, DelphixEngine.ContainerOperationType.DELETECONTAINER);
     }
 
     @Extension

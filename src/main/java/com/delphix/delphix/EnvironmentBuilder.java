@@ -42,8 +42,9 @@ public class EnvironmentBuilder extends Builder {
     /**
      * Run the refresh job
      */
-    public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener)
-            throws InterruptedException {
+    public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener,
+            DelphixEngine.EnvironmentOperationType operationType)
+                    throws InterruptedException {
         // Check if the input engine is not valid
         if (delphixEnvironment.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
@@ -62,10 +63,14 @@ public class EnvironmentBuilder extends Builder {
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
 
         // Login to Delphix Engine and run either a refresh or sync job
-        String job;
+        String job = "";
         try {
             delphixEngine.login();
-            job = delphixEngine.refreshEnvironment(environment);
+            if (operationType.equals(DelphixEngine.EnvironmentOperationType.REFRESH)) {
+                job = delphixEngine.refreshEnvironment(environment);
+            } else if (operationType.equals(DelphixEngine.EnvironmentOperationType.DELETE)) {
+                job = delphixEngine.deleteEnvironment(environment);
+            }
         } catch (DelphixEngineException e) {
             // Print error from engine if job fails and abort Jenkins job
             listener.getLogger().println(e.getMessage());

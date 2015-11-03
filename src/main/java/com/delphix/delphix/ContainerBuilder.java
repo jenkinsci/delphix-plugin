@@ -56,7 +56,7 @@ public class ContainerBuilder extends Builder {
      * Run the job
      */
     public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener,
-            DelphixEngine.OperationType operationType) throws InterruptedException {
+            DelphixEngine.ContainerOperationType operationType) throws InterruptedException {
         // Check if the input is not a valid target
         if (delphixContainer.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_CONTAINER));
@@ -138,21 +138,21 @@ public class ContainerBuilder extends Builder {
                 try {
                     String job = "";
                     // Refresh operation
-                    if (operationType.equals(DelphixEngine.OperationType.REFRESH) &&
+                    if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
                             target.getType() == ContainerType.VDB && target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference());
-                    } else if (operationType.equals(DelphixEngine.OperationType.SYNC) &&
+                    } else if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
                             target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
                         // Sync operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.sync(target.getReference());
-                    } else if (operationType.equals(DelphixEngine.OperationType.PROVISIONVDB) &&
+                    } else if (operationType.equals(DelphixEngine.ContainerOperationType.PROVISIONVDB) &&
                             target.getGroup().equals(group)) {
                         // Provision operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.provisionVDB(target.getReference(), containerName);
-                    } else if (operationType.equals(DelphixEngine.OperationType.DELETECONTAINER) &&
+                    } else if (operationType.equals(DelphixEngine.ContainerOperationType.DELETECONTAINER) &&
                             target.getGroup().equals(group)) {
                         // Delete operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));

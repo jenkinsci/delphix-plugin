@@ -48,6 +48,7 @@ public final class Messages {
     public static final String DELETE_CONTAINER_OPERATION = "delete.container.operation";
     public static final String CONTAINER_BUILDER_SUMMARY = "container.builder.summary";
     public static final String CONTAINER_NOT_PRESENT = "container.not.present";
+    public static final String ENVIRONMENT_DELETE_OPERATION = "environment.delete.operation";
 
     private static ResourceBundle messages = ResourceBundle.getBundle(MESSAGE_BUNDLE, Locale.getDefault());
 

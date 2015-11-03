@@ -44,8 +44,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class DelphixEngine {
 
-    public enum OperationType {
+    public enum ContainerOperationType {
         REFRESH, SYNC, PROVISIONVDB, DELETECONTAINER
+    }
+
+    public enum EnvironmentOperationType {
+        CREATE, REFRESH, DELETE
     }
 
     /*
@@ -75,6 +79,7 @@ public class DelphixEngine {
     private static final String PATH_DELETE_CONTAINER = "/resources/json/delphix/database/%s/delete";
     private static final String PATH_REFRESH_ENVIRONMENT = "/resources/json/delphix/environment/%s/refresh";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
+    private static final String PATH_DELETE_ENVIRONMENT = "/resources/json/delphix/environment/%s/delete";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -96,6 +101,7 @@ public class DelphixEngine {
                     "\"hostEnvironment\": {\"type\": \"UnixHostEnvironment\"},\"hostParameters\": {\"type\": " +
                     "\"UnixHostCreateParameters\",\"host\": {\"type\": \"UnixHost\",\"address\": " +
                     "\"%s\",\"toolkitPath\": \"%s\"}}}";
+    private static final String CONTENT_DELETE_ENVIRONMENT = "{}";
 
     /*
      * Fields used in JSON requests and responses
@@ -477,6 +483,18 @@ public class DelphixEngine {
         return result.get(FIELD_JOB).asText();
     }
 
+    public String refreshEnvironment(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(String.format(PATH_REFRESH_ENVIRONMENT, environmentRef),
+                CONTENT_REFRESH_ENVIRONMENT);
+        return result.get(FIELD_JOB).asText();
+    }
+
+    public String deleteEnvironment(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result =
+                enginePOST(String.format(PATH_DELETE_ENVIRONMENT, environmentRef), CONTENT_DELETE_ENVIRONMENT);
+        return result.get(FIELD_JOB).asText();
+    }
+
     public String getEngineAddress() {
         return engineAddress;
     }
@@ -487,11 +505,5 @@ public class DelphixEngine {
 
     public String getEnginePassword() {
         return enginePassword;
-    }
-
-    public String refreshEnvironment(String environmentRef) throws IOException, DelphixEngineException {
-        JsonNode result = enginePOST(String.format(PATH_REFRESH_ENVIRONMENT, environmentRef),
-                CONTENT_REFRESH_ENVIRONMENT);
-        return result.get(FIELD_JOB).asText();
     }
 }

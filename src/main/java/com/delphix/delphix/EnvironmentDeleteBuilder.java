@@ -27,26 +27,27 @@ import hudson.model.BuildListener;
 import hudson.util.ListBoxModel;
 
 /**
- * Describes a VDB Refresh build step for the Delphix plugin
+ * Describes a build step to create an environment Currently only Unix single
+ * host environments are supported.
  */
-public class EnvironmentRefreshBuilder extends EnvironmentBuilder {
+public class EnvironmentDeleteBuilder extends EnvironmentBuilder {
 
     @DataBoundConstructor
-    public EnvironmentRefreshBuilder(String delphixEngine, String delphixEnvironment) {
+    public EnvironmentDeleteBuilder(String delphixEngine, String delphixEnvironment) {
         super(delphixEngine, delphixEnvironment);
     }
 
     /**
-     * Run the refresh job
+     * Run the environment creation job
      */
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.EnvironmentOperationType.REFRESH);
+        return super.perform(build, listener, DelphixEngine.EnvironmentOperationType.DELETE);
     }
 
     @Extension
-    public static final class RefreshDescriptor extends EnvironmentDescriptor {
+    public static final class EnvironmentDeleteDescriptor extends EnvironmentDescriptor {
 
         /**
          * Add containers to drop down for Refresh action
@@ -67,7 +68,7 @@ public class EnvironmentRefreshBuilder extends EnvironmentBuilder {
          */
         @Override
         public String getDisplayName() {
-            return Messages.getMessage(Messages.ENVIRONMENT_REFRESH_OPERATION);
+            return Messages.getMessage(Messages.ENVIRONMENT_DELETE_OPERATION);
         }
     }
 }
