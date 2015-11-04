@@ -35,7 +35,7 @@ public class SyncBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
     public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL");
     }
 
     /**

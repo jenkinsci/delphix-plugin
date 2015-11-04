@@ -7,6 +7,9 @@
                 <f:select onchange="updateListBox('list','descriptorByName/com.delphix.delphix.RefreshBuilder/fillDelphixContainerItems?delphixGroup='+encode(this.value))"/>
             </f:entry>
             <f:entry title="Container" field="delphixContainer">
+                <f:select onchange="updateListBox('list','descriptorByName/com.delphix.delphix.RefreshBuilder/fillDelphixSnapshotItems?delphixContainer='+encode(this.value))"/>
+            </f:entry>
+            <f:entry title="Snapshot" field="delphixSnapshot">
                 <f:select />
             </f:entry>
             <f:advanced>

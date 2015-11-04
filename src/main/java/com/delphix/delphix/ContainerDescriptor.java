@@ -179,11 +179,79 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
                     Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
                     "NULL"));
         }
+        return new ListBoxModel(options);
+    }
 
-        // If there are no engines state that in the drop down
-        if (GlobalConfiguration.getPluginClassDescriptor().getEngines().size() == 0) {
-            // Add message to drop down if no engines in Jenkins
-            options.add(new Option(Messages.getMessage(Messages.NO_ENGINES), "NULL"));
+    /**
+     * Add snapshot to drop down for build action
+     */
+    public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer,
+            DelphixEngine.ContainerOperationType operationType) {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        if (delphixContainer.equals("NULL")) {
+            options.add(new Option("N/A", "NULL"));
+            return new ListBoxModel(options);
+        }
+
+        if (delphixContainer.isEmpty()) {
+            return new ListBoxModel(options);
+        }
+
+        // Get the engine and group
+        String engine = delphixContainer.split("\\|")[0];
+        String group = delphixContainer.split("\\|")[1];
+        String container = delphixContainer.split("\\|")[2];
+
+        DelphixEngine delphixEngine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+
+        // Add semantic options for latest snapshot and latest point
+        options.add(new Option("Latest Point",
+                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
+                        DelphixEngine.CONTENT_LATEST_POINT));
+        options.add(new Option("Latest Snapshot",
+                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
+                        DelphixEngine.CONTENT_LATEST_SNAPSHOT));
+
+        // If all containers in group are targeted then just make semantic options available
+        if (container.equals("ALL")) {
+            return new ListBoxModel(options);
+        }
+
+        try {
+            // login to engine
+            try {
+                delphixEngine.login();
+
+                // List snapshots on engine by parent if refresh operation or current container otherwise
+                ArrayList<DelphixSnapshot> snapshots = delphixEngine.listSnapshots();
+                String containerRef;
+                if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH)) {
+                    containerRef = delphixEngine.getParentContainer(container);
+                } else {
+                    containerRef = container;
+
+                }
+
+                // Add snapshots to drop down and filter list by container selected above
+                for (DelphixSnapshot snapshot : snapshots) {
+                    if (snapshot.getContainerRef().equals(containerRef)) {
+                        options.add(new Option(snapshot.getName(),
+                                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
+                                        snapshot.getReference()));
+                    }
+                }
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+            }
+        } catch (IOException e) {
+            // Add message to drop down if unable to connect to engine
+            options.add(new Option(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    "NULL"));
         }
         return new ListBoxModel(options);
     }

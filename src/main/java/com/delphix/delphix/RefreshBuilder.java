@@ -34,8 +34,9 @@ import hudson.util.ListBoxModel;
 public class RefreshBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
-    public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "");
+    public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
+            String delphixSnapshot) {
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixSnapshot);
     }
 
     /**
@@ -53,22 +54,15 @@ public class RefreshBuilder extends ContainerBuilder {
         /**
          * Add containers to drop down for Refresh action
          */
-        public ListBoxModel doFillDelphixEngineItems() {
-            return super.doFillDelphixEngineItems();
-        }
-
-        /**
-         * Add containers to drop down for Refresh action
-         */
-        public ListBoxModel doFillDelphixGroupItems(@QueryParameter String delphixEngine) {
-            return super.doFillDelphixGroupItems(delphixEngine);
-        }
-
-        /**
-         * Add containers to drop down for Refresh action
-         */
         public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
             return super.doFillDelphixContainerItems(delphixGroup, ContainerType.VDB);
+        }
+
+        /**
+         * Add snapshots to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer) {
+            return super.doFillDelphixSnapshotItems(delphixContainer, DelphixEngine.ContainerOperationType.REFRESH);
         }
 
         /**

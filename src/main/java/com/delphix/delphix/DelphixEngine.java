@@ -80,6 +80,7 @@ public class DelphixEngine {
     private static final String PATH_REFRESH_ENVIRONMENT = "/resources/json/delphix/environment/%s/refresh";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
     private static final String PATH_DELETE_ENVIRONMENT = "/resources/json/delphix/environment/%s/delete";
+    private static final String PATH_SNAPSHOT = "/resources/json/delphix/snapshot";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -88,11 +89,15 @@ public class DelphixEngine {
             "{\"type\": \"APIVersion\",\"major\": 1,\"minor\": 6,\"micro\": 0}}";
     private static final String CONTENT_LOGIN =
             "{\"type\": \"LoginRequest\",\"username\": \"%s\",\"password\": \"%s\"}";
-    private static final String CONTENT_REFRESH = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
-            "\"type\": \"TimeflowPointSemantic\",\"container\": \"%s\"" + "}}";
+    private static final String CONTENT_REFRESH_SEMANTIC = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
+            "\"type\": \"TimeflowPointSemantic\",\"container\": \"%s\", \"location\": \"%s\"}}";
+    private static final String CONTENT_REFRESH_POINT = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
+            "\"type\": \"TimeflowPointSnapshot\", \"snapshot\": \"%s\"" + "}}";
     private static final String CONTENT_SYNC = "{\"type\": \"%s\"}";
-    private static final String CONTENT_PROVISION_DEFAULTS =
-            "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\"}";
+    private static final String CONTENT_PROVISION_DEFAULTS_CONTAINER =
+            "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\", \"location\": \"%s\"}";
+    private static final String CONTENT_PROVISION_DEFAULTS_SNAPSHOT =
+            "{\"type\": \"TimeflowPointSnapshot\", \"snapshot\": \"%s\"}";
     private static final String CONTENT_DELETE_CONTAINER = "{\"type\": \"DeleteParameters\"}";
     private static final String CONTENT_REFRESH_ENVIRONMENT = "{}";
     private static final String CONTENT_ADD_UNIX_ENVIRONMENT =
@@ -102,6 +107,8 @@ public class DelphixEngine {
                     "\"UnixHostCreateParameters\",\"host\": {\"type\": \"UnixHost\",\"address\": " +
                     "\"%s\",\"toolkitPath\": \"%s\"}}}";
     private static final String CONTENT_DELETE_ENVIRONMENT = "{}";
+    public static final String CONTENT_LATEST_POINT = "LATEST_POINT";
+    public static final String CONTENT_LATEST_SNAPSHOT = "LATEST_SNAPSHOT";
 
     /*
      * Fields used in JSON requests and responses
@@ -121,6 +128,7 @@ public class DelphixEngine {
     private static final String FIELD_GROUP = "group";
     private static final String FIELD_STATUS = "status";
     private static final String FIELD_CONTAINER = "container";
+    private static final String FIELD_TIMEFLOW = "timeflow";
     private static final String FIELD_PARENT_POINT = "parentPoint";
     private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
     private static final String FIELD_RUNTIME = "runtime";
@@ -354,6 +362,27 @@ public class DelphixEngine {
     }
 
     /**
+     * List snapshots in the Delphix Engine
+     */
+    public ArrayList<DelphixSnapshot> listSnapshots()
+            throws ClientProtocolException, IOException, DelphixEngineException {
+        // Get snapshots
+        ArrayList<DelphixSnapshot> snapshots = new ArrayList<DelphixSnapshot>();
+        JsonNode snapshotsJSON = engineGET(PATH_SNAPSHOT).get(FIELD_RESULT);
+
+        // Loop through snapshot list
+        for (int i = 0; i < snapshotsJSON.size(); i++) {
+            JsonNode snapshotJSON = snapshotsJSON.get(i);
+            DelphixSnapshot snapshot = new DelphixSnapshot(snapshotJSON.get(FIELD_REFERENCE).asText(),
+                    snapshotJSON.get(FIELD_NAME).asText(), snapshotJSON.get(FIELD_CONTAINER).asText(),
+                    snapshotJSON.get(FIELD_TIMEFLOW).asText());
+            snapshots.add(snapshot);
+        }
+
+        return snapshots;
+    }
+
+    /**
      * Cancel a job running on the Delphix Engine
      */
     public void cancelJob(String jobRef) throws ClientProtocolException, IOException, DelphixEngineException {
@@ -380,9 +409,9 @@ public class DelphixEngine {
     }
 
     /**
-     * Refresh a virtual database on the Delphix Engine
+     * Refresh a virtual database on the Delphix Engine using semantic location
      */
-    public String refreshContainer(String vdbRef) throws IOException, DelphixEngineException {
+    public String refreshContainer(String vdbRef, String location) throws IOException, DelphixEngineException {
         // Construct parameters to send to engine
         String type;
         if (getContainerType(vdbRef).equals("OracleDatabaseContainer")) {
@@ -391,16 +420,22 @@ public class DelphixEngine {
             type = "RefreshParameters";
         }
 
-        // Do refresh
-        JsonNode result = enginePOST(String.format(PATH_REFRESH, vdbRef),
-                String.format(CONTENT_REFRESH, type, getParentContainer(vdbRef)));
+        JsonNode result;
+        // Do refresh by either semantic point or by snapshot point
+        if (location.equals(CONTENT_LATEST_POINT) || location.equals(CONTENT_LATEST_SNAPSHOT)) {
+            result = enginePOST(String.format(PATH_REFRESH, vdbRef),
+                    String.format(CONTENT_REFRESH_SEMANTIC, type, getParentContainer(vdbRef), location));
+        } else {
+            result = enginePOST(String.format(PATH_REFRESH, vdbRef),
+                    String.format(CONTENT_REFRESH_POINT, type, location));
+        }
         return result.get(FIELD_JOB).asText();
     }
 
     /**
      * Get the parent of a virtual database on the Delphix Engine
      */
-    private String getParentContainer(String vdbRef) throws IOException, DelphixEngineException {
+    public String getParentContainer(String vdbRef) throws IOException, DelphixEngineException {
         JsonNode result = engineGET(String.format(PATH_CONTAINER, vdbRef));
         JsonNode container = result.get(FIELD_RESULT);
         return container.get(FIELD_PROVISION_CONTAINER).asText();
@@ -430,14 +465,43 @@ public class DelphixEngine {
         return result.get(FIELD_JOB).asText();
     }
 
-    private String getProvisionDefaults(String containerRef) throws IOException, DelphixEngineException {
-        JsonNode result = enginePOST(PATH_PROVISION_DEFAULTS, String.format(CONTENT_PROVISION_DEFAULTS, containerRef));
+    /**
+     * Get the provision defaults for provisioning from a semantic point on a container
+     */
+    private String getProvisionDefaultsContainer(String containerRef, String location)
+            throws IOException, DelphixEngineException {
+        JsonNode result =
+                enginePOST(PATH_PROVISION_DEFAULTS,
+                        String.format(CONTENT_PROVISION_DEFAULTS_CONTAINER, containerRef, location));
         return result.get(FIELD_RESULT).toString();
     }
 
+    /**
+     * Get the provision defaults for provisioning from a snapshot
+     */
+    @SuppressWarnings("deprecation")
+    private String getProvisionDefaultsSnapshot(String snapshotRef) throws IOException, DelphixEngineException {
+        JsonNode result =
+                enginePOST(PATH_PROVISION_DEFAULTS, String.format(CONTENT_PROVISION_DEFAULTS_SNAPSHOT, snapshotRef));
+        ObjectNode node = (ObjectNode) result.get(FIELD_RESULT);
+        // Fill in the timeflowPointParameters since the returned value from server isn't provided
+        node.put("timeflowPointParameters",
+                MAPPER.readTree(String.format(CONTENT_PROVISION_DEFAULTS_SNAPSHOT, snapshotRef)));
+        return node.toString();
+    }
+
+    /**
+     * Provision a VDB either a semantic point or a snapshot with the name of the new VDB being optional
+     */
     @SuppressWarnings("unchecked")
-    public String provisionVDB(String containerRef, String containerName) throws IOException, DelphixEngineException {
-        String defaultParams = getProvisionDefaults(containerRef);
+    public String provisionVDB(String containerRef, String snapshotRef, String containerName)
+            throws IOException, DelphixEngineException {
+        String defaultParams = "";
+        if (snapshotRef.equals(CONTENT_LATEST_POINT) || snapshotRef.equals(CONTENT_LATEST_SNAPSHOT)) {
+            defaultParams = getProvisionDefaultsContainer(containerRef, snapshotRef);
+        } else {
+            defaultParams = getProvisionDefaultsSnapshot(snapshotRef);
+        }
         // Strip out null values from provision parameters
         defaultParams = defaultParams.replaceAll("(\"[^\"]+\":null,?|,?\"[^\"]+\":null)", "");
         JsonNode params = MAPPER.readTree(defaultParams);
@@ -449,14 +513,16 @@ public class DelphixEngine {
         try {
             result = enginePOST(PATH_PROVISION, params.toString());
         } catch (DelphixEngineException e) {
-            // Handle the case where some of the fields in the defaults are read only by removing those fields
+            // Handle the case where some of the fields in the defaults are read
+            // only by removing those fields
             if (e.getMessage().contains("This field is read-only")) {
                 JsonNode errors = MAPPER.readTree(e.getMessage());
                 List<String> list1 = IteratorUtils.toList(errors.fieldNames());
                 for (String field1 : list1) {
                     List<String> list2 = IteratorUtils.toList(errors.get(field1).fieldNames());
                     for (String field2 : list2) {
-                        // Field1 is the outer field and field2 is the inner field
+                        // Field1 is the outer field and field2 is the inner
+                        // field
                         ObjectNode node = (ObjectNode) params.get(field1);
                         // Remove the inner field
                         node.remove(field2);
@@ -471,6 +537,9 @@ public class DelphixEngine {
 
     }
 
+    /**
+     * Create and discover an environment
+     */
     public String createEnvironment(String address, String user, String password, String toolkit)
             throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(PATH_ENVIRONMENT,
@@ -478,20 +547,29 @@ public class DelphixEngine {
         return result.get(FIELD_JOB).asText();
     }
 
+    /**
+     * Delete a container
+     */
     public String deleteContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_DELETE_CONTAINER, containerRef), CONTENT_DELETE_CONTAINER);
         return result.get(FIELD_JOB).asText();
     }
 
+    /**
+     * Refresh and discover an environment
+     */
     public String refreshEnvironment(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_REFRESH_ENVIRONMENT, environmentRef),
                 CONTENT_REFRESH_ENVIRONMENT);
         return result.get(FIELD_JOB).asText();
     }
 
+    /**
+     * Delete an environment
+     */
     public String deleteEnvironment(String environmentRef) throws IOException, DelphixEngineException {
-        JsonNode result =
-                enginePOST(String.format(PATH_DELETE_ENVIRONMENT, environmentRef), CONTENT_DELETE_ENVIRONMENT);
+        JsonNode result = enginePOST(String.format(PATH_DELETE_ENVIRONMENT, environmentRef),
+                CONTENT_DELETE_ENVIRONMENT);
         return result.get(FIELD_JOB).asText();
     }
 

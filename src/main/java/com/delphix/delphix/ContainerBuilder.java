@@ -42,14 +42,16 @@ public class ContainerBuilder extends Builder {
     public final String delphixContainer;
     public final String retryCount;
     public final String containerName;
+    public final String delphixSnapshot;
 
     public ContainerBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
-            String containerName) {
+            String containerName, String delphixSnapshot) {
         this.delphixEngine = delphixEngine;
         this.delphixGroup = delphixGroup;
         this.delphixContainer = delphixContainer;
         this.retryCount = retryCount;
         this.containerName = containerName;
+        this.delphixSnapshot = delphixSnapshot;
     }
 
     /**
@@ -58,15 +60,16 @@ public class ContainerBuilder extends Builder {
     public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener,
             DelphixEngine.ContainerOperationType operationType) throws InterruptedException {
         // Check if the input is not a valid target
-        if (delphixContainer.equals("NULL")) {
+        if (delphixSnapshot.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_CONTAINER));
             return false;
         }
 
         // Get the engine, the group, and the container on which to operate
-        String engine = delphixContainer.split("\\|")[0];
-        String group = delphixContainer.split("\\|")[1];
-        String container = delphixContainer.split("\\|")[2];
+        String engine = delphixSnapshot.split("\\|")[0];
+        String group = delphixSnapshot.split("\\|")[1];
+        String container = delphixSnapshot.split("\\|")[2];
+        String location = delphixSnapshot.split("\\|")[3];
 
         // Targets tracks the containers on which to operate
         CopyOnWriteArrayList<DelphixContainer> targets = new CopyOnWriteArrayList<DelphixContainer>();
@@ -141,7 +144,7 @@ public class ContainerBuilder extends Builder {
                     if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
                             target.getType() == ContainerType.VDB && target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
-                        job = delphixEngine.refreshContainer(target.getReference());
+                        job = delphixEngine.refreshContainer(target.getReference(), location);
                     } else if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
                             target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
                         // Sync operation
@@ -151,7 +154,7 @@ public class ContainerBuilder extends Builder {
                             target.getGroup().equals(group)) {
                         // Provision operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
-                        job = delphixEngine.provisionVDB(target.getReference(), containerName);
+                        job = delphixEngine.provisionVDB(target.getReference(), location, containerName);
                     } else if (operationType.equals(DelphixEngine.ContainerOperationType.DELETECONTAINER) &&
                             target.getGroup().equals(group)) {
                         // Delete operation

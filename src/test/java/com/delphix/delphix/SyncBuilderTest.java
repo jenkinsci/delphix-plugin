@@ -114,7 +114,9 @@ public class SyncBuilderTest {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
 
         FreeStyleProject p = j.createFreeStyleProject();
-        p.getBuildersList().add(new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1"));
+        p.getBuildersList().add(
+                new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1",
+                        "NULL|NULLL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         FreeStyleBuild b = future.get();
         Assert.assertEquals(Result.FAILURE, b.getResult());

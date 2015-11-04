@@ -34,9 +34,10 @@ import hudson.util.ListBoxModel;
 public class ProvisionBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
-    public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String containerName) {
+    public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String containerName,
+            String delphixSnapshot) {
         // Hard wire retry count to 0 since we don't want to try to provision multiple times
-        super(delphixEngine, delphixGroup, delphixContainer, "0", containerName);
+        super(delphixEngine, delphixGroup, delphixContainer, "0", containerName, delphixSnapshot);
     }
 
     /**
@@ -70,6 +71,14 @@ public class ProvisionBuilder extends ContainerBuilder {
          */
         public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
             return super.doFillDelphixContainerItems(delphixGroup, ContainerType.ALL);
+        }
+
+        /**
+         * Add snapshots to drop down for Provision action
+         */
+        public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer) {
+            return super.doFillDelphixSnapshotItems(delphixContainer,
+                    DelphixEngine.ContainerOperationType.PROVISIONVDB);
         }
 
         /**
