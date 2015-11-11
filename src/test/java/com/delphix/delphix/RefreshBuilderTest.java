@@ -16,6 +16,7 @@
 package com.delphix.delphix;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -50,7 +51,8 @@ public class RefreshBuilderTest {
                 .add(new RefreshBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
                         TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB1, "1",
                         TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB1 + "|" +
-                                DelphixEngine.CONTENT_LATEST_POINT));
+                                DelphixEngine.CONTENT_LATEST_POINT,
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -82,7 +84,8 @@ public class RefreshBuilderTest {
                 .add(new RefreshBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
                         TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB1, "1",
                         TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB1 + "|" +
-                                DelphixEngine.CONTENT_LATEST_POINT));
+                                DelphixEngine.CONTENT_LATEST_POINT,
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         future.waitForStart();
         while (!future.isDone()) {
@@ -120,7 +123,8 @@ public class RefreshBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList().add(
                 new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1",
-                        "NULL|NULL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT));
+                        "NULL|NULL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT, new ArrayList<HookOperation>(),
+                        new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         FreeStyleBuild b = future.get();
         Assert.assertEquals(Result.FAILURE, b.getResult());
@@ -139,7 +143,8 @@ public class RefreshBuilderTest {
         p.getBuildersList()
                 .add(new RefreshBuilder("badengine", "badengine" + "|" + TestConsts.oracleGroup,
                         "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB2, "1",
-                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB2 + "|NULL"));
+                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleVDB2 + "|NULL",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -162,7 +167,8 @@ public class RefreshBuilderTest {
         p.getBuildersList()
                 .add(new RefreshBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
                         TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer", "1",
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer" + "|NULL"));
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer" + "|NULL",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)

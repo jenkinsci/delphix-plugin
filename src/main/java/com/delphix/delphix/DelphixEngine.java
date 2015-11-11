@@ -15,6 +15,7 @@
 
 package com.delphix.delphix;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.apache.commons.collections.IteratorUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -37,6 +39,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import com.delphix.delphix.DelphixContainer.ContainerType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -67,6 +70,7 @@ public class DelphixEngine {
     private static final String PATH_LOGIN = "/resources/json/delphix/login";
     private static final String PATH_DATABASE = "/resources/json/delphix/database";
     private static final String PATH_SOURCE = "/resources/json/delphix/source";
+    private static final String PATH_HOOK_OPERATION = "/resources/json/delphix/source/%s";
     private static final String PATH_TIMEFLOW = "/resources/json/delphix/timeflow";
     private static final String PATH_REFRESH = "/resources/json/delphix/database/%s/refresh";
     private static final String PATH_SYNC = "/resources/json/delphix/database/%s/sync";
@@ -109,6 +113,12 @@ public class DelphixEngine {
     private static final String CONTENT_DELETE_ENVIRONMENT = "{}";
     public static final String CONTENT_LATEST_POINT = "LATEST_POINT";
     public static final String CONTENT_LATEST_SNAPSHOT = "LATEST_SNAPSHOT";
+    public static final String CONTENT_SYNC_HOOK =
+            "{\"operations\":{\"preSync\":%s,\"postSync\":%s, \"type\": \"%s\"}," +
+                    "\"type\":\"%s\"}";
+    public static final String CONTENT_REFRESH_HOOK =
+            "{\"operations\":{\"preRefresh\":%s,\"postRefresh\":%s, \"type\": \"%s\"}," +
+                    "\"type\":\"%s\"}";
 
     /*
      * Fields used in JSON requests and responses
@@ -132,6 +142,9 @@ public class DelphixEngine {
     private static final String FIELD_PARENT_POINT = "parentPoint";
     private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
     private static final String FIELD_RUNTIME = "runtime";
+    private static final String FIELD_RUN_COMMAND = "RunCommandOnSourceOperation";
+    private static final String FIELD_LINKED_OPERATIONS = "LinkedSourceOperations";
+    private static final String FIELD_VIRTUAL_OPERATIONS = "VirtualSourceOperations";
 
     /**
      * Address of the Delphix Engine
@@ -269,7 +282,7 @@ public class DelphixEngine {
             // Create container object from JSON result
             DelphixContainer container = new DelphixContainer(engineAddress, containerJSON.get(FIELD_NAME).asText(),
                     containerJSON.get(FIELD_REFERENCE).asText(), type, containerJSON.get(FIELD_GROUP).asText(),
-                    containerJSON.get(FIELD_CURRENT_TIMEFLOW).asText());
+                    containerJSON.get(FIELD_CURRENT_TIMEFLOW).asText(), containerJSON.get(FIELD_TYPE).asText());
             containers.put(container.getReference(), container);
         }
 
@@ -308,7 +321,7 @@ public class DelphixEngine {
             // Create container object from JSON result
             DelphixSource source = new DelphixSource(sourceJSON.get(FIELD_REFERENCE).asText(),
                     sourceJSON.get(FIELD_NAME).asText(), sourceJSON.get(FIELD_CONTAINER).asText(),
-                    sourceJSON.get(FIELD_RUNTIME).get(FIELD_STATUS).asText());
+                    sourceJSON.get(FIELD_RUNTIME).get(FIELD_STATUS).asText(), sourceJSON.get(FIELD_TYPE).asText());
             sources.put(source.getContainer(), source);
         }
 
@@ -571,6 +584,56 @@ public class DelphixEngine {
         JsonNode result = enginePOST(String.format(PATH_DELETE_ENVIRONMENT, environmentRef),
                 CONTENT_DELETE_ENVIRONMENT);
         return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Update the pre and post hooks for a specific type of operation on a container
+     */
+    public void updateHooks(ContainerOperationType targetOperation, String containerRef,
+            ArrayList<HookOperation> preOperations,
+            ArrayList<HookOperation> postOperations)
+                    throws IOException, DelphixEngineException {
+        // Figure out the operation type to set on JSON payload
+        DelphixSource source = listSources().get(containerRef);
+        String operationType = "";
+        if (source.getType().contains("VirtualSource")) {
+            operationType = "VirtualSourceOperations";
+        } else if (source.getType().contains("LinkedSource")) {
+            operationType = "LinkedSourceOperations";
+        }
+
+        // Read the operation content for pre hooks and set it on payload
+        ArrayNode preHooks = MAPPER.createArrayNode();
+        for (HookOperation operation : preOperations) {
+            ObjectNode node = MAPPER.createObjectNode();
+            String operationContent = FileUtils.readFileToString(new File(operation.getPath()));
+            node.put("command", operationContent);
+            node.put("type", "RunCommandOnSourceOperation");
+            preHooks.add(node);
+        }
+
+        // Read the operation content for post hooks and set it on payload
+        ArrayNode postHooks = MAPPER.createArrayNode();
+        for (HookOperation operation : postOperations) {
+            ObjectNode node = MAPPER.createObjectNode();
+            String operationContent = FileUtils.readFileToString(new File(operation.getPath()));
+            node.put("command", operationContent);
+            node.put("type", "RunCommandOnSourceOperation");
+            postHooks.add(node);
+        }
+
+        // Choose the appropriate payload based on target operation type to update
+        String postData = "";
+        if (targetOperation.equals(ContainerOperationType.REFRESH)) {
+            postData =
+                    String.format(CONTENT_REFRESH_HOOK, preHooks.toString(), postHooks.toString(), operationType,
+                            source.getType());
+        } else if (targetOperation.equals(ContainerOperationType.SYNC)) {
+            postData =
+                    String.format(CONTENT_SYNC_HOOK, preHooks.toString(), postHooks.toString(), operationType,
+                            source.getType());
+        }
+        enginePOST(String.format(PATH_HOOK_OPERATION, source.getReference()), postData);
     }
 
     public String getEngineAddress() {

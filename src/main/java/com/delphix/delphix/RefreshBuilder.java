@@ -16,6 +16,7 @@
 package com.delphix.delphix;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -33,10 +34,26 @@ import hudson.util.ListBoxModel;
  */
 public class RefreshBuilder extends ContainerBuilder {
 
+    public final ArrayList<HookOperation> preRefreshHooks;
+    public final ArrayList<HookOperation> postRefreshHooks;
+
     @DataBoundConstructor
     public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
-            String delphixSnapshot) {
+            String delphixSnapshot, ArrayList<HookOperation> preRefreshHooks,
+            ArrayList<HookOperation> postRefreshHooks) {
         super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixSnapshot);
+
+        // Set the refresh hooks to be empty if there is no input
+        if (preRefreshHooks != null) {
+            this.preRefreshHooks = preRefreshHooks;
+        } else {
+            this.preRefreshHooks = new ArrayList<HookOperation>();
+        }
+        if (postRefreshHooks != null) {
+            this.postRefreshHooks = postRefreshHooks;
+        } else {
+            this.postRefreshHooks = new ArrayList<HookOperation>();
+        }
     }
 
     /**
@@ -45,7 +62,22 @@ public class RefreshBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.ContainerOperationType.REFRESH);
+        return super.perform(build, listener, DelphixEngine.ContainerOperationType.REFRESH, preRefreshHooks,
+                postRefreshHooks);
+    }
+
+    /**
+     * Used for data binding on Jelly UI elements
+     */
+    public ArrayList<HookOperation> getPreRefreshHooks() {
+        return preRefreshHooks;
+    }
+
+    /**
+     * Used for data binding on Jelly UI elements
+     */
+    public ArrayList<HookOperation> getPostRefreshHooks() {
+        return postRefreshHooks;
     }
 
     @Extension

@@ -28,11 +28,14 @@ public class DelphixSource {
 
     private final String status;
 
-    public DelphixSource(String reference, String name, String container, String status) {
+    private final String type;
+
+    public DelphixSource(String reference, String name, String container, String status, String type) {
         this.reference = reference;
         this.name = name;
         this.container = container;
         this.status = status;
+        this.type = type;
     }
 
     public String getName() {
@@ -49,5 +52,9 @@ public class DelphixSource {
 
     public String getStatus() {
         return this.status;
+    }
+
+    public String getType() {
+        return this.type;
     }
 }

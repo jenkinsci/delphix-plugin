@@ -49,6 +49,8 @@ public final class Messages {
     public static final String CONTAINER_BUILDER_SUMMARY = "container.builder.summary";
     public static final String CONTAINER_NOT_PRESENT = "container.not.present";
     public static final String ENVIRONMENT_DELETE_OPERATION = "environment.delete.operation";
+    public static final String UPDATE_HOOKS = "update.hooks";
+    public static final String UPDATE_HOOKS_SKIP = "update.hooks.skip";
 
     private static ResourceBundle messages = ResourceBundle.getBundle(MESSAGE_BUNDLE, Locale.getDefault());
 

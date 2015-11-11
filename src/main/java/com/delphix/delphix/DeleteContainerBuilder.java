@@ -16,6 +16,7 @@
 package com.delphix.delphix;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -45,7 +46,8 @@ public class DeleteContainerBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.ContainerOperationType.DELETECONTAINER);
+        return super.perform(build, listener, DelphixEngine.ContainerOperationType.DELETECONTAINER,
+                new ArrayList<HookOperation>(), new ArrayList<HookOperation>());
     }
 
     @Extension

@@ -41,14 +41,17 @@ public class DelphixContainer {
      */
     private ContainerType type;
 
+    private String platform;
+
     public DelphixContainer(String engineAddress, String name, String reference, ContainerType type, String group,
-            String timeflow) {
+            String timeflow, String platform) {
         this.engineAddress = engineAddress;
         this.name = name;
         this.reference = reference;
         this.type = type;
         this.group = group;
         this.timeflow = timeflow;
+        this.platform = platform;
     }
 
     public String getEngineAddress() {
@@ -73,5 +76,9 @@ public class DelphixContainer {
 
     public String getTimeflow() {
         return timeflow;
+    }
+
+    public String getPlatform() {
+        return platform;
     }
 }

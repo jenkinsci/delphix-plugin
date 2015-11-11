@@ -16,6 +16,7 @@
 package com.delphix.delphix;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -48,7 +49,8 @@ public class SyncBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
                 .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -78,7 +80,8 @@ public class SyncBuilderTest {
         engine.login();
         p.getBuildersList()
                 .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         future.waitForStart();
         while (!future.isDone()) {
@@ -116,7 +119,8 @@ public class SyncBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList().add(
                 new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1",
-                        "NULL|NULLL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT));
+                        "NULL|NULLL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT, new ArrayList<HookOperation>(),
+                        new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         FreeStyleBuild b = future.get();
         Assert.assertEquals(Result.FAILURE, b.getResult());
@@ -134,7 +138,8 @@ public class SyncBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
                 .add(new SyncBuilder("badengine", "badengine" + "|" + TestConsts.oracleGroup,
-                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1"));
+                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)
@@ -156,7 +161,8 @@ public class SyncBuilderTest {
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
                 .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer", "1"));
+                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer", "1",
+                        new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
             // wait for cancel to finish (needs to send cancel to Delphix Engine)

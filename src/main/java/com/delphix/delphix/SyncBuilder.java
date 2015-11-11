@@ -22,6 +22,7 @@ import hudson.util.ListBoxModel;
 import hudson.model.AbstractBuild;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -33,9 +34,25 @@ import com.delphix.delphix.DelphixContainer.ContainerType;
  */
 public class SyncBuilder extends ContainerBuilder {
 
+    public final ArrayList<HookOperation> preSyncHooks;
+    public final ArrayList<HookOperation> postSyncHooks;
+
     @DataBoundConstructor
-    public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount) {
+    public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
+            ArrayList<HookOperation> preSyncHooks, ArrayList<HookOperation> postSyncHooks) {
         super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL");
+
+        // Set the sync hooks to be empty if there is no input
+        if (preSyncHooks != null) {
+            this.preSyncHooks = preSyncHooks;
+        } else {
+            this.preSyncHooks = new ArrayList<HookOperation>();
+        }
+        if (postSyncHooks != null) {
+            this.postSyncHooks = postSyncHooks;
+        } else {
+            this.postSyncHooks = new ArrayList<HookOperation>();
+        }
     }
 
     /**
@@ -44,7 +61,15 @@ public class SyncBuilder extends ContainerBuilder {
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
             throws IOException, InterruptedException {
-        return super.perform(build, listener, DelphixEngine.ContainerOperationType.SYNC);
+        return super.perform(build, listener, DelphixEngine.ContainerOperationType.SYNC, preSyncHooks, postSyncHooks);
+    }
+
+    public ArrayList<HookOperation> getPreSyncHooks() {
+        return preSyncHooks;
+    }
+
+    public ArrayList<HookOperation> getPostSyncHooks() {
+        return postSyncHooks;
     }
 
     @Extension

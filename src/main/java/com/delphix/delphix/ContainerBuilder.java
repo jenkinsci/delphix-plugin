@@ -23,6 +23,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.delphix.delphix.DelphixContainer.ContainerType;
 
+import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.tasks.Builder;
@@ -57,8 +58,24 @@ public class ContainerBuilder extends Builder {
     /**
      * Run the job
      */
+    @SuppressWarnings("deprecation")
     public boolean perform(final AbstractBuild<?, ?> build, final BuildListener listener,
-            DelphixEngine.ContainerOperationType operationType) throws InterruptedException {
+            DelphixEngine.ContainerOperationType operationType, ArrayList<HookOperation> preHook,
+            ArrayList<HookOperation> postHook) throws InterruptedException {
+        FilePath workspace = build.getWorkspace();
+        // Set the workspace variable to absolute path in the hook operations
+        for (HookOperation hook : preHook) {
+            if (workspace != null) {
+                hook.setPath(hook.getPath().replace("${WORKSPACE}", workspace.toString()));
+            }
+        }
+
+        for (HookOperation hook : postHook) {
+            if (workspace != null) {
+                hook.setPath(hook.getPath().replace("${WORKSPACE}", workspace.toString()));
+            }
+        }
+
         // Check if the input is not a valid target
         if (delphixSnapshot.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_CONTAINER));
@@ -81,7 +98,7 @@ public class ContainerBuilder extends Builder {
         LinkedHashMap<String, DelphixContainer> containers;
 
         // Jobs is the list of jobs related to this operation
-        ArrayList<String> jobs = new ArrayList<String>();
+        CopyOnWriteArrayList<String> jobs = new CopyOnWriteArrayList<String>();
 
         // Check if the engine is a valid engine and instantiate it if it is
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
@@ -139,6 +156,22 @@ public class ContainerBuilder extends Builder {
             for (DelphixContainer target : targets) {
                 targets.remove(target);
                 try {
+                    // Update the hooks for the target container if the platform is Oracle
+                    if (target.getPlatform().contains("Oracle")) {
+                        listener.getLogger()
+                                .println(Messages.getMessage(Messages.UPDATE_HOOKS, new String[] { target.getName() }));
+                        try {
+                            delphixEngine.updateHooks(operationType, target.getReference(), preHook, postHook);
+                        } catch (IOException e) {
+                            listener.getLogger().println(e.getMessage());
+                        }
+
+                    } else {
+                        listener.getLogger()
+                                .println(Messages.getMessage(Messages.UPDATE_HOOKS_SKIP,
+                                        new String[] { target.getName() }));
+                    }
+
                     String job = "";
                     // Refresh operation
                     if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
