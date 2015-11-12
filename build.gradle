@@ -30,7 +30,7 @@ tasks.withType(FindBugs) {
 jenkinsPlugin {
     coreVersion = '1.565'
     displayName = 'Delphix Jenkins Plugin'
-    url = 'http://wiki.jenkins-ci.org/display/JENKINS/delphix-jenkins'
+    url = 'http://wiki.jenkins-ci.org/display/JENKINS/Delphix+Plugin'
     gitHubUrl = 'https://github.com/jenkinsci/delphix-plugin'
     shortName = 'delphix'
     dependencies {
