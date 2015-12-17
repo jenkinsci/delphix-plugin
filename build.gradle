@@ -17,7 +17,7 @@ apply plugin: 'eclipse'
 apply plugin: "jacoco"
 
 group = "org.jenkins-ci.plugins"
-version = "1.0.1"
+version = "1.0.2"
 description = "A description of your plugin"
 
 tasks.withType(FindBugs) {
