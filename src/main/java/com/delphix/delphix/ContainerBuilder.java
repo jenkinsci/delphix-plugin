@@ -157,7 +157,9 @@ public class ContainerBuilder extends Builder {
                 targets.remove(target);
                 try {
                     // Update the hooks for the target container if the platform is Oracle
-                    if (target.getPlatform().contains("Oracle")) {
+                    if (target.getPlatform().contains("Oracle") &&
+                            (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) ||
+                                    operationType.equals(DelphixEngine.ContainerOperationType.SYNC))) {
                         listener.getLogger()
                                 .println(Messages.getMessage(Messages.UPDATE_HOOKS, new String[] { target.getName() }));
                         try {

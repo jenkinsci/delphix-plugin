@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import hudson.model.AbstractProject;
@@ -34,7 +33,6 @@ import hudson.util.ListBoxModel.Option;
  */
 public abstract class EnvironmentDescriptor extends BuildStepDescriptor<Builder> {
 
-    @DataBoundConstructor
     public EnvironmentDescriptor() {
         load();
     }
@@ -81,7 +79,7 @@ public abstract class EnvironmentDescriptor extends BuildStepDescriptor<Builder>
         ArrayList<Option> options = new ArrayList<Option>();
 
         // Mark as N/A if engine is invalid
-        if (delphixEngine.equals("NULL")) {
+        if (delphixEngine.equals("NULL") || delphixEngine.equals(" ")) {
             options.add(new Option("N/A", "NULL"));
             return new ListBoxModel(options);
         }

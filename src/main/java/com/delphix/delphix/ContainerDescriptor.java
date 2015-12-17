@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.delphix.delphix.DelphixContainer.ContainerType;
@@ -36,7 +35,6 @@ import hudson.util.ListBoxModel.Option;
  */
 public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
 
-    @DataBoundConstructor
     public ContainerDescriptor() {
         load();
     }
@@ -83,7 +81,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
         ArrayList<Option> options = new ArrayList<Option>();
 
         // Mark as N/A if engine is invalid
-        if (delphixEngine.equals("NULL")) {
+        if (delphixEngine.equals("NULL") || delphixEngine.equals(" ")) {
             options.add(new Option("N/A", "NULL"));
             return new ListBoxModel(options);
         }
@@ -128,7 +126,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
     public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup, ContainerType containerType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
-        if (delphixGroup.equals("NULL")) {
+        if (delphixGroup.equals("NULL") || delphixGroup.equals(" ")) {
             options.add(new Option("N/A", "NULL"));
             return new ListBoxModel(options);
         }
@@ -189,7 +187,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             DelphixEngine.ContainerOperationType operationType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
-        if (delphixContainer.equals("NULL")) {
+        if (delphixContainer.equals("NULL") || delphixContainer.equals(" ")) {
             options.add(new Option("N/A", "NULL"));
             return new ListBoxModel(options);
         }
