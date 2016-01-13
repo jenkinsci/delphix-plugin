@@ -21,6 +21,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +48,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Used for interacting with a Delphix Engine
  */
 public class DelphixEngine {
-
+    private static final Logger LOGGER = Logger.getLogger(DelphixEngine.class.getName());
     public enum ContainerOperationType {
         REFRESH, SYNC, PROVISIONVDB, DELETECONTAINER
     }
@@ -203,6 +205,9 @@ public class DelphixEngine {
      * Send POST to Delphix Engine and return the result
      */
     private JsonNode enginePOST(final String path, final String content) throws IOException, DelphixEngineException {
+        // Log requests
+        LOGGER.log(Level.WARNING, path + ":" + content);
+
         // Build and send request
         HttpPost request = new HttpPost(PROTOCOL + engineAddress + path);
         try {
@@ -227,6 +232,9 @@ public class DelphixEngine {
      * Send GET to Delphix Engine and return the result
      */
     private JsonNode engineGET(final String path) throws IOException, DelphixEngineException {
+        // Log requests
+        LOGGER.log(Level.WARNING, path);
+
         // Build and send request
         HttpGet request = new HttpGet(PROTOCOL + engineAddress + path);
         request.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
@@ -523,6 +531,12 @@ public class DelphixEngine {
             containerNode.put("name", containerName);
         }
         JsonNode result;
+        ObjectNode sourceNode = (ObjectNode) params.get("source");
+
+        // Hack for RAC support
+        if(sourceNode.has("redoLogSizeInMB")) {
+            sourceNode.remove("redoLogSizeInMB");
+        }
         try {
             result = enginePOST(PATH_PROVISION, params.toString());
         } catch (DelphixEngineException e) {
