@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public class DelphixEngine {
     private static final Logger LOGGER = Logger.getLogger(DelphixEngine.class.getName());
+
     public enum ContainerOperationType {
         REFRESH, SYNC, PROVISIONVDB, DELETECONTAINER
     }
@@ -144,9 +145,6 @@ public class DelphixEngine {
     private static final String FIELD_PARENT_POINT = "parentPoint";
     private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
     private static final String FIELD_RUNTIME = "runtime";
-    private static final String FIELD_RUN_COMMAND = "RunCommandOnSourceOperation";
-    private static final String FIELD_LINKED_OPERATIONS = "LinkedSourceOperations";
-    private static final String FIELD_VIRTUAL_OPERATIONS = "VirtualSourceOperations";
 
     /**
      * Address of the Delphix Engine
@@ -534,7 +532,7 @@ public class DelphixEngine {
         ObjectNode sourceNode = (ObjectNode) params.get("source");
 
         // Hack for RAC support
-        if(sourceNode.has("redoLogSizeInMB")) {
+        if (sourceNode.has("redoLogSizeInMB")) {
             sourceNode.remove("redoLogSizeInMB");
         }
         try {
