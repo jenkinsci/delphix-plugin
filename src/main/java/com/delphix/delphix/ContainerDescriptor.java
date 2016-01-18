@@ -223,7 +223,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
                 delphixEngine.login();
 
                 // List snapshots on engine by parent if refresh operation or current container otherwise
-                ArrayList<DelphixSnapshot> snapshots = delphixEngine.listSnapshots();
+                LinkedHashMap<String, DelphixSnapshot> snapshots = delphixEngine.listSnapshots();
                 String containerRef;
                 if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH)) {
                     containerRef = delphixEngine.getParentContainer(container);
@@ -233,7 +233,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
                 }
 
                 // Add snapshots to drop down and filter list by container selected above
-                for (DelphixSnapshot snapshot : snapshots) {
+                for (DelphixSnapshot snapshot : snapshots.values()) {
                     if (snapshot.getContainerRef().equals(containerRef)) {
                         options.add(new Option(snapshot.getName(),
                                 delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
