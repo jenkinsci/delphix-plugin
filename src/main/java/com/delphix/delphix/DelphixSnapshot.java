@@ -27,15 +27,15 @@ public class DelphixSnapshot {
 
     private final String timeflowRef;
 
-    private final String firstChangePoint;
+    private final String latestChangePoint;
 
     public DelphixSnapshot(String reference, String name, String containerRef, String timeflowRef,
-            String firstChangePoint) {
+            String latestChangePoint) {
         this.reference = reference;
         this.name = name;
         this.containerRef = containerRef;
         this.timeflowRef = timeflowRef;
-        this.firstChangePoint = firstChangePoint;
+        this.latestChangePoint = latestChangePoint;
     }
 
     public String getName() {
@@ -54,7 +54,7 @@ public class DelphixSnapshot {
         return this.timeflowRef;
     }
 
-    public String getFirstChangePoint() {
-        return this.firstChangePoint;
+    public String getLatestChangePoint() {
+        return this.latestChangePoint;
     }
 }

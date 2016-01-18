@@ -138,7 +138,7 @@ public class DelphixEngine {
     private static final String FIELD_TARGET = "target";
     private static final String FIELD_TARGET_NAME = "targetName";
     private static final String FIELD_TIMESTAMP = "timestamp";
-    private static final String FIELD_FIRST_CHANGE_POINT = "firstChangePoint";
+    private static final String FIELD_LATEST_CHANGE_POINT = "latestChangePoint";
     private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
     private static final String FIELD_GROUP = "group";
     private static final String FIELD_STATUS = "status";
@@ -422,7 +422,7 @@ public class DelphixEngine {
             DelphixSnapshot snapshot = new DelphixSnapshot(snapshotJSON.get(FIELD_REFERENCE).asText(),
                     snapshotJSON.get(FIELD_NAME).asText(), snapshotJSON.get(FIELD_CONTAINER).asText(),
                     snapshotJSON.get(FIELD_TIMEFLOW).asText(),
-                    snapshotJSON.get(FIELD_FIRST_CHANGE_POINT).get(FIELD_TIMESTAMP).asText());
+                    snapshotJSON.get(FIELD_LATEST_CHANGE_POINT).get(FIELD_TIMESTAMP).asText());
             snapshots.put(snapshot.getReference(), snapshot);
         }
 
@@ -476,7 +476,7 @@ public class DelphixEngine {
             DelphixSnapshot snapshot = getSnapshot(location);
             result = enginePOST(String.format(PATH_REFRESH, vdbRef),
                     String.format(CONTENT_REFRESH_POINT, type, snapshot.getTimeflowRef(),
-                            snapshot.getFirstChangePoint()));
+                            snapshot.getLatestChangePoint()));
         }
         return result.get(FIELD_JOB).asText();
     }
@@ -532,7 +532,7 @@ public class DelphixEngine {
         DelphixSnapshot snapshot = getSnapshot(snapshotRef);
         JsonNode result =
                 enginePOST(PATH_PROVISION_DEFAULTS, String.format(CONTENT_PROVISION_DEFAULTS_TIMESTAMP,
-                        snapshot.getTimeflowRef(), snapshot.getFirstChangePoint()));
+                        snapshot.getTimeflowRef(), snapshot.getLatestChangePoint()));
         ObjectNode node = (ObjectNode) result.get(FIELD_RESULT);
 
         return node.toString();
