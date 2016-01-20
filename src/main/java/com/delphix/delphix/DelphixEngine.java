@@ -65,6 +65,7 @@ public class DelphixEngine {
     private static final String ENCODING = "UTF-8";
     private static final String CONTENT_TYPE = "application/json";
     private static final String ERROR_RESULT = "ErrorResult";
+    private static final String OK_STATUS = "OK";
 
     /*
      * Paths to endpoints on Delphix Engine
@@ -88,12 +89,13 @@ public class DelphixEngine {
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
     private static final String PATH_DELETE_ENVIRONMENT = "/resources/json/delphix/environment/%s/delete";
     private static final String PATH_SNAPSHOT = "/resources/json/delphix/snapshot";
+    private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
 
     /*
      * Content for POST requests to Delphix Engine
      */
     private static final String CONTENT_SESSION = "{\"type\": \"APISession\",\"version\": " +
-            "{\"type\": \"APIVersion\",\"major\": 1,\"minor\": 6,\"micro\": 0}}";
+            "{\"type\": \"APIVersion\",\"major\": %s,\"minor\": %s,\"micro\": %s}}";
     private static final String CONTENT_LOGIN =
             "{\"type\": \"LoginRequest\",\"username\": \"%s\",\"password\": \"%s\"}";
     private static final String CONTENT_REFRESH_SEMANTIC = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
@@ -147,6 +149,10 @@ public class DelphixEngine {
     private static final String FIELD_PARENT_POINT = "parentPoint";
     private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
     private static final String FIELD_RUNTIME = "runtime";
+    private static final String FIELD_API_VERSION = "apiVersion";
+    private static final String FIELD_MAJOR = "major";
+    private static final String FIELD_MINOR = "minor";
+    private static final String FIELD_MICRO = "micro";
 
     /**
      * Address of the Delphix Engine
@@ -224,7 +230,7 @@ public class DelphixEngine {
         String result = EntityUtils.toString(response.getEntity());
         JsonNode jsonResult = MAPPER.readTree(result);
         EntityUtils.consume(response.getEntity());
-        if (jsonResult.get(FIELD_TYPE).asText().equals(ERROR_RESULT)) {
+        if (!jsonResult.get(FIELD_STATUS).asText().equals(OK_STATUS)) {
             throw new DelphixEngineException(jsonResult.get("error").get("details").toString());
         }
 
@@ -251,7 +257,7 @@ public class DelphixEngine {
         String result = EntityUtils.toString(response.getEntity());
         JsonNode jsonResult = MAPPER.readTree(result);
         EntityUtils.consume(response.getEntity());
-        if (jsonResult.get(FIELD_TYPE).asText().equals(ERROR_RESULT)) {
+        if (!jsonResult.get(FIELD_STATUS).asText().equals(OK_STATUS)) {
             throw new DelphixEngineException(jsonResult.get("error").get("details").asText());
         }
 
@@ -265,10 +271,20 @@ public class DelphixEngine {
      * fails due to bad username or password
      */
     public void login() throws IOException, DelphixEngineException {
-        // Get session
-        enginePOST(PATH_SESSION, CONTENT_SESSION);
+        // Get session with 1.0.0
+        enginePOST(PATH_SESSION, String.format(CONTENT_SESSION, "1", "0", "0"));
 
         // Login
+        enginePOST(PATH_LOGIN, String.format(CONTENT_LOGIN, engineUsername, enginePassword));
+
+        // Find the most recent API session for this engine
+        JsonNode version = engineGET(PATH_SYSTEM_INFO).get(FIELD_RESULT).get(FIELD_API_VERSION);
+
+        // Get session with most recent API session
+        enginePOST(PATH_SESSION, String.format(CONTENT_SESSION, version.get(FIELD_MAJOR), version.get(FIELD_MINOR),
+                version.get(FIELD_MICRO)));
+
+        // Login with most recent API session
         enginePOST(PATH_LOGIN, String.format(CONTENT_LOGIN, engineUsername, enginePassword));
     }
 

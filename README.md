@@ -4,7 +4,7 @@
 Connect Jenkins jobs to the Delphix Engine
 
 ##Requirements
-* Delphix Engine version 4.3.0.0 or later
+* Delphix Engine version 4.1.0.0 or later
 * Jenkins version 1.565 or later running under Java 1.7 or later
 
 ##Features
