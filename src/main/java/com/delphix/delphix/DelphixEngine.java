@@ -604,8 +604,9 @@ public class DelphixEngine {
      * Provision a VDB either a semantic point or a snapshot with the name of the new VDB being optional
      */
     @SuppressWarnings("unchecked")
-    public String provisionVDB(String containerRef, String snapshotRef, String containerName, String repository)
-            throws IOException, DelphixEngineException {
+    public String provisionVDB(String containerRef, String snapshotRef, String containerName, String repository,
+            String mountBase)
+                    throws IOException, DelphixEngineException {
         String defaultParams = "";
         if (snapshotRef.equals(CONTENT_LATEST_POINT) || snapshotRef.equals(CONTENT_LATEST_SNAPSHOT)) {
             defaultParams = getProvisionDefaultsContainer(containerRef, snapshotRef);
@@ -626,6 +627,13 @@ public class DelphixEngine {
         if (!repository.isEmpty() && !repository.equals("default")) {
             ObjectNode sourceConfig = (ObjectNode) params.get("sourceConfig");
             sourceConfig.put("repository", repository);
+        }
+
+        // Set the base mount point
+        if (!mountBase.isEmpty()) {
+            ObjectNode sourceConfig = (ObjectNode) params.get("source");
+            sourceConfig.put("mountBase", mountBase);
+
         }
         JsonNode result;
         ObjectNode sourceNode = (ObjectNode) params.get("source");

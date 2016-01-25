@@ -41,7 +41,7 @@ public class RefreshBuilder extends ContainerBuilder {
     public RefreshBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
             String delphixSnapshot, ArrayList<HookOperation> preRefreshHooks,
             ArrayList<HookOperation> postRefreshHooks) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixSnapshot, "");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixSnapshot, "", "");
 
         // Set the refresh hooks to be empty if there is no input
         if (preRefreshHooks != null) {

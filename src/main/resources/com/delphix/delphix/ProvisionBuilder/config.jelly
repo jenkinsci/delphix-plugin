@@ -20,6 +20,9 @@
                 <f:entry title="Target repository" field="delphixCompatibleRepositories">
                     <f:select id="delphixCompatibleRepositories" default=" "/>
                 </f:entry>
+                <f:entry title="Mount base" field="mountBase">
+                    <f:textbox default=""/>
+                </f:entry>
                 <f:entry title="Name" field="containerName">
                     <f:textbox default=""/>
                 </f:entry>

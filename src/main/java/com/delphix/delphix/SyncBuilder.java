@@ -40,7 +40,7 @@ public class SyncBuilder extends ContainerBuilder {
     @DataBoundConstructor
     public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
             ArrayList<HookOperation> preSyncHooks, ArrayList<HookOperation> postSyncHooks) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL", "");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL", "", "");
 
         // Set the sync hooks to be empty if there is no input
         if (preSyncHooks != null) {
