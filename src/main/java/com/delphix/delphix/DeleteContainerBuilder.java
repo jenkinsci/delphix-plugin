@@ -37,7 +37,7 @@ public class DeleteContainerBuilder extends ContainerBuilder {
     @DataBoundConstructor
     public DeleteContainerBuilder(String delphixEngine, String delphixGroup, String delphixContainer,
             String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL", "", "");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "NULL", "", "");
     }
 
     /**
@@ -70,8 +70,9 @@ public class DeleteContainerBuilder extends ContainerBuilder {
         /**
          * Add containers to drop down for Delete action
          */
-        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
-            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.ALL);
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine,
+                @QueryParameter String delphixGroup) {
+            return super.doFillDelphixContainerItems(delphixEngine, delphixGroup, ContainerType.ALL);
         }
 
         /**

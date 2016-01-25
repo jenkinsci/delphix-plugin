@@ -48,8 +48,7 @@ public class SyncBuilderTest {
         configureEngine(TestConsts.oracleEngine, TestConsts.oracleUser, TestConsts.oraclePassword);
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
-                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleGroup, TestConsts.oracleSource, "1",
                         new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
@@ -79,8 +78,7 @@ public class SyncBuilderTest {
 
         engine.login();
         p.getBuildersList()
-                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleGroup, TestConsts.oracleSource, "1",
                         new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         future.waitForStart();
@@ -118,8 +116,8 @@ public class SyncBuilderTest {
 
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList().add(
-                new RefreshBuilder("NULL", "NULL|NULL", "NULL|NULL|NULL", "1",
-                        "NULL|NULLL|NULL|" + DelphixEngine.CONTENT_LATEST_POINT, new ArrayList<HookOperation>(),
+                new RefreshBuilder("NULL", "NULL", "NULL", "1", DelphixEngine.CONTENT_LATEST_POINT,
+                        new ArrayList<HookOperation>(),
                         new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         FreeStyleBuild b = future.get();
@@ -137,8 +135,7 @@ public class SyncBuilderTest {
 
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
-                .add(new SyncBuilder("badengine", "badengine" + "|" + TestConsts.oracleGroup,
-                        "badengine" + "|" + TestConsts.oracleGroup + "|" + TestConsts.oracleSource, "1",
+                .add(new SyncBuilder("badengine", TestConsts.oracleGroup, TestConsts.oracleSource, "1",
                         new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {
@@ -160,8 +157,7 @@ public class SyncBuilderTest {
 
         FreeStyleProject p = j.createFreeStyleProject();
         p.getBuildersList()
-                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleEngine + "|" + TestConsts.oracleGroup,
-                        TestConsts.oracleEngine + "|" + TestConsts.oracleGroup + "|" + "badcontainer", "1",
+                .add(new SyncBuilder(TestConsts.oracleEngine, TestConsts.oracleGroup, "badcontainer", "1",
                         new ArrayList<HookOperation>(), new ArrayList<HookOperation>()));
         QueueTaskFuture<FreeStyleBuild> future = p.scheduleBuild2(0);
         while (!future.isDone()) {

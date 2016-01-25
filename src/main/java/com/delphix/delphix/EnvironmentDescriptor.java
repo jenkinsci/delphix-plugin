@@ -100,7 +100,7 @@ public abstract class EnvironmentDescriptor extends BuildStepDescriptor<Builder>
 
                 // Add groups to list
                 for (DelphixEnvironment environment : environments.values()) {
-                    options.add(new Option(environment.getName(), delphixEngine + "|" + environment.getReference()));
+                    options.add(new Option(environment.getName(), environment.getReference()));
                 }
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine

@@ -52,8 +52,8 @@ public class EnvironmentBuilder extends Builder {
         }
 
         // Get the engine and the environment on the engine on which to operate
-        String engine = delphixEnvironment.split("\\|")[0];
-        String environment = delphixEnvironment.split("\\|")[1];
+        String engine = delphixEngine;
+        String environment = delphixEnvironment;
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));

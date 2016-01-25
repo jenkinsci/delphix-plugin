@@ -73,24 +73,29 @@ public class ProvisionBuilder extends ContainerBuilder {
         /**
          * Add containers to drop down for Provision action
          */
-        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
-            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.ALL);
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine,
+                @QueryParameter String delphixGroup) {
+            return super.doFillDelphixContainerItems(delphixEngine, delphixGroup, ContainerType.ALL);
         }
 
         /**
          * Add snapshots to drop down for Provision action
          */
-        public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer) {
-            return super.doFillDelphixSnapshotItems(delphixContainer,
+        public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixEngine,
+                @QueryParameter String delphixGroup, @QueryParameter String delphixContainer) {
+            return super.doFillDelphixSnapshotItems(delphixEngine, delphixGroup, delphixContainer,
                     DelphixEngine.ContainerOperationType.PROVISIONVDB);
         }
 
         /**
          * Add snapshots to drop down for Provision action
          */
-        public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixSnapshot)
-                throws IOException, DelphixEngineException {
-            return super.doFillDelphixCompatibleRepositoriesItems(delphixSnapshot);
+        public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixEngine,
+                @QueryParameter String delphixGroup, @QueryParameter String delphixContainer,
+                @QueryParameter String delphixSnapshot)
+                        throws IOException, DelphixEngineException {
+            return super.doFillDelphixCompatibleRepositoriesItems(delphixEngine, delphixGroup, delphixContainer,
+                    delphixSnapshot);
 
         }
 

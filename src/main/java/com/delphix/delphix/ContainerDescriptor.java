@@ -102,7 +102,7 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
 
                 // Add groups to list
                 for (DelphixGroup group : groups) {
-                    options.add(new Option(group.getName(), delphixEngine + "|" + group.getReference()));
+                    options.add(new Option(group.getName(), group.getReference()));
                 }
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
@@ -123,7 +123,8 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
     /**
      * Add containers to drop down for build action
      */
-    public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup, ContainerType containerType) {
+    public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine,
+            @QueryParameter String delphixGroup, ContainerType containerType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
         if (delphixGroup.equals("NULL") || delphixGroup.equals(" ")) {
@@ -135,46 +136,41 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             return new ListBoxModel(options);
         }
 
-        // Get the engine and group
-        String engine = delphixGroup.split("\\|")[0];
-        String group = delphixGroup.split("\\|")[1];
-
-        DelphixEngine delphixEngine = new DelphixEngine(
-                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+        DelphixEngine engine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
 
         // Add refresh and sync all options
         if (containerType.equals(ContainerType.VDB)) {
-            options.add(new Option("Refresh all", delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+            options.add(new Option("Refresh all", "ALL"));
 
         } else if (containerType.equals(ContainerType.SOURCE)) {
-            options.add(new Option("Sync all", delphixEngine.getEngineAddress() + "|" + group + "|" + "ALL"));
+            options.add(new Option("Sync all", "ALL"));
         }
 
         try {
             // login to engine
             try {
-                delphixEngine.login();
+                engine.login();
 
                 // List containers on engine
-                LinkedHashMap<String, DelphixContainer> containers = delphixEngine.listContainers();
+                LinkedHashMap<String, DelphixContainer> containers = engine.listContainers();
 
                 // Add containers to list
                 for (DelphixContainer container : containers.values()) {
                     if ((container.getType().equals(containerType) || containerType.equals(ContainerType.ALL)) &&
-                            container.getGroup().equals(group)) {
-                        options.add(new Option(container.getName(),
-                                container.getEngineAddress() + "|" + group + "|" + container.getReference()));
+                            container.getGroup().equals(delphixGroup)) {
+                        options.add(new Option(container.getName(), container.getReference()));
                     }
                 }
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
                 options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+                        new String[] { engine.getEngineAddress() }), "NULL"));
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine
             options.add(new Option(
-                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { engine.getEngineAddress() }),
                     "NULL"));
         }
         return new ListBoxModel(options);
@@ -183,7 +179,8 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
     /**
      * Add snapshot to drop down for build action
      */
-    public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer,
+    public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixEngine,
+            @QueryParameter String delphixGroup, @QueryParameter String delphixContainer,
             DelphixEngine.ContainerOperationType operationType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
@@ -196,59 +193,48 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             return new ListBoxModel(options);
         }
 
-        // Get the engine and group
-        String engine = delphixContainer.split("\\|")[0];
-        String group = delphixContainer.split("\\|")[1];
-        String container = delphixContainer.split("\\|")[2];
-
-        DelphixEngine delphixEngine = new DelphixEngine(
-                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+        DelphixEngine engine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
 
         // Add semantic options for latest snapshot and latest point
-        options.add(new Option("Latest Point",
-                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
-                        DelphixEngine.CONTENT_LATEST_POINT));
-        options.add(new Option("Latest Snapshot",
-                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
-                        DelphixEngine.CONTENT_LATEST_SNAPSHOT));
+        options.add(new Option("Latest Point", DelphixEngine.CONTENT_LATEST_POINT));
+        options.add(new Option("Latest Snapshot", DelphixEngine.CONTENT_LATEST_SNAPSHOT));
 
         // If all containers in group are targeted then just make semantic options available
-        if (container.equals("ALL")) {
+        if (delphixContainer.equals("ALL")) {
             return new ListBoxModel(options);
         }
 
         try {
             // login to engine
             try {
-                delphixEngine.login();
+                engine.login();
 
                 // List snapshots on engine by parent if refresh operation or current container otherwise
-                LinkedHashMap<String, DelphixSnapshot> snapshots = delphixEngine.listSnapshots();
+                LinkedHashMap<String, DelphixSnapshot> snapshots = engine.listSnapshots();
                 String containerRef;
                 if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH)) {
-                    containerRef = delphixEngine.getParentContainer(container);
+                    containerRef = engine.getParentContainer(delphixContainer);
                 } else {
-                    containerRef = container;
+                    containerRef = delphixContainer;
 
                 }
 
                 // Add snapshots to drop down and filter list by container selected above
                 for (DelphixSnapshot snapshot : snapshots.values()) {
                     if (snapshot.getContainerRef().equals(containerRef)) {
-                        options.add(new Option(snapshot.getName(),
-                                delphixEngine.getEngineAddress() + "|" + group + "|" + container + "|" +
-                                        snapshot.getReference()));
+                        options.add(new Option(snapshot.getName(), snapshot.getReference()));
                     }
                 }
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
                 options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+                        new String[] { engine.getEngineAddress() }), "NULL"));
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine
             options.add(new Option(
-                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { engine.getEngineAddress() }),
                     "NULL"));
         }
         return new ListBoxModel(options);
@@ -257,8 +243,10 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
     /**
      * Add snapshots to drop down for Provision action
      */
-    public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixSnapshot)
-            throws IOException, DelphixEngineException {
+    public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixEngine,
+            @QueryParameter String delphixGroup, @QueryParameter String delphixContainer,
+            @QueryParameter String delphixSnapshot)
+                    throws IOException, DelphixEngineException {
         ArrayList<Option> options = new ArrayList<Option>();
 
         if (delphixSnapshot.equals("NULL") || delphixSnapshot.equals(" ")) {
@@ -270,32 +258,27 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             return new ListBoxModel(options);
         }
 
-        // Get the engine and group
-        String engine = delphixSnapshot.split("\\|")[0];
-        String containerRef = delphixSnapshot.split("\\|")[2];
-        String location = delphixSnapshot.split("\\|")[3];
-
         options.add(new Option("Default", "default"));
 
-        DelphixEngine delphixEngine = new DelphixEngine(
-                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+        DelphixEngine engine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
 
         try {
             // login to engine
             try {
-                delphixEngine.login();
-                LinkedHashMap<String, DelphixEnvironment> environments = delphixEngine.listEnvironments();
+                engine.login();
+                LinkedHashMap<String, DelphixEnvironment> environments = engine.listEnvironments();
                 for (DelphixEnvironment environment : environments.values()) {
                     ArrayList<DelphixRepository> repositories;
-                    if (location.equals(DelphixEngine.CONTENT_LATEST_POINT) ||
-                            location.equals(DelphixEngine.CONTENT_LATEST_SNAPSHOT)) {
+                    if (delphixSnapshot.equals(DelphixEngine.CONTENT_LATEST_POINT) ||
+                            delphixSnapshot.equals(DelphixEngine.CONTENT_LATEST_SNAPSHOT)) {
                         repositories =
-                                delphixEngine.getCompatibleRepositoriesContainer(environment.getReference(),
-                                        containerRef,
-                                        location);
+                                engine.getCompatibleRepositoriesContainer(environment.getReference(),
+                                        delphixContainer,
+                                        delphixSnapshot);
                     } else {
                         repositories =
-                                delphixEngine.getCompatibleRepositoriesSnapshot(environment.getReference(), location);
+                                engine.getCompatibleRepositoriesSnapshot(environment.getReference(), delphixSnapshot);
                     }
                     for (DelphixRepository repository : repositories) {
                         options.add(new Option(environment.getName() + " - " + repository.getName(),
@@ -305,12 +288,12 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
                 options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+                        new String[] { engine.getEngineAddress() }), "NULL"));
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine
             options.add(new Option(
-                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { engine.getEngineAddress() }),
                     "NULL"));
         }
 

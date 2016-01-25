@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.delphix.delphix.DelphixContainer.ContainerType;
-
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
@@ -87,10 +85,10 @@ public class ContainerBuilder extends Builder {
         }
 
         // Get the engine, the group, and the container on which to operate
-        String engine = delphixSnapshot.split("\\|")[0];
-        String group = delphixSnapshot.split("\\|")[1];
-        String container = delphixSnapshot.split("\\|")[2];
-        String location = delphixSnapshot.split("\\|")[3];
+        String engine = delphixEngine;
+        String group = delphixGroup;
+        String container = delphixContainer;
+        String location = delphixSnapshot;
 
         // Targets tracks the containers on which to operate
         CopyOnWriteArrayList<DelphixContainer> targets = new CopyOnWriteArrayList<DelphixContainer>();

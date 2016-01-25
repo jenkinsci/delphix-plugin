@@ -40,7 +40,7 @@ public class SyncBuilder extends ContainerBuilder {
     @DataBoundConstructor
     public SyncBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String retryCount,
             ArrayList<HookOperation> preSyncHooks, ArrayList<HookOperation> postSyncHooks) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL", "", "");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", "", "", "");
 
         // Set the sync hooks to be empty if there is no input
         if (preSyncHooks != null) {
@@ -92,8 +92,9 @@ public class SyncBuilder extends ContainerBuilder {
         /**
          * Add containers to drop down for Sync action
          */
-        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixGroup) {
-            return super.doFillDelphixContainerItems(delphixGroup, ContainerType.SOURCE);
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine,
+                @QueryParameter String delphixGroup) {
+            return super.doFillDelphixContainerItems(delphixEngine, delphixGroup, ContainerType.SOURCE);
         }
 
         /**
