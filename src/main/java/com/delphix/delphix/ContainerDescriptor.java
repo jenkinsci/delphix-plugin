@@ -255,6 +255,69 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
     }
 
     /**
+     * Add snapshots to drop down for Provision action
+     */
+    public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixSnapshot)
+            throws IOException, DelphixEngineException {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        if (delphixSnapshot.equals("NULL") || delphixSnapshot.equals(" ")) {
+            options.add(new Option("N/A", "NULL"));
+            return new ListBoxModel(options);
+        }
+
+        if (delphixSnapshot.isEmpty()) {
+            return new ListBoxModel(options);
+        }
+
+        // Get the engine and group
+        String engine = delphixSnapshot.split("\\|")[0];
+        String containerRef = delphixSnapshot.split("\\|")[2];
+        String location = delphixSnapshot.split("\\|")[3];
+
+        options.add(new Option("Default", "default"));
+
+        DelphixEngine delphixEngine = new DelphixEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+
+        try {
+            // login to engine
+            try {
+                delphixEngine.login();
+                LinkedHashMap<String, DelphixEnvironment> environments = delphixEngine.listEnvironments();
+                for (DelphixEnvironment environment : environments.values()) {
+                    ArrayList<DelphixRepository> repositories;
+                    if (location.equals(DelphixEngine.CONTENT_LATEST_POINT) ||
+                            location.equals(DelphixEngine.CONTENT_LATEST_SNAPSHOT)) {
+                        repositories =
+                                delphixEngine.getCompatibleRepositoriesContainer(environment.getReference(),
+                                        containerRef,
+                                        location);
+                    } else {
+                        repositories =
+                                delphixEngine.getCompatibleRepositoriesSnapshot(environment.getReference(), location);
+                    }
+                    for (DelphixRepository repository : repositories) {
+                        options.add(new Option(environment.getName() + " - " + repository.getName(),
+                                repository.getReference()));
+                    }
+                }
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+            }
+        } catch (IOException e) {
+            // Add message to drop down if unable to connect to engine
+            options.add(new Option(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }),
+                    "NULL"));
+        }
+
+        return new ListBoxModel(options);
+    }
+
+    /**
      * Applicable for all jobs
      */
     @SuppressWarnings("rawtypes")

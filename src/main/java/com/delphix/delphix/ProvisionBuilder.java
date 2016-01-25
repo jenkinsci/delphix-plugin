@@ -36,9 +36,11 @@ public class ProvisionBuilder extends ContainerBuilder {
 
     @DataBoundConstructor
     public ProvisionBuilder(String delphixEngine, String delphixGroup, String delphixContainer, String containerName,
-            String delphixSnapshot) {
+            String delphixSnapshot, String delphixCompatibleRepositories) {
+
         // Hard wire retry count to 0 since we don't want to try to provision multiple times
-        super(delphixEngine, delphixGroup, delphixContainer, "0", containerName, delphixSnapshot);
+        super(delphixEngine, delphixGroup, delphixContainer, "0", containerName, delphixSnapshot,
+                delphixCompatibleRepositories);
     }
 
     /**
@@ -81,6 +83,15 @@ public class ProvisionBuilder extends ContainerBuilder {
         public ListBoxModel doFillDelphixSnapshotItems(@QueryParameter String delphixContainer) {
             return super.doFillDelphixSnapshotItems(delphixContainer,
                     DelphixEngine.ContainerOperationType.PROVISIONVDB);
+        }
+
+        /**
+         * Add snapshots to drop down for Provision action
+         */
+        public ListBoxModel doFillDelphixCompatibleRepositoriesItems(@QueryParameter String delphixSnapshot)
+                throws IOException, DelphixEngineException {
+            return super.doFillDelphixCompatibleRepositoriesItems(delphixSnapshot);
+
         }
 
         /**

@@ -37,7 +37,7 @@ public class DeleteContainerBuilder extends ContainerBuilder {
     @DataBoundConstructor
     public DeleteContainerBuilder(String delphixEngine, String delphixGroup, String delphixContainer,
             String retryCount) {
-        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL");
+        super(delphixEngine, delphixGroup, delphixContainer, retryCount, "", delphixContainer + "|NULL", "");
     }
 
     /**

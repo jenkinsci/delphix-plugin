@@ -64,7 +64,6 @@ public class DelphixEngine {
     private static final String PROTOCOL = "http://";
     private static final String ENCODING = "UTF-8";
     private static final String CONTENT_TYPE = "application/json";
-    private static final String ERROR_RESULT = "ErrorResult";
     private static final String OK_STATUS = "OK";
 
     /*
@@ -90,6 +89,8 @@ public class DelphixEngine {
     private static final String PATH_DELETE_ENVIRONMENT = "/resources/json/delphix/environment/%s/delete";
     private static final String PATH_SNAPSHOT = "/resources/json/delphix/snapshot";
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
+    private static final String PATH_COMPATIBLE_REPOSITORIES =
+            "/resources/json/delphix/repository/compatibleRepositories";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -125,6 +126,9 @@ public class DelphixEngine {
     public static final String CONTENT_REFRESH_HOOK =
             "{\"operations\":{\"preRefresh\":%s,\"postRefresh\":%s, \"type\": \"%s\"}," +
                     "\"type\":\"%s\"}";
+    public static final String CONTENT_COMPATIBLE_REPOSITORIES =
+            "{\"environment\": \"%s\", \"timeflowPointParameters\":%s," +
+                    "\"type\":\"ProvisionCompatibilityParameters\"}";
 
     /*
      * Fields used in JSON requests and responses
@@ -153,6 +157,8 @@ public class DelphixEngine {
     private static final String FIELD_MAJOR = "major";
     private static final String FIELD_MINOR = "minor";
     private static final String FIELD_MICRO = "micro";
+    private static final String FIELD_REPOSITORIES = "repositories";
+    private static final String FIELD_ENVIRONMENT = "environment";
 
     /**
      * Address of the Delphix Engine
@@ -531,6 +537,46 @@ public class DelphixEngine {
     }
 
     /**
+     * Get the compatible provision repositories
+     */
+    private ArrayList<DelphixRepository> getCompatibleRepositories(String environmentRef, String provisionParameters)
+            throws IOException, DelphixEngineException {
+        JsonNode result =
+                enginePOST(PATH_COMPATIBLE_REPOSITORIES,
+                        String.format(CONTENT_COMPATIBLE_REPOSITORIES, environmentRef, provisionParameters));
+        JsonNode jsonRepositories = result.get(FIELD_RESULT).get(FIELD_REPOSITORIES);
+        ArrayList<DelphixRepository> repositories = new ArrayList<DelphixRepository>();
+        for (int i = 0; i < jsonRepositories.size(); i++) {
+            DelphixRepository repository = new DelphixRepository(jsonRepositories.get(i).get(FIELD_NAME).asText(),
+                    jsonRepositories.get(i).get(FIELD_REFERENCE).asText(),
+                    jsonRepositories.get(i).get(FIELD_ENVIRONMENT).asText());
+            repositories.add(repository);
+        }
+        return repositories;
+    }
+
+    /**
+     * Get the compatible provision repositories from a snapshot
+     */
+    public ArrayList<DelphixRepository> getCompatibleRepositoriesSnapshot(String environmentRef, String snapshotRef)
+            throws ClientProtocolException, IOException, DelphixEngineException {
+        DelphixSnapshot snapshot = getSnapshot(snapshotRef);
+        String parameters = String.format(CONTENT_PROVISION_DEFAULTS_TIMESTAMP, snapshot.getTimeflowRef(),
+                snapshot.getLatestChangePoint());
+        return getCompatibleRepositories(environmentRef, parameters);
+    }
+
+    /**
+     * Get the compatible provision repositories from a semantic point on a container
+     */
+    public ArrayList<DelphixRepository> getCompatibleRepositoriesContainer(String environmentRef, String containerRef,
+            String location)
+                    throws IOException, DelphixEngineException {
+        String parameters = String.format(CONTENT_PROVISION_DEFAULTS_CONTAINER, containerRef, location);
+        return getCompatibleRepositories(environmentRef, parameters);
+    }
+
+    /**
      * Get the provision defaults for provisioning from a semantic point on a container
      */
     private String getProvisionDefaultsContainer(String containerRef, String location)
@@ -558,7 +604,7 @@ public class DelphixEngine {
      * Provision a VDB either a semantic point or a snapshot with the name of the new VDB being optional
      */
     @SuppressWarnings("unchecked")
-    public String provisionVDB(String containerRef, String snapshotRef, String containerName)
+    public String provisionVDB(String containerRef, String snapshotRef, String containerName, String repository)
             throws IOException, DelphixEngineException {
         String defaultParams = "";
         if (snapshotRef.equals(CONTENT_LATEST_POINT) || snapshotRef.equals(CONTENT_LATEST_SNAPSHOT)) {
@@ -569,9 +615,17 @@ public class DelphixEngine {
         // Strip out null values from provision parameters
         defaultParams = defaultParams.replaceAll("(\"[^\"]+\":null,?|,?\"[^\"]+\":null)", "");
         JsonNode params = MAPPER.readTree(defaultParams);
+
+        // Set new VDB name if it is passed
         if (!containerName.isEmpty()) {
             ObjectNode containerNode = (ObjectNode) params.get("container");
             containerNode.put("name", containerName);
+        }
+
+        // Set target repository
+        if (!repository.isEmpty() && !repository.equals("default")) {
+            ObjectNode sourceConfig = (ObjectNode) params.get("sourceConfig");
+            sourceConfig.put("repository", repository);
         }
         JsonNode result;
         ObjectNode sourceNode = (ObjectNode) params.get("source");
