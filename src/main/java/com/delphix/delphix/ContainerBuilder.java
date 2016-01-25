@@ -118,12 +118,21 @@ public class ContainerBuilder extends Builder {
 
             // Set the container targets of this operation which will be all containers if ALL was selected
             if (container.equals("ALL")) {
-                targets = new CopyOnWriteArrayList<DelphixContainer>(containers.values());
-                for (DelphixContainer target : targets) {
-                    retries.put(target.getReference(), 0);
+                for (DelphixContainer target : containers.values()) {
+                    if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
+                            target.getType().equals(DelphixContainer.ContainerType.VDB)) {
+                        targets.add(target);
+                        retries.put(target.getReference(), 0);
+                    }
+                    if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
+                            target.getType().equals(DelphixContainer.ContainerType.SOURCE)) {
+                        targets.add(target);
+                        retries.put(target.getReference(), 0);
+                    }
+
                 }
             } else {
-                DelphixContainer target = delphixEngine.listContainers().get(container);
+                DelphixContainer target = delphixEngine.getContainer(container);
                 if (target != null) {
                     targets.add(target);
                 } else {
@@ -172,20 +181,24 @@ public class ContainerBuilder extends Builder {
                             listener.getLogger().println(e.getMessage());
                         }
 
-                    } else {
+                    } else if (target.getPlatform().contains("Oracle")) {
                         listener.getLogger()
                                 .println(Messages.getMessage(Messages.UPDATE_HOOKS_SKIP,
+                                        new String[] { target.getName() }));
+                    } else {
+                        listener.getLogger()
+                                .println(Messages.getMessage(Messages.UPDATE_HOOKS_ORACLE_SKIP,
                                         new String[] { target.getName() }));
                     }
 
                     String job = "";
                     // Refresh operation
                     if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
-                            target.getType() == ContainerType.VDB && target.getGroup().equals(group)) {
+                            target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference(), location);
                     } else if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
-                            target.getType() == ContainerType.SOURCE && target.getGroup().equals(group)) {
+                            target.getGroup().equals(group)) {
                         // Sync operation
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.sync(target.getReference());
