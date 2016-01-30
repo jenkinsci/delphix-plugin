@@ -117,7 +117,8 @@ public class ContainerBuilder extends Builder {
             // Set the container targets of this operation which will be all containers if ALL was selected
             if (container.equals("ALL")) {
                 for (DelphixContainer target : containers.values()) {
-                    if (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) &&
+                    if ((operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) ||
+                            operationType.equals(DelphixEngine.ContainerOperationType.ROLLBACK)) &&
                             target.getType().equals(DelphixContainer.ContainerType.VDB)) {
                         targets.add(target);
                         retries.put(target.getReference(), 0);
@@ -170,7 +171,8 @@ public class ContainerBuilder extends Builder {
                     // Update the hooks for the target container if the platform is Oracle
                     if (target.getPlatform().contains("Oracle") &&
                             (operationType.equals(DelphixEngine.ContainerOperationType.REFRESH) ||
-                                    operationType.equals(DelphixEngine.ContainerOperationType.SYNC))) {
+                                    operationType.equals(DelphixEngine.ContainerOperationType.SYNC) ||
+                                    operationType.equals(DelphixEngine.ContainerOperationType.ROLLBACK))) {
                         listener.getLogger()
                                 .println(Messages.getMessage(Messages.UPDATE_HOOKS, new String[] { target.getName() }));
                         try {
@@ -195,6 +197,9 @@ public class ContainerBuilder extends Builder {
                             target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference(), location);
+                    } else if ( operationType.equals(DelphixEngine.ContainerOperationType.ROLLBACK) && target.getGroup().equals(group)) {
+                        build.addAction(new PublishEnvVarAction(target.getReference(), engine));
+                        job = delphixEngine.rollbackContainer(target.getReference(), location);
                     } else if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
                             target.getGroup().equals(group)) {
                         // Sync operation

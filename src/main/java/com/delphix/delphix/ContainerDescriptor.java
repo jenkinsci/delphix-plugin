@@ -141,10 +141,10 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
 
         // Add refresh and sync all options
         if (containerType.equals(ContainerType.VDB)) {
-            options.add(new Option("Refresh all", "ALL"));
+            options.add(new Option("All containers in group", "ALL"));
 
         } else if (containerType.equals(ContainerType.SOURCE)) {
-            options.add(new Option("Sync all", "ALL"));
+            options.add(new Option("All containers in group", "ALL"));
         }
 
         try {
@@ -217,7 +217,6 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
                     containerRef = engine.getParentContainer(delphixContainer);
                 } else {
                     containerRef = delphixContainer;
-
                 }
 
                 // Add snapshots to drop down and filter list by container selected above

@@ -51,7 +51,7 @@ public class DelphixEngine {
     private static final Logger LOGGER = Logger.getLogger(DelphixEngine.class.getName());
 
     public enum ContainerOperationType {
-        REFRESH, SYNC, PROVISIONVDB, DELETECONTAINER
+        REFRESH, ROLLBACK, SYNC, PROVISIONVDB, DELETECONTAINER
     }
 
     public enum EnvironmentOperationType {
@@ -76,6 +76,7 @@ public class DelphixEngine {
     private static final String PATH_HOOK_OPERATION = "/resources/json/delphix/source/%s";
     private static final String PATH_TIMEFLOW = "/resources/json/delphix/timeflow";
     private static final String PATH_REFRESH = "/resources/json/delphix/database/%s/refresh";
+    private static final String PATH_ROLLBACK = "/resources/json/delphix/database/%s/rollback";
     private static final String PATH_SYNC = "/resources/json/delphix/database/%s/sync";
     private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
     private static final String PATH_CONTAINER = "/resources/json/delphix/database/%s";
@@ -103,6 +104,8 @@ public class DelphixEngine {
             "\"type\": \"TimeflowPointSemantic\",\"container\": \"%s\", \"location\": \"%s\"}}";
     private static final String CONTENT_REFRESH_POINT = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
             "\"type\": \"TimeflowPointTimestamp\", \"timeflow\": \"%s\", \"timestamp\":\"%s\"}}";
+    private static final String CONTENT_ROLLBACK_SEMANTIC = CONTENT_REFRESH_SEMANTIC;
+    private static final String CONTENT_ROLLBACK_POINT = CONTENT_REFRESH_POINT;
     private static final String CONTENT_SYNC = "{\"type\": \"%s\"}";
     private static final String CONTENT_PROVISION_DEFAULTS_CONTAINER =
             "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\", \"location\": \"%s\"}";
@@ -125,6 +128,9 @@ public class DelphixEngine {
                     "\"type\":\"%s\"}";
     public static final String CONTENT_REFRESH_HOOK =
             "{\"operations\":{\"preRefresh\":%s,\"postRefresh\":%s, \"type\": \"%s\"}," +
+                    "\"type\":\"%s\"}";
+    public static final String CONTENT_ROLLBACK_HOOK =
+            "{\"operations\":{\"preRollback\":%s,\"postRollback\":%s, \"type\": \"%s\"}," +
                     "\"type\":\"%s\"}";
     public static final String CONTENT_COMPATIBLE_REPOSITORIES =
             "{\"environment\": \"%s\", \"timeflowPointParameters\":%s," +
@@ -504,6 +510,32 @@ public class DelphixEngine {
     }
 
     /**
+     * Rollback a virtual database on the Delphix Engine using semantic location
+     */
+    public String rollbackContainer(String vdbRef, String location) throws IOException, DelphixEngineException {
+        // Construct parameters to send to engine
+        String type;
+        if (getContainerType(vdbRef).equals("OracleDatabaseContainer")) {
+            type = "OracleRollbackParameters";
+        } else {
+            type = "RollbackParameters";
+        }
+
+        JsonNode result;
+        // Do refresh by either semantic point or by snapshot point
+        if (location.equals(CONTENT_LATEST_POINT) || location.equals(CONTENT_LATEST_SNAPSHOT)) {
+            result = enginePOST(String.format(PATH_ROLLBACK, vdbRef),
+                    String.format(CONTENT_ROLLBACK_SEMANTIC, type, vdbRef, location));
+        } else {
+            DelphixSnapshot snapshot = getSnapshot(location);
+            result = enginePOST(String.format(PATH_ROLLBACK, vdbRef),
+                    String.format(CONTENT_ROLLBACK_POINT, type, snapshot.getTimeflowRef(),
+                            snapshot.getLatestChangePoint()));
+        }
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
      * Get the parent of a virtual database on the Delphix Engine
      */
     public String getParentContainer(String vdbRef) throws IOException, DelphixEngineException {
@@ -751,6 +783,10 @@ public class DelphixEngine {
         if (targetOperation.equals(ContainerOperationType.REFRESH)) {
             postData =
                     String.format(CONTENT_REFRESH_HOOK, preHooks.toString(), postHooks.toString(), operationType,
+                            source.getType());
+        } else if (targetOperation.equals(ContainerOperationType.ROLLBACK)) {
+            postData =
+                    String.format(CONTENT_ROLLBACK_HOOK, preHooks.toString(), postHooks.toString(), operationType,
                             source.getType());
         } else if (targetOperation.equals(ContainerOperationType.SYNC)) {
             postData =

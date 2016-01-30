@@ -39,6 +39,7 @@ public final class Messages {
     public static final String TEST_LOGIN_FAILURE = "test.login.failure";
     public static final String TEST_LOGIN_CONNECT = "test.login.connect";
     public static final String REFRESH_OPERATION = "refresh.operation";
+    public static final String ROLLBACK_OPERATION = "rollback.operation";
     public static final String PROVISION_OPERATION = "provision.operation";
     public static final String ENVIRONMENT_CREATE_OPERATION = "environment.create.operation";
     public static final String SYNC_OPERATION = "sync.operation";
