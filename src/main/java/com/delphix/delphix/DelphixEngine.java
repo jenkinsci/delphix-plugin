@@ -653,6 +653,12 @@ public class DelphixEngine {
         if (!containerName.isEmpty()) {
             ObjectNode containerNode = (ObjectNode) params.get("container");
             containerNode.put("name", containerName);
+            ObjectNode sourceConfigNode = (ObjectNode) params.get("sourceConfig");
+            sourceConfigNode.put("databaseName", containerName);
+            sourceConfigNode.put("uniqueName", containerName);
+            ObjectNode instanceNode = (ObjectNode) sourceConfigNode.get("instance");
+            instanceNode.put("instanceName", containerName);
+
         }
 
         // Set target repository
