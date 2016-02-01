@@ -56,10 +56,15 @@ public class DelphixListener extends RunListener<AbstractBuild<?, ?>> {
                 }
             }
 
+            boolean printHeader = true;
+
             // Check all environment variables to find all running Delphix jobs
-            listener.getLogger().println(Messages.getMessage(Messages.CONTAINER_BUILDER_SUMMARY));
             for (Map.Entry<String, String> containerEngine : build.getEnvironment(listener).entrySet()) {
                 if (containerEngine.getKey().contains("CONTAINER")) {
+                    if (printHeader) {
+                        listener.getLogger().println(Messages.getMessage(Messages.CONTAINER_BUILDER_SUMMARY));
+                        printHeader = false;
+                    }
                     // Login and cancel job
                     DelphixEngine delphixEngine = new DelphixEngine(
                             GlobalConfiguration.getPluginClassDescriptor().getEngine(containerEngine.getValue()));
