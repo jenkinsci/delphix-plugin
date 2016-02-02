@@ -266,9 +266,15 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
             // login to engine
             try {
                 engine.login();
-                LinkedHashMap<String, DelphixEnvironment> environments = engine.listEnvironments();
-                for (DelphixEnvironment environment : environments.values()) {
-                    ArrayList<DelphixRepository> repositories;
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                        new String[] { engine.getEngineAddress() }), "NULL"));
+            }
+            LinkedHashMap<String, DelphixEnvironment> environments = engine.listEnvironments();
+            for (DelphixEnvironment environment : environments.values()) {
+                ArrayList<DelphixRepository> repositories = new ArrayList<DelphixRepository>();
+                try {
                     if (delphixSnapshot.equals(DelphixEngine.CONTENT_LATEST_POINT) ||
                             delphixSnapshot.equals(DelphixEngine.CONTENT_LATEST_SNAPSHOT)) {
                         repositories =
@@ -279,15 +285,14 @@ public abstract class ContainerDescriptor extends BuildStepDescriptor<Builder> {
                         repositories =
                                 engine.getCompatibleRepositoriesSnapshot(environment.getReference(), delphixSnapshot);
                     }
-                    for (DelphixRepository repository : repositories) {
-                        options.add(new Option(environment.getName() + " - " + repository.getName(),
-                                repository.getReference()));
-                    }
+                } catch (DelphixEngineException e) {
+                    // Add message to drop down if unable to login to engine
+                    options.add(new Option(e.getLocalizedMessage(), "NULL"));
                 }
-            } catch (DelphixEngineException e) {
-                // Add message to drop down if unable to login to engine
-                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                        new String[] { engine.getEngineAddress() }), "NULL"));
+                for (DelphixRepository repository : repositories) {
+                    options.add(new Option(environment.getName() + " - " + repository.getName(),
+                            repository.getReference()));
+                }
             }
         } catch (IOException e) {
             // Add message to drop down if unable to connect to engine

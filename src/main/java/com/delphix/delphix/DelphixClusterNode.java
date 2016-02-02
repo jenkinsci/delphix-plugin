@@ -16,22 +16,20 @@
 package com.delphix.delphix;
 
 /**
- * Represents a repository in the Delphix Engine
+ * Represents a group in the Delphix Engine
  */
-public class DelphixRepository {
+public class DelphixClusterNode {
+
     private final String name;
 
     private final String reference;
 
-    private final String environment;
+    private final String cluster;
 
-    private boolean RAC;
-
-    public DelphixRepository(String name, String reference, String environment, boolean RAC) {
-        this.name = name;
+    public DelphixClusterNode(String name, String reference, String cluster) {
         this.reference = reference;
-        this.environment = environment;
-        this.RAC = RAC;
+        this.name = name;
+        this.cluster = cluster;
     }
 
     public String getName() {
@@ -42,11 +40,7 @@ public class DelphixRepository {
         return this.reference;
     }
 
-    public String getEnvironment() {
-        return this.environment;
-    }
-
-    public boolean getRAC() {
-        return this.RAC;
+    public String getCluster() {
+        return this.cluster;
     }
 }

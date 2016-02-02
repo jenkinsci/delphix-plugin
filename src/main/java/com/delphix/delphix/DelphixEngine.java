@@ -92,6 +92,8 @@ public class DelphixEngine {
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
     private static final String PATH_COMPATIBLE_REPOSITORIES =
             "/resources/json/delphix/repository/compatibleRepositories";
+    private static final String PATH_REPOSITORY = "/resources/json/delphix/repository/%s";
+    private static final String PATH_CLUSTER_NODES = "/resources/json/delphix/environment/oracle/clusternode";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -165,6 +167,8 @@ public class DelphixEngine {
     private static final String FIELD_MICRO = "micro";
     private static final String FIELD_REPOSITORIES = "repositories";
     private static final String FIELD_ENVIRONMENT = "environment";
+    private static final String FIELD_RAC = "rac";
+    private static final String FIELD_CLUSTER = "cluster";
 
     /**
      * Address of the Delphix Engine
@@ -569,6 +573,37 @@ public class DelphixEngine {
     }
 
     /**
+     * Gets a repository
+     */
+    public DelphixRepository getRepository(String repositoryRef)
+            throws IOException, DelphixEngineException {
+        JsonNode result = engineGET(String.format(PATH_REPOSITORY, repositoryRef));
+        JsonNode jsonRepository = result.get(FIELD_RESULT);
+        DelphixRepository repository = new DelphixRepository(jsonRepository.get(FIELD_NAME).asText(),
+                jsonRepository.get(FIELD_REFERENCE).asText(),
+                jsonRepository.get(FIELD_ENVIRONMENT).asText(),
+                jsonRepository.get(FIELD_RAC).asBoolean());
+        return repository;
+    }
+
+    /**
+     * Get cluster nodes
+     */
+    public ArrayList<DelphixClusterNode> listClusterNodes()
+            throws IOException, DelphixEngineException {
+        JsonNode result = engineGET(PATH_CLUSTER_NODES);
+        JsonNode jsonClusterNodes = result.get(FIELD_RESULT);
+        ArrayList<DelphixClusterNode> clusterNodes = new ArrayList<DelphixClusterNode>();
+        for (int i = 0; i < jsonClusterNodes.size(); i++) {
+            DelphixClusterNode clusterNode = new DelphixClusterNode(jsonClusterNodes.get(i).get(FIELD_NAME).asText(),
+                    jsonClusterNodes.get(i).get(FIELD_REFERENCE).asText(),
+                    jsonClusterNodes.get(i).get(FIELD_CLUSTER).asText());
+            clusterNodes.add(clusterNode);
+        }
+        return clusterNodes;
+    }
+
+    /**
      * Get the compatible provision repositories
      */
     private ArrayList<DelphixRepository> getCompatibleRepositories(String environmentRef, String provisionParameters)
@@ -581,7 +616,8 @@ public class DelphixEngine {
         for (int i = 0; i < jsonRepositories.size(); i++) {
             DelphixRepository repository = new DelphixRepository(jsonRepositories.get(i).get(FIELD_NAME).asText(),
                     jsonRepositories.get(i).get(FIELD_REFERENCE).asText(),
-                    jsonRepositories.get(i).get(FIELD_ENVIRONMENT).asText());
+                    jsonRepositories.get(i).get(FIELD_ENVIRONMENT).asText(),
+                    jsonRepositories.get(i).get(FIELD_RAC).asBoolean());
             repositories.add(repository);
         }
         return repositories;
@@ -636,7 +672,7 @@ public class DelphixEngine {
      * Provision a VDB either a semantic point or a snapshot with the name of the new VDB being optional
      */
     @SuppressWarnings("unchecked")
-    public String provisionVDB(String containerRef, String snapshotRef, String containerName, String repository,
+    public String provisionVDB(String containerRef, String snapshotRef, String containerName, String repositoryRef,
             String mountBase)
                     throws IOException, DelphixEngineException {
         String defaultParams = "";
@@ -658,13 +694,33 @@ public class DelphixEngine {
             sourceConfigNode.put("uniqueName", containerName);
             ObjectNode instanceNode = (ObjectNode) sourceConfigNode.get("instance");
             instanceNode.put("instanceName", containerName);
-
         }
 
         // Set target repository
-        if (!repository.isEmpty() && !repository.equals("default")) {
+        if (!repositoryRef.isEmpty() && !repositoryRef.equals("default")) {
             ObjectNode sourceConfig = (ObjectNode) params.get("sourceConfig");
-            sourceConfig.put("repository", repository);
+            sourceConfig.put("repository", repositoryRef);
+            DelphixRepository repository = getRepository(repositoryRef);
+            // Handle provisioning to RAC
+            if (repository.getRAC()) {
+                sourceConfig.put("type", "OracleRACConfig");
+                if (sourceConfig.has("instance")) {
+                    sourceConfig.remove("instance");
+                }
+                ArrayNode instances = sourceConfig.putArray("instances");
+                ArrayList<DelphixClusterNode> clusterNodes = listClusterNodes();
+                int i = 1;
+                for (DelphixClusterNode node : clusterNodes) {
+                    ObjectNode instance = MAPPER.createObjectNode();
+                    instance.put("type", "OracleRACInstance");
+                    instance.put("instanceNumber", i);
+                    ObjectNode containerNode = (ObjectNode) params.get("container");
+                    instance.put("instanceName", containerNode.get("name").asText() + i);
+                    instance.put("node", node.getReference());
+                    instances.add(instance);
+                    i++;
+                }
+            }
         }
 
         // Set the base mount point
