@@ -197,7 +197,8 @@ public class ContainerBuilder extends Builder {
                             target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.refreshContainer(target.getReference(), location);
-                    } else if ( operationType.equals(DelphixEngine.ContainerOperationType.ROLLBACK) && target.getGroup().equals(group)) {
+                    } else if (operationType.equals(DelphixEngine.ContainerOperationType.ROLLBACK) &&
+                            target.getGroup().equals(group)) {
                         build.addAction(new PublishEnvVarAction(target.getReference(), engine));
                         job = delphixEngine.rollbackContainer(target.getReference(), location);
                     } else if (operationType.equals(DelphixEngine.ContainerOperationType.SYNC) &&
