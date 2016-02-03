@@ -44,17 +44,24 @@ public class JobStatus {
      */
     private String targetName;
 
+    /**
+     * Action type
+     */
+    private String actionType;
+
     public JobStatus() {
         this.status = StatusEnum.RUNNING;
         this.summary = "";
         this.target = "";
+        this.actionType = "";
     }
 
-    public JobStatus(StatusEnum status, String summary, String target, String targetName) {
+    public JobStatus(StatusEnum status, String summary, String target, String targetName, String actionType) {
         this.status = status;
         this.summary = summary;
         this.target = target;
         this.targetName = targetName;
+        this.actionType = actionType;
     }
 
     public StatusEnum getStatus() {
@@ -71,5 +78,9 @@ public class JobStatus {
 
     public String getTargetName() {
         return targetName;
+    }
+
+    public String getActionType() {
+        return actionType;
     }
 }

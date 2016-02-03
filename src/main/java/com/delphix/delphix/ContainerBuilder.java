@@ -283,7 +283,9 @@ public class ContainerBuilder extends Builder {
                     running = true;
                     jobs.remove(job);
                     String target = status.get(job).getTarget();
-                    if (retries.get(target).compareTo(Integer.decode(retryCount)) < 0) {
+                    if ((status.get(job).getActionType().equals("DB_REFRESH") ||
+                            status.get(job).getActionType().equals("DB_SYNC")) &&
+                            retries.get(target).compareTo(Integer.decode(retryCount)) < 0) {
                         listener.getLogger().println(Messages.getMessage(Messages.RETRY, new String[] { target }));
                         targets.add(containers.get(target));
                         retries.put(target, retries.get(target) + 1);

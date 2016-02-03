@@ -151,6 +151,7 @@ public class DelphixEngine {
     private static final String FIELD_REFERENCE = "reference";
     private static final String FIELD_TARGET = "target";
     private static final String FIELD_TARGET_NAME = "targetName";
+    private static final String FIELD_ACTION_TYPE = "actionType";
     private static final String FIELD_TIMESTAMP = "timestamp";
     private static final String FIELD_LATEST_CHANGE_POINT = "latestChangePoint";
     private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
@@ -484,7 +485,8 @@ public class DelphixEngine {
                 recentEvent.get(FIELD_TIMESTAMP).asText() + " - " + recentEvent.get(FIELD_MESSAGE_DETAILS).asText();
         String target = jobStatus.get(FIELD_TARGET).asText();
         String targetName = jobStatus.get(FIELD_TARGET_NAME).asText();
-        return new JobStatus(status, summary, target, targetName);
+        String actionType = jobStatus.get(FIELD_ACTION_TYPE).asText();
+        return new JobStatus(status, summary, target, targetName, actionType);
     }
 
     /**
