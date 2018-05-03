@@ -62,7 +62,7 @@ public class DelphixEngine {
     private static final String PATH_SELFSERVICE = "/resources/json/delphix/jetstream/container";
     private static final String PATH_REFRESH_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/refresh";
     private static final String PATH_RESTORE_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
-    private static final String PATH_RESET_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
+    private static final String PATH_RESET_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/reset";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -93,7 +93,8 @@ public class DelphixEngine {
                     "\"type\":\"ProvisionCompatibilityParameters\"}";
     public static final String CONTENT_REFRESH_SELFSERVICECONTAINER = "{}";
     public static final String CONTENT_RESTORE_SELFSERVICECONTAINER = "{}";
-    public static final String CONTENT_RESET_SELFSERVICECONTAINER = "";
+    public static final String CONTENT_RESET_SELFSERVICECONTAINER =
+        "{\"type\":\"JSDataContainerResetParameters\",\"forceOption\":false}";
 
     /*
      * Fields used in JSON requests and responses

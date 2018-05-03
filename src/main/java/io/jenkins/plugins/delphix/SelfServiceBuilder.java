@@ -30,19 +30,18 @@ import hudson.util.ListBoxModel;
 import jenkins.tasks.SimpleBuildStep;
 
 /**
- * Describes a build step for the Delphix plugin. The refresh and sync build
- * steps inherit from this class. These build steps can be added in the job
- * configuration page in Jenkins.
+ * Describes a build step for managing a Delphix Self Service Container
+ * These build steps can be added in the job configuration page in Jenkins.
  */
 public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
 
     /**
-     * Delphix Engine that hosts the container
+     * Delphix Engine that hosts the Container
      */
     public final String delphixEngine;
 
     /**
-     * Container to be Update
+     * Container to be Updated
      */
     public final String delphixEnvironment;
 
@@ -64,7 +63,6 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         this.delphixEnvironment = delphixEnvironment;
         this.delphixOperation = delphixOperation;
     }
-
 
     @Extension
     public static final class RefreshDescriptor extends SelfServiceDescriptor {
@@ -89,7 +87,13 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         public ListBoxModel doFillDelphixOperationItems() {
             ListBoxModel operations = new ListBoxModel();
             operations.add("Refresh","Refresh");
+            operations.add("Restore","Restore");
             operations.add("Reset","Reset");
+            operations.add("Activate","Activate");
+
+            //operations.add("Branch","Branch");
+            //operations.add("Bookmark","Bookmark");
+            //operations.add("Share","Share");
             return operations;
         }
 
@@ -103,7 +107,12 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
+    public void perform(
+        Run<?, ?> run,
+        FilePath workspace,
+        Launcher launcher,
+        TaskListener listener
+    ) throws InterruptedException, IOException {
         // Check if the input engine is not valid
         if (delphixEnvironment.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
@@ -125,14 +134,12 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             //Log-in to engine
             delphixEngine.login();
 
-            //Refresh
-            if (operationType.equals("Refresh")) {
-                job = delphixEngine.refreshSelfServiceContainer(environment);
-            }
-
-            //Restore
-            if (operationType.equals("Reset")) {
-                job = delphixEngine.resetSelfServiceContainer(environment);
+            switch (operationType) {
+                case "Refresh": job = delphixEngine.refreshSelfServiceContainer(environment);
+                    break;
+                case "Reset": job = delphixEngine.resetSelfServiceContainer(environment);
+                    break;
+                default: throw new DelphixEngineException("Undefined Self Service Operation");
             }
 
         } catch (DelphixEngineException e) {
