@@ -15,17 +15,12 @@
 
 package io.jenkins.plugins.delphix;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.collections.IteratorUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -40,8 +35,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Used for interacting with a Delphix Engine
@@ -62,29 +55,10 @@ public class DelphixEngine {
      */
     private static final String PATH_SESSION = "/resources/json/delphix/session";
     private static final String PATH_LOGIN = "/resources/json/delphix/login";
-    private static final String PATH_DATABASE = "/resources/json/delphix/database";
-    private static final String PATH_SOURCE = "/resources/json/delphix/source";
-    private static final String PATH_HOOK_OPERATION = "/resources/json/delphix/source/%s";
-    private static final String PATH_TIMEFLOW = "/resources/json/delphix/timeflow";
-    private static final String PATH_REFRESH = "/resources/json/delphix/database/%s/refresh";
-    private static final String PATH_ROLLBACK = "/resources/json/delphix/database/%s/rollback";
-    private static final String PATH_SYNC = "/resources/json/delphix/database/%s/sync";
     private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
-    private static final String PATH_CONTAINER = "/resources/json/delphix/database/%s";
     private static final String PATH_JOB = "/resources/json/delphix/job/%s";
-    private static final String PATH_PROVISION_DEFAULTS = "/resources/json/delphix/database/provision/defaults";
-    private static final String PATH_PROVISION = "/resources/json/delphix/database/provision";
-    private static final String PATH_GROUPS = "/resources/json/delphix/group";
-    private static final String PATH_DELETE_CONTAINER = "/resources/json/delphix/database/%s/delete";
-    private static final String PATH_REFRESH_ENVIRONMENT = "/resources/json/delphix/environment/%s/refresh";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
-    private static final String PATH_DELETE_ENVIRONMENT = "/resources/json/delphix/environment/%s/delete";
-    private static final String PATH_SNAPSHOT = "/resources/json/delphix/snapshot";
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
-    private static final String PATH_COMPATIBLE_REPOSITORIES =
-            "/resources/json/delphix/repository/compatibleRepositories";
-    private static final String PATH_REPOSITORY = "/resources/json/delphix/repository/%s";
-    private static final String PATH_CLUSTER_NODES = "/resources/json/delphix/environment/oracle/clusternode";
     private static final String PATH_SELFSERVICE = "/resources/json/delphix/jetstream/container";
     private static final String PATH_REFRESH_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/refresh";
     private static final String PATH_RESTORE_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
@@ -97,27 +71,12 @@ public class DelphixEngine {
             "{\"type\": \"APIVersion\",\"major\": %s,\"minor\": %s,\"micro\": %s}}";
     private static final String CONTENT_LOGIN =
             "{\"type\": \"LoginRequest\",\"username\": \"%s\",\"password\": \"%s\"}";
-    private static final String CONTENT_REFRESH_SEMANTIC = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
-            "\"type\": \"TimeflowPointSemantic\",\"container\": \"%s\", \"location\": \"%s\"}}";
-    private static final String CONTENT_REFRESH_POINT = "{\"type\": \"%s\", \"timeflowPointParameters\": {" +
-            "\"type\": \"TimeflowPointTimestamp\", \"timeflow\": \"%s\", \"timestamp\":\"%s\"}}";
-    private static final String CONTENT_ROLLBACK_SEMANTIC = CONTENT_REFRESH_SEMANTIC;
-    private static final String CONTENT_ROLLBACK_POINT = CONTENT_REFRESH_POINT;
-    private static final String CONTENT_SYNC = "{\"type\": \"%s\"}";
-    private static final String CONTENT_PROVISION_DEFAULTS_CONTAINER =
-            "{\"type\": \"TimeflowPointSemantic\", \"container\": \"%s\", \"location\": \"%s\"}";
-    private static final String CONTENT_PROVISION_DEFAULTS_TIMESTAMP =
-            "{\"type\": \"TimeflowPointTimestamp\", \"timeflow\": \"%s\",\"timestamp\":\"%s\"}";
-    private static final String CONTENT_DELETE_CONTAINER = "{\"type\": \"DeleteParameters\"}";
-    private static final String CONTENT_ORACLE_DELETE_CONTAINER = "{\"type\": \"OracleDeleteParameters\"}";
-    private static final String CONTENT_REFRESH_ENVIRONMENT = "{}";
     private static final String CONTENT_ADD_UNIX_ENVIRONMENT =
             "{\"type\": \"HostEnvironmentCreateParameters\",\"primaryUser\": {\"type\": \"EnvironmentUser\"," +
                     "\"name\": \"%s\",\"credential\": {\"type\": \"PasswordCredential\",\"password\": \"%s\"}}," +
                     "\"hostEnvironment\": {\"type\": \"UnixHostEnvironment\"},\"hostParameters\": {\"type\": " +
                     "\"UnixHostCreateParameters\",\"host\": {\"type\": \"UnixHost\",\"address\": " +
                     "\"%s\",\"toolkitPath\": \"%s\"}}}";
-    private static final String CONTENT_DELETE_ENVIRONMENT = "{}";
     public static final String CONTENT_LATEST_POINT = "LATEST_POINT";
     public static final String CONTENT_LATEST_SNAPSHOT = "LATEST_SNAPSHOT";
     public static final String CONTENT_SYNC_HOOK =
@@ -142,8 +101,6 @@ public class DelphixEngine {
     private static final String FIELD_EVENTS = "events";
     private static final String FIELD_JOB_STATE = "jobState";
     private static final String FIELD_RESULT = "result";
-    private static final String FIELD_PROVISION_CONTAINER = "provisionContainer";
-    private static final String FIELD_TYPE = "type";
     private static final String FIELD_JOB = "job";
     private static final String FIELD_NAME = "name";
     private static final String FIELD_REFERENCE = "reference";
@@ -151,23 +108,12 @@ public class DelphixEngine {
     private static final String FIELD_TARGET_NAME = "targetName";
     private static final String FIELD_ACTION_TYPE = "actionType";
     private static final String FIELD_TIMESTAMP = "timestamp";
-    private static final String FIELD_LATEST_CHANGE_POINT = "latestChangePoint";
     private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
-    private static final String FIELD_GROUP = "group";
     private static final String FIELD_STATUS = "status";
-    private static final String FIELD_CONTAINER = "container";
-    private static final String FIELD_TIMEFLOW = "timeflow";
-    private static final String FIELD_PARENT_POINT = "parentPoint";
-    private static final String FIELD_CURRENT_TIMEFLOW = "currentTimeflow";
-    private static final String FIELD_RUNTIME = "runtime";
     private static final String FIELD_API_VERSION = "apiVersion";
     private static final String FIELD_MAJOR = "major";
     private static final String FIELD_MINOR = "minor";
     private static final String FIELD_MICRO = "micro";
-    private static final String FIELD_REPOSITORIES = "repositories";
-    private static final String FIELD_ENVIRONMENT = "environment";
-    private static final String FIELD_RAC = "rac";
-    private static final String FIELD_CLUSTER = "cluster";
 
     /**
      * Address of the Delphix Engine
