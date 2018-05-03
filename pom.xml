@@ -27,11 +27,6 @@
 
     <developers>
         <developer>
-            <id>pvilim</id>
-            <name>Peter Vilim</name>
-            <email>peter.vilim@delphix.com</email>
-        </developer>
-        <developer>
             <id>mcred</id>
             <name>Derek Smart</name>
             <email>derek.smart@delphix.com</email>
