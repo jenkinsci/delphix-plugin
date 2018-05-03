@@ -1,0 +1,32 @@
+<!--
+    Copyright (c) 2015 by Delphix. All rights reserved.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:section title="Virtual Database">
+    <form>
+            <f:entry title="Delphix Engine" field="delphixEngine">
+                <f:select id="delphixEngine" default=" "/>
+            </f:entry>
+            <f:entry title="Group" field="delphixGroup">
+                <f:select id="delphixGroup" default=" "/>
+            </f:entry>
+            <f:entry title="Container" field="delphixContainer">
+                <f:select id="delphixContainer" default=" "/>
+            </f:entry>
+            <f:entry title="Snapshot" field="delphixSnapshot">
+                <f:select id="delphixSnapshot" default=" "/>
+            </f:entry>
+            <f:advanced>
+                <f:entry title="Target repository" field="delphixCompatibleRepositories">
+                    <f:select id="delphixCompatibleRepositories" default=" "/>
+                </f:entry>
+                <f:entry title="Mount base" field="mountBase">
+                    <f:textbox default=""/>
+                </f:entry>
+                <f:entry title="Name" field="containerName">
+                    <f:textbox default=""/>
+                </f:entry>
+            </f:advanced>
+    </form>
+    </f:section>
+</j:jelly>

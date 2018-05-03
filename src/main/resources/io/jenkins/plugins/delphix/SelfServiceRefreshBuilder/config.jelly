@@ -1,0 +1,15 @@
+<!--
+    Copyright (c) 2018 by Delphix. All rights reserved.
+-->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:section title="Self Service">
+    <form>
+            <f:entry title="Delphix Engine" field="delphixEngine">
+                <f:select id="delphixEngine" default=" "/>
+            </f:entry>
+            <f:entry title="Self Service Container" field="delphixSelfService">
+                <f:select id="delphixSelfService" default=" "/>
+            </f:entry>
+    </form>
+    </f:section>
+</j:jelly>
