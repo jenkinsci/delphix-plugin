@@ -17,16 +17,26 @@ package io.jenkins.plugins.delphix;
 
 import java.io.IOException;
 
-import hudson.model.AbstractBuild;
-import hudson.model.BuildListener;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+
+import hudson.Launcher;
+import hudson.Extension;
+import hudson.FilePath;
+import hudson.model.Build;
 import hudson.tasks.Builder;
+import hudson.model.Run;
+import hudson.model.BuildListener;
+import hudson.model.TaskListener;
+import hudson.util.ListBoxModel;
+import jenkins.tasks.SimpleBuildStep;
 
 /**
  * Describes a build step for the Delphix plugin. The refresh and sync build
  * steps inherit from this class. These build steps can be added in the job
  * configuration page in Jenkins.
  */
-public class SelfServiceBuilder extends Builder {
+public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
 
     /**
      * Delphix Engine that hosts the container
@@ -34,9 +44,14 @@ public class SelfServiceBuilder extends Builder {
     public final String delphixEngine;
 
     /**
-     * Container to be Refreshed
+     * Container to be Update
      */
     public final String delphixEnvironment;
+
+    /**
+     * Operation used to update Container
+     */
+    public final String delphixOperation;
 
     /**
      * [SelfServiceBuilder description]
@@ -44,65 +59,86 @@ public class SelfServiceBuilder extends Builder {
      * @param delphixEngine      String
      * @param delphixEnvironment String
      */
-    public SelfServiceBuilder(String delphixEngine, String delphixEnvironment) {
+    @DataBoundConstructor
+    public SelfServiceBuilder(String delphixEngine, String delphixEnvironment, String delphixOperation) {
         this.delphixEngine = delphixEngine;
         this.delphixEnvironment = delphixEnvironment;
+        this.delphixOperation = delphixOperation;
     }
 
-    /**
-     * Run the Refresh Job
-     *
-     * @param  build                AbstractBuild
-     * @param  listener             BuildListener
-     * @param  operationType        String
-     *
-     * @return
-     *
-     * @throws InterruptedException
-     */
-    public boolean perform(
-        final AbstractBuild<?, ?> build,
-        final BuildListener listener,
-        DelphixEngine.SelfServiceOperationType operationType
-    ) throws InterruptedException {
+
+    @Extension
+    public static final class RefreshDescriptor extends SelfServiceDescriptor {
+
+        /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixEngineItems() {
+            return super.doFillDelphixEngineItems();
+        }
+
+        /**
+         * Add containers to drop down for Refresh action
+         */
+        public ListBoxModel doFillDelphixEnvironmentItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixSelfServiceItems(delphixEngine);
+        }
+
+        /**
+         * Name to display for build step
+         */
+        @Override
+        public String getDisplayName() {
+            return Messages.getMessage(Messages.SELFSERVICE_OPERATION);
+        }
+    }
+
+    @Override
+    public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
         // Check if the input engine is not valid
         if (delphixEnvironment.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
-            return false;
         }
 
-        // Get the engine and the environment on the engine on which to operate
+        // Get the engine, environment and operation on the engine on which to operate
         String engine = delphixEngine;
         String environment = delphixEnvironment;
+        String operationType = delphixOperation;
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
-            return false;
         }
         DelphixEngine delphixEngine = new DelphixEngine(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
 
-        // Login to Delphix Engine and run either a refresh or sync job
         String job = "";
         try {
+            //Log-in to engine
             delphixEngine.login();
-            if (operationType.equals(DelphixEngine.SelfServiceOperationType.REFRESH)) {
+
+            //Refresh
+            if (operationType.equals("Refresh")) {
                 job = delphixEngine.refreshSelfServiceContainer(environment);
             }
+
+            //Restore
+            if (operationType.equals("Reset")) {
+                job = delphixEngine.resetSelfServiceContainer(environment);
+            }
+
         } catch (DelphixEngineException e) {
             // Print error from engine if job fails and abort Jenkins job
             listener.getLogger().println(e.getMessage());
-            return false;
         } catch (IOException e) {
             // Print error if unable to connect to engine and abort Jenkins job
             listener.getLogger().println(
                     Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }));
-            return false;
         }
 
         // Make job state available to clean up after run completes
-        build.addAction(new PublishEnvVarAction(environment, engine));
-        build.addAction(new PublishEnvVarAction(job, engine));
+        run.addAction(new PublishEnvVarAction(environment, engine));
+        run.addAction(new PublishEnvVarAction(job, engine));
+
         JobStatus status = new JobStatus();
         JobStatus lastStatus = new JobStatus();
 
@@ -114,11 +150,9 @@ public class SelfServiceBuilder extends Builder {
                 status = delphixEngine.getJobStatus(job);
             } catch (DelphixEngineException e) {
                 listener.getLogger().println(e.getMessage());
-                return false;
             } catch (IOException e) {
                 listener.getLogger().println(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
                         new String[] { delphixEngine.getEngineAddress() }));
-                return false;
             }
 
             // Update status if it has changed on Engine
@@ -129,8 +163,5 @@ public class SelfServiceBuilder extends Builder {
             // Sleep for one second before checking again
             Thread.sleep(1000);
         }
-
-        // Job completed
-        return !status.getStatus().equals(JobStatus.StatusEnum.FAILED);
     }
 }

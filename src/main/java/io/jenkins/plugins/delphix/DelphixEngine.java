@@ -58,10 +58,6 @@ public class DelphixEngine {
         CREATE, REFRESH, DELETE
     }
 
-    public enum SelfServiceOperationType {
-        REFRESH
-    }
-
     /*
      * Miscellaneous constants
      */
@@ -100,6 +96,8 @@ public class DelphixEngine {
     private static final String PATH_CLUSTER_NODES = "/resources/json/delphix/environment/oracle/clusternode";
     private static final String PATH_SELFSERVICE = "/resources/json/delphix/jetstream/container";
     private static final String PATH_REFRESH_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/refresh";
+    private static final String PATH_RESTORE_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
+    private static final String PATH_RESET_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -144,6 +142,8 @@ public class DelphixEngine {
             "{\"environment\": \"%s\", \"timeflowPointParameters\":%s," +
                     "\"type\":\"ProvisionCompatibilityParameters\"}";
     public static final String CONTENT_REFRESH_SELFSERVICECONTAINER = "{}";
+    public static final String CONTENT_RESTORE_SELFSERVICECONTAINER = "{}";
+    public static final String CONTENT_RESET_SELFSERVICECONTAINER = "";
 
     /*
      * Fields used in JSON requests and responses
@@ -832,6 +832,34 @@ public class DelphixEngine {
     public String refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_REFRESH_SELFSERVICECONTAINER, environmentRef),
                 CONTENT_REFRESH_SELFSERVICECONTAINER);
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Restore a Self Service Container
+     *
+     * @param  environmentRef String
+     * @throws IOException
+     * @throws DelphixEngineExceptionEnvironmentOperationType
+     * @return String
+     */
+    public String restoreSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(String.format(PATH_RESTORE_SELFSERVICECONTAINER, environmentRef),
+                CONTENT_RESTORE_SELFSERVICECONTAINER);
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Reset a Self Service Container
+     *
+     * @param  environmentRef
+     * @return String
+     * @throws IOException
+     * @throws DelphixEngineException
+     */
+    public String resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(String.format(PATH_RESET_SELFSERVICECONTAINER, environmentRef),
+                CONTENT_RESET_SELFSERVICECONTAINER);
         return result.get(FIELD_JOB).asText();
     }
 
