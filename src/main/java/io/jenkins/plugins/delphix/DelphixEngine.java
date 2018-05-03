@@ -230,6 +230,9 @@ public class DelphixEngine {
     /**
      * Login to Delphix Engine Will throw a DelphixEngineException if the login
      * fails due to bad username or password
+     *
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     public void login() throws IOException, DelphixEngineException {
         // Get session with 1.0.0
@@ -254,9 +257,9 @@ public class DelphixEngine {
      *
      * @return LinkedHashMap
      *
-     * @throws ClientProtocolException
-     * @throws IOException
-     * @throws DelphixEngineException
+     * @throws ClientProtocolException [description]
+     * @throws IOException             [description]
+     * @throws DelphixEngineException  [description]
      */
     public LinkedHashMap<String, DelphixSelfService> listSelfServices()
             throws ClientProtocolException, IOException, DelphixEngineException {
@@ -277,6 +280,12 @@ public class DelphixEngine {
 
     /**
      * Cancel a job running on the Delphix Engine
+     *
+     * @param  jobRef                  String
+     *
+     * @throws ClientProtocolException [description]
+     * @throws IOException             [description]
+     * @throws DelphixEngineException  [description]
      */
     public void cancelJob(String jobRef) throws ClientProtocolException, IOException, DelphixEngineException {
         enginePOST(String.format(PATH_CANCEL_JOB, jobRef), "");
@@ -284,6 +293,14 @@ public class DelphixEngine {
 
     /**
      * Get the status of a job running on the Delphix Engine
+     *
+     * @param  job                     String
+     *
+     * @return                         JobStatus
+     *
+     * @throws ClientProtocolException [description]
+     * @throws IOException             [description]
+     * @throws DelphixEngineException  [description]
      */
     public JobStatus getJobStatus(String job) throws ClientProtocolException, IOException, DelphixEngineException {
         // Get job status
@@ -304,6 +321,16 @@ public class DelphixEngine {
 
     /**
      * Create and discover an environment
+     *
+     * @param  address                String
+     * @param  user                   String
+     * @param  password               String
+     * @param  toolkit                String
+     *
+     * @return                        String
+     *
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     public String createEnvironment(String address, String user, String password, String toolkit)
             throws IOException, DelphixEngineException {
@@ -315,10 +342,10 @@ public class DelphixEngine {
     /**
      * Refreshes a Self Service Container
      *
-     * @param  environmentRef String
-     * @throws IOException
-     * @throws DelphixEngineExceptionEnvironmentOperationType
-     * @return String
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     public String refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_REFRESH_SELFSERVICECONTAINER, environmentRef),
@@ -329,10 +356,10 @@ public class DelphixEngine {
     /**
      * Restore a Self Service Container
      *
-     * @param  environmentRef String
-     * @throws IOException
-     * @throws DelphixEngineExceptionEnvironmentOperationType
-     * @return String
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     public String restoreSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_RESTORE_SELFSERVICECONTAINER, environmentRef),
@@ -342,11 +369,10 @@ public class DelphixEngine {
 
     /**
      * Reset a Self Service Container
-     *
-     * @param  environmentRef
-     * @return String
-     * @throws IOException
-     * @throws DelphixEngineException
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     public String resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(PATH_RESET_SELFSERVICECONTAINER, environmentRef),

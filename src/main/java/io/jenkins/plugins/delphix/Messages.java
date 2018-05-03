@@ -59,6 +59,9 @@ public final class Messages {
 
     /**
      * Get message that does not have any parameters
+     *
+     * @param  message Sting
+     * @return         String
      */
     public static String getMessage(String message) {
         return messages.getString(message);
@@ -66,6 +69,10 @@ public final class Messages {
 
     /**
      * Get message with parameters
+     *
+     * @param  message String
+     * @param  params  String[]
+     * @return         String
      */
     public static String getMessage(String message, String[] params) {
         MessageFormat formatter = new MessageFormat("");

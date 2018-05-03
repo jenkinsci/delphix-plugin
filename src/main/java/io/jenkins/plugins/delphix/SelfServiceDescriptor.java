@@ -77,7 +77,7 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
     /**
      * Add groups to drop down for build action
      *
-     * @param   delphixEngine
+     * @param   delphixEngine   String
      *
      * @return  ListBoxModel
      */
