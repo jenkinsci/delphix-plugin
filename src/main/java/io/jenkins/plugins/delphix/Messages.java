@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Delphix. All rights reserved.
+ * Copyright (c) 2015, 2018 by Delphix. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,6 +53,7 @@ public final class Messages {
     public static final String UPDATE_HOOKS = "update.hooks";
     public static final String UPDATE_HOOKS_SKIP = "update.hooks.skip";
     public static final String UPDATE_HOOKS_ORACLE_SKIP = "update.hooks.oracle.skip";
+    public static final String SELFSERVICE_REFRESH_OPERATION = "selfservice.refresh.operation";
 
     private static ResourceBundle messages = ResourceBundle.getBundle(MESSAGE_BUNDLE, Locale.getDefault());
 

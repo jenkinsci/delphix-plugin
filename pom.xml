@@ -9,7 +9,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>delphix</artifactId>
-    <version>0.1.0</version>
+    <version>2.0.0</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.60.3</jenkins.version>
@@ -17,25 +17,28 @@
     </properties>
     <name>Delphix</name>
     <description>Delphix</description>
-    <!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
+
     <licenses>
         <license>
-            <name>MIT License</name>
-            <url>https://opensource.org/licenses/MIT</url>
+            <name>Apache-2.0</name>
+            <url>https://opensource.org/licenses/Apache-2.0</url>
         </license>
     </licenses>
 
-    <!-- If you want this to appear on the wiki page:
     <developers>
-      <developer>
-        <id>bhacker</id>
-        <name>Bob Q. Hacker</name>
-        <email>bhacker@nowhere.net</email>
-      </developer>
-    </developers> -->
+        <developer>
+            <id>pvilim</id>
+            <name>Peter Vilim</name>
+            <email>peter.vilim@delphix.com</email>
+        </developer>
+        <developer>
+            <id>mcred</id>
+            <name>Derek Smart</name>
+            <email>derek.smart@delphix.com</email>
+        </developer>
+    </developers>
 
-    <!-- Assuming you want to host on @jenkinsci:
-    <url>https://wiki.jenkins.io/display/JENKINS/TODO+Plugin</url>
+    <url>http://wiki.jenkins-ci.org/display/JENKINS/Delphix+Plugin</url>
     <scm>
         <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>

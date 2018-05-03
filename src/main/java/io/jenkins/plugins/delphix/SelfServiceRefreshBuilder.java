@@ -27,7 +27,7 @@ import hudson.model.BuildListener;
 import hudson.util.ListBoxModel;
 
 /**
- * Describes a VDB Refresh build step for the Delphix plugin
+ * Describes a Self Service Container Refresh build step for the Delphix plugin
  */
 public class SelfServiceRefreshBuilder extends SelfServiceBuilder {
 
@@ -37,7 +37,16 @@ public class SelfServiceRefreshBuilder extends SelfServiceBuilder {
     }
 
     /**
-     * Run the refresh job
+     * Run the Refresh Job
+     *
+     * @param  build                AbstractBuild
+     * @param  launcher             Launcher
+     * @param  listener             BuildListener
+     *
+     * @return
+     *
+     * @throws IOException
+     * @throws InterruptedException
      */
     @Override
     public boolean perform(final AbstractBuild<?, ?> build, Launcher launcher, final BuildListener listener)
@@ -67,8 +76,7 @@ public class SelfServiceRefreshBuilder extends SelfServiceBuilder {
          */
         @Override
         public String getDisplayName() {
-            //return Messages.getMessage(Messages.ENVIRONMENT_REFRESH_OPERATION);
-            return "Delphix - Refresh Self Service Container";
+            return Messages.getMessage(Messages.SELFSERVICE_REFRESH_OPERATION);
         }
     }
 }

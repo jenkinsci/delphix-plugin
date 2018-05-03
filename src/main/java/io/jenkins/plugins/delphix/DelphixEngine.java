@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Delphix. All rights reserved.
+ * Copyright (c) 2015, 2018 by Delphix. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -100,31 +100,6 @@ public class DelphixEngine {
     private static final String PATH_CLUSTER_NODES = "/resources/json/delphix/environment/oracle/clusternode";
     private static final String PATH_SELFSERVICE = "/resources/json/delphix/jetstream/container";
     private static final String PATH_REFRESH_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/refresh";
-
-
-/*
-def refresh(engine, ref, js_data_container_refresh_parameters=None):
-    """
-    Refresh this data container to the latest data from its template.
-
-    :param engine: The Delphix Engine
-    :type engine: :py:class:`delphixpy.v1_9_2.delphix_engine.DelphixEngine`
-    :param ref: Reference to a
-        :py:class:`delphixpy.v1_9_2.web.objects.JSDataContainer.JSDataContainer
-        ` object
-    :type ref: ``str``
-    :param js_data_container_refresh_parameters: Payload object.
-    :type js_data_container_refresh_parameters:
-        :py:class:`v1_9_2.web.vo.JSDataContainerRefreshParameters`
-    """
-    assert API_VERSION == engine.API_VERSION, "Wrong API version (%s) for parameter 'engine' (%s)" % (API_VERSION, engine.API_VERSION)
-    url = "/resources/json/delphix/jetstream/container/%s/refresh" % ref
-    response = engine.post(url, js_data_container_refresh_parameters.to_dict(dirty=True) if js_data_container_refresh_parameters else None)
-    result = response_validator.validate(response, engine)
-    raw_result = getattr(engine, 'raw_result', False)
-    return response_validator.parse_result(result, undef_enabled=True, return_types=None, returns_list=None, raw_result=raw_result)
- */
-
 
     /*
      * Content for POST requests to Delphix Engine
@@ -467,7 +442,13 @@ def refresh(engine, ref, js_data_container_refresh_parameters=None):
     }
 
     /**
-     * List self services in the Delphix Engine
+     * List self service containers in the Delphix Engine
+     *
+     * @return LinkedHashMap
+     *
+     * @throws ClientProtocolException
+     * @throws IOException
+     * @throws DelphixEngineException
      */
     public LinkedHashMap<String, DelphixSelfService> listSelfServices()
             throws ClientProtocolException, IOException, DelphixEngineException {

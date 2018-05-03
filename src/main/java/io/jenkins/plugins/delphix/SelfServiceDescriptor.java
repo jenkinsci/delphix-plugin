@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Delphix. All rights reserved.
+ * Copyright (c) 2018 by Delphix. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,6 +39,8 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
 
     /**
      * Add engines to drop down for build action
+     *
+     * @return ListBoxModel
      */
     public ListBoxModel doFillDelphixEngineItems() {
         ArrayList<Option> options = new ArrayList<Option>();
@@ -74,6 +76,10 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
 
     /**
      * Add groups to drop down for build action
+     *
+     * @param   delphixEngine
+     *
+     * @return  ListBoxModel
      */
     public ListBoxModel doFillDelphixSelfServiceItems(@QueryParameter String delphixEngine) {
         ArrayList<Option> options = new ArrayList<Option>();
@@ -118,8 +124,13 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
         return new ListBoxModel(options);
     }
 
+
     /**
-     * Applicable for all jobs
+     * isApplicable
+     *
+     * @param  jobType AbstractProject
+     *
+     * @return         boolean
      */
     @SuppressWarnings("rawtypes")
     public boolean isApplicable(Class<? extends AbstractProject> jobType) {

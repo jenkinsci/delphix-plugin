@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 by Delphix. All rights reserved.
+ * Copyright (c) 2018 by Delphix. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,18 +29,36 @@ import hudson.tasks.Builder;
 public class SelfServiceBuilder extends Builder {
 
     /**
-     * The environment to operate on for the build step
+     * Delphix Engine that hosts the container
      */
     public final String delphixEngine;
+
+    /**
+     * Container to be Refreshed
+     */
     public final String delphixEnvironment;
 
+    /**
+     * [SelfServiceBuilder description]
+     *
+     * @param delphixEngine      String
+     * @param delphixEnvironment String
+     */
     public SelfServiceBuilder(String delphixEngine, String delphixEnvironment) {
         this.delphixEngine = delphixEngine;
         this.delphixEnvironment = delphixEnvironment;
     }
 
     /**
-     * Run the refresh job
+     * Run the Refresh Job
+     *
+     * @param  build                AbstractBuild
+     * @param  listener             BuildListener
+     * @param  operationType        String
+     *
+     * @return
+     *
+     * @throws InterruptedException
      */
     public boolean perform(
         final AbstractBuild<?, ?> build,
