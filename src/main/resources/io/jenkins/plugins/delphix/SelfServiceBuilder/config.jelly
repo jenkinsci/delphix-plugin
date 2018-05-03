@@ -10,8 +10,8 @@
             <f:entry title="Self Service Container" field="delphixEnvironment">
                 <f:select id="delphixSelfService" default=" "/>
             </f:entry>
-            <f:entry title="${%Operation}" field="delphixOperation">
-                <f:textbox />
+            <f:entry title="Operation" field="delphixOperation">
+                <f:select id="delphixOperation" default=" "/>
             </f:entry>
     </form>
     </f:section>

@@ -56,8 +56,9 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
     /**
      * [SelfServiceBuilder description]
      *
-     * @param delphixEngine      String
-     * @param delphixEnvironment String
+     * @param delphixEngine         String
+     * @param delphixEnvironment    String
+     * @param delphixOperation      String
      */
     @DataBoundConstructor
     public SelfServiceBuilder(String delphixEngine, String delphixEnvironment, String delphixOperation) {
@@ -82,6 +83,13 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
          */
         public ListBoxModel doFillDelphixEnvironmentItems(@QueryParameter String delphixEngine) {
             return super.doFillDelphixSelfServiceItems(delphixEngine);
+        }
+
+        public ListBoxModel doFillDelphixOperationItems() {
+            ListBoxModel operations = new ListBoxModel();
+            operations.add("Refresh","Refresh");
+            operations.add("Reset","Reset");
+            return operations;
         }
 
         /**
