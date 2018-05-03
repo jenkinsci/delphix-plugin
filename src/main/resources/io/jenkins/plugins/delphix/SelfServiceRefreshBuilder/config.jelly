@@ -7,7 +7,7 @@
             <f:entry title="Delphix Engine" field="delphixEngine">
                 <f:select id="delphixEngine" default=" "/>
             </f:entry>
-            <f:entry title="Self Service Container" field="delphixSelfService">
+            <f:entry title="Self Service Container" field="delphixEnvironment">
                 <f:select id="delphixSelfService" default=" "/>
             </f:entry>
     </form>
