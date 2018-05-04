@@ -50,6 +50,8 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
      */
     public final String delphixOperation;
 
+    public final String delphixBookmark;
+
     /**
      * [SelfServiceBuilder description]
      *
@@ -58,10 +60,16 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
      * @param delphixOperation      String
      */
     @DataBoundConstructor
-    public SelfServiceBuilder(String delphixEngine, String delphixEnvironment, String delphixOperation) {
+    public SelfServiceBuilder(
+        String delphixEngine,
+        String delphixEnvironment,
+        String delphixOperation,
+        String delphixBookmark
+    ) {
         this.delphixEngine = delphixEngine;
         this.delphixEnvironment = delphixEnvironment;
         this.delphixOperation = delphixOperation;
+        this.delphixBookmark = delphixBookmark;
     }
 
     @Extension
@@ -82,6 +90,11 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
          */
         public ListBoxModel doFillDelphixEnvironmentItems(@QueryParameter String delphixEngine) {
             return super.doFillDelphixSelfServiceItems(delphixEngine);
+        }
+
+
+        public ListBoxModel doFillDelphixBookmarkItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixBookmarkItems(delphixEngine);
         }
 
         public ListBoxModel doFillDelphixOperationItems() {
@@ -122,6 +135,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         String engine = delphixEngine;
         String environment = delphixEnvironment;
         String operationType = delphixOperation;
+        String bookmark = delphixBookmark;
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
@@ -139,7 +153,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                     break;
                 case "Reset": job = delphixEngine.resetSelfServiceContainer(environment);
                     break;
-                case "Restore": job = delphixEngine.restoreSelfServiceContainer(environment);
+                case "Restore": job = delphixEngine.restoreSelfServiceContainer(environment, bookmark);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }

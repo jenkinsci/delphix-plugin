@@ -124,6 +124,49 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
         return new ListBoxModel(options);
     }
 
+    public ListBoxModel doFillDelphixBookmarkItems(@QueryParameter String delphixEngine) {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        // Mark as N/A if engine is invalid
+        if (delphixEngine.equals("NULL") || delphixEngine.equals(" ")) {
+            options.add(new Option("N/A", "NULL"));
+            return new ListBoxModel(options);
+        }
+
+        if (delphixEngine.isEmpty()) {
+            return new ListBoxModel(options);
+        }
+        // Loop through all engines added to Jenkins
+        SelfServiceEngine engine = new SelfServiceEngine(
+                GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
+        try {
+            // login to engine
+            try {
+                engine.login();
+
+                // Get list of groups on engine
+                LinkedHashMap<String, SelfServiceBookmark> environments = engine.listBookmarks();
+
+                // Add groups to list
+                for (SelfServiceBookmark environment : environments.values()) {
+                    options.add(new Option(environment.getName(), environment.getReference()));
+                }
+            } catch (DelphixEngineException e) {
+                // Add message to drop down if unable to login to engine
+                options.add(new Option(
+                        Messages.getMessage(Messages.UNABLE_TO_LOGIN, new String[] { engine.getEngineAddress() }),
+                        "NULL"));
+            }
+        } catch (IOException e) {
+            // Add message to drop down if unable to connect to engine
+            options.add(new Option(
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { engine.getEngineAddress() }),
+                    "NULL"));
+        }
+
+        return new ListBoxModel(options);
+    }
+
 
     /**
      * isApplicable
