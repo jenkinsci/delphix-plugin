@@ -17,7 +17,6 @@ package io.jenkins.plugins.delphix;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.LinkedHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,10 +58,6 @@ public class DelphixEngine {
     private static final String PATH_JOB = "/resources/json/delphix/job/%s";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
-    private static final String PATH_SELFSERVICE = "/resources/json/delphix/jetstream/container";
-    private static final String PATH_REFRESH_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/refresh";
-    private static final String PATH_RESTORE_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/restore";
-    private static final String PATH_RESET_SELFSERVICECONTAINER = "/resources/json/delphix/jetstream/container/%s/reset";
 
     /*
      * Content for POST requests to Delphix Engine
@@ -91,20 +86,16 @@ public class DelphixEngine {
     public static final String CONTENT_COMPATIBLE_REPOSITORIES =
             "{\"environment\": \"%s\", \"timeflowPointParameters\":%s," +
                     "\"type\":\"ProvisionCompatibilityParameters\"}";
-    public static final String CONTENT_REFRESH_SELFSERVICECONTAINER = "{}";
-    public static final String CONTENT_RESTORE_SELFSERVICECONTAINER = "{}";
-    public static final String CONTENT_RESET_SELFSERVICECONTAINER =
-        "{\"type\":\"JSDataContainerResetParameters\",\"forceOption\":false}";
 
     /*
      * Fields used in JSON requests and responses
      */
     private static final String FIELD_EVENTS = "events";
     private static final String FIELD_JOB_STATE = "jobState";
-    private static final String FIELD_RESULT = "result";
-    private static final String FIELD_JOB = "job";
-    private static final String FIELD_NAME = "name";
-    private static final String FIELD_REFERENCE = "reference";
+    protected static final String FIELD_RESULT = "result";
+    protected static final String FIELD_JOB = "job";
+    protected static final String FIELD_NAME = "name";
+    protected static final String FIELD_REFERENCE = "reference";
     private static final String FIELD_TARGET = "target";
     private static final String FIELD_TARGET_NAME = "targetName";
     private static final String FIELD_ACTION_TYPE = "actionType";
@@ -172,7 +163,7 @@ public class DelphixEngine {
     /**
      * Send POST to Delphix Engine and return the result
      */
-    private JsonNode enginePOST(final String path, final String content) throws IOException, DelphixEngineException {
+    protected JsonNode enginePOST(final String path, final String content) throws IOException, DelphixEngineException {
         // Log requests
         if (!content.contains("LoginRequest")) {
             LOGGER.log(Level.WARNING, path + ":" + content);
@@ -206,7 +197,7 @@ public class DelphixEngine {
     /**
      * Send GET to Delphix Engine and return the result
      */
-    private JsonNode engineGET(final String path) throws IOException, DelphixEngineException {
+    protected JsonNode engineGET(final String path) throws IOException, DelphixEngineException {
         // Log requests
         LOGGER.log(Level.WARNING, path);
 
@@ -251,32 +242,6 @@ public class DelphixEngine {
 
         // Login with most recent API session
         enginePOST(PATH_LOGIN, String.format(CONTENT_LOGIN, engineUsername, enginePassword));
-    }
-
-    /**
-     * List self service containers in the Delphix Engine
-     *
-     * @return LinkedHashMap
-     *
-     * @throws ClientProtocolException [description]
-     * @throws IOException             [description]
-     * @throws DelphixEngineException  [description]
-     */
-    public LinkedHashMap<String, DelphixSelfService> listSelfServices()
-            throws ClientProtocolException, IOException, DelphixEngineException {
-        // Get containers
-        LinkedHashMap<String, DelphixSelfService> environments = new LinkedHashMap<String, DelphixSelfService>();
-        JsonNode environmentsJSON = engineGET(PATH_SELFSERVICE).get(FIELD_RESULT);
-
-        // Loop through container list
-        for (int i = 0; i < environmentsJSON.size(); i++) {
-            JsonNode environmentJSON = environmentsJSON.get(i);
-            DelphixSelfService environment = new DelphixSelfService(environmentJSON.get(FIELD_REFERENCE).asText(),
-                    environmentJSON.get(FIELD_NAME).asText());
-            environments.put(environment.getReference(), environment);
-        }
-
-        return environments;
     }
 
     /**
@@ -337,47 +302,6 @@ public class DelphixEngine {
             throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(PATH_ENVIRONMENT,
                 String.format(CONTENT_ADD_UNIX_ENVIRONMENT, user, password, address, toolkit));
-        return result.get(FIELD_JOB).asText();
-    }
-
-    /**
-     * Refreshes a Self Service Container
-     *
-     * @param  environmentRef         String
-     * @return                        String
-     * @throws IOException            [description]
-     * @throws DelphixEngineException [description]
-     */
-    public String refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
-        JsonNode result = enginePOST(String.format(PATH_REFRESH_SELFSERVICECONTAINER, environmentRef),
-                CONTENT_REFRESH_SELFSERVICECONTAINER);
-        return result.get(FIELD_JOB).asText();
-    }
-
-    /**
-     * Restore a Self Service Container
-     *
-     * @param  environmentRef         String
-     * @return                        String
-     * @throws IOException            [description]
-     * @throws DelphixEngineException [description]
-     */
-    public String restoreSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
-        JsonNode result = enginePOST(String.format(PATH_RESTORE_SELFSERVICECONTAINER, environmentRef),
-                CONTENT_RESTORE_SELFSERVICECONTAINER);
-        return result.get(FIELD_JOB).asText();
-    }
-
-    /**
-     * Reset a Self Service Container
-     * @param  environmentRef         String
-     * @return                        String
-     * @throws IOException            [description]
-     * @throws DelphixEngineException [description]
-     */
-    public String resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
-        JsonNode result = enginePOST(String.format(PATH_RESET_SELFSERVICECONTAINER, environmentRef),
-                CONTENT_RESET_SELFSERVICECONTAINER);
         return result.get(FIELD_JOB).asText();
     }
 

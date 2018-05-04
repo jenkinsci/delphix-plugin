@@ -126,7 +126,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
         }
-        DelphixEngine delphixEngine = new DelphixEngine(
+        SelfServiceEngine delphixEngine = new SelfServiceEngine(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
 
         String job = "";
@@ -138,6 +138,8 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                 case "Refresh": job = delphixEngine.refreshSelfServiceContainer(environment);
                     break;
                 case "Reset": job = delphixEngine.resetSelfServiceContainer(environment);
+                    break;
+                case "Restore": job = delphixEngine.restoreSelfServiceContainer(environment);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }

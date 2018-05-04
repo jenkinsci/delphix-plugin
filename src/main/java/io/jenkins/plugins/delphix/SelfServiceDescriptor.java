@@ -94,7 +94,7 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
             return new ListBoxModel(options);
         }
         // Loop through all engines added to Jenkins
-        DelphixEngine engine = new DelphixEngine(
+        SelfServiceEngine engine = new SelfServiceEngine(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
         try {
             // login to engine
