@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.ArrayList;
+import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
+
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -31,6 +35,7 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -315,5 +320,43 @@ public class DelphixEngine {
 
     public String getEnginePassword() {
         return enginePassword;
+    }
+
+    /**
+     * Build Engine Dropdown list for different Build Steps
+     *
+     * @return ListBoxModel
+     */
+    public static ListBoxModel fillEnginesForDropdown() {
+        ArrayList<Option> options = new ArrayList<Option>();
+
+        // Loop through all engines added to Jenkins
+        for (DelphixEngine engine : GlobalConfiguration.getPluginClassDescriptor().getEngines()) {
+            DelphixEngine delphixEngine = new DelphixEngine(engine);
+            try {
+                // login to engine
+                try {
+                    delphixEngine.login();
+
+                    options.add(new Option(delphixEngine.getEngineAddress(), delphixEngine.getEngineAddress()));
+                } catch (DelphixEngineException e) {
+                    // Add message to drop down if unable to login to engine
+                    options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
+                            new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+                    continue;
+                }
+            } catch (IOException e) {
+                // Add message to drop down if unable to connect to engine
+                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
+                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
+            }
+        }
+
+        // If there are no engines state that in the drop down
+        if (GlobalConfiguration.getPluginClassDescriptor().getEngines().size() == 0) {
+            // Add message to drop down if no engines in Jenkins
+            options.add(new Option(Messages.getMessage(Messages.NO_ENGINES), "NULL"));
+        }
+        return new ListBoxModel(options);
     }
 }
