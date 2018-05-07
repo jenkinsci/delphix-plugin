@@ -64,9 +64,9 @@ public class SelfServiceEngine extends DelphixEngine {
     }
 
     /**
-     * [listBookmarks description]
-     * 
-     * @return [description]
+     * List Bookmarks in the Delphix Engine
+     *
+     * @return LinkedHashMap
      *
      * @throws ClientProtocolException [description]
      * @throws IOException             [description]
@@ -99,7 +99,7 @@ public class SelfServiceEngine extends DelphixEngine {
     public String refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(
             PATH_ROOT + "container/%s/refresh", environmentRef),
-            new SelfServiceRequest("JSDataContainerRefreshParameters", false).toJson()
+            new SelfServiceRequest("JSDataContainerRefreshParameters", false, "").toJson()
         );
         return result.get(FIELD_JOB).asText();
     }
@@ -113,27 +113,9 @@ public class SelfServiceEngine extends DelphixEngine {
      * @throws DelphixEngineException [description]
      */
     public String restoreSelfServiceContainer(String environmentRef, String bookmark) throws IOException, DelphixEngineException {
-
-        String CONTENT_RESTORE_SELFSERVICECONTAINER = "{"
-            + "\"type\":\"JSDataContainerRestoreParameters\","
-            + "\"forceOption\":false,"
-            + "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ bookmark + "\"}"
-            + "}";
-
-/*
-{
-    "type": "JSDataContainerRestoreParameters",
-    "timelinePointParameters": {
-        "type": "JSTimelinePointBookmarkInput",
-        "bookmark": "JS_BOOKMARK-1"
-    },
-    "forceOption": false
-}
-*/
-
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/restore", environmentRef),
-            CONTENT_RESTORE_SELFSERVICECONTAINER
+            new SelfServiceRequest("JSDataContainerRestoreParameters", false, bookmark).toJson()
         );
         return result.get(FIELD_JOB).asText();
     }
@@ -148,7 +130,52 @@ public class SelfServiceEngine extends DelphixEngine {
     public String resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/reset", environmentRef),
-            new SelfServiceRequest("JSDataContainerResetParameters", false).toJson()
+            new SelfServiceRequest("JSDataContainerResetParameters", false, "").toJson()
+        );
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Enable a Self Service Container that has been Disabled.
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public String enableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/enable", environmentRef),
+            "{}"
+        );
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Disable a Self Service Container
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public String disableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/disable", environmentRef),
+            "{}"
+        );
+        return result.get(FIELD_JOB).asText();
+    }
+
+    /**
+     * Recover a Self Service Container from the INCONSISTENT state
+     * @param  environmentRef         String
+     * @return                        String
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public String recoverSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/recover", environmentRef),
+            "{}"
         );
         return result.get(FIELD_JOB).asText();
     }

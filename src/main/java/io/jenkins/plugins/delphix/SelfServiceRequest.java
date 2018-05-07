@@ -22,18 +22,22 @@ public class SelfServiceRequest {
 
     private final String type;
     private final Boolean forceOption;
+    private final String bookmark;
 
-    public SelfServiceRequest(String type, Boolean forceOption) {
+    public SelfServiceRequest(String type, Boolean forceOption, String bookmark) {
         this.type = type;
         this.forceOption = forceOption;
+        this.bookmark = bookmark;
     }
 
     public String toJson() {
-        return "{\"type\":\""
-        + this.type
-        + "\","
-        + "\"forceOption\":"
-        + this.forceOption
-        + "}";
+        String build = "{";
+        build += "\"type\":\"" +this.type + "\",";
+        if (this.bookmark != "") {
+            build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.bookmark + "\"}";
+        }
+        build += "\"forceOption\":" + this.forceOption;
+        build += "}";
+        return build;
     }
 }

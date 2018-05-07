@@ -102,7 +102,9 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             operations.add("Refresh","Refresh");
             operations.add("Restore","Restore");
             operations.add("Reset","Reset");
-            operations.add("Activate","Activate");
+            operations.add("Enable","Enable");
+            operations.add("Disable","Disable");
+            operations.add("Recover","Recover");
 
             //operations.add("Branch","Branch");
             //operations.add("Bookmark","Bookmark");
@@ -154,6 +156,12 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                 case "Reset": job = delphixEngine.resetSelfServiceContainer(environment);
                     break;
                 case "Restore": job = delphixEngine.restoreSelfServiceContainer(environment, bookmark);
+                    break;
+                case "Enable": job = delphixEngine.enableSelfServiceContainer(environment);
+                    break;
+                case "Disable": job = delphixEngine.disableSelfServiceContainer(environment);
+                    break;
+                case "Recover": job = delphixEngine.recoverSelfServiceContainer(environment);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }
