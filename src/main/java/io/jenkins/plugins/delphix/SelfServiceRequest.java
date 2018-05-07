@@ -30,13 +30,29 @@ public class SelfServiceRequest {
         this.bookmark = bookmark;
     }
 
+    private String buildRequestBody(String type){
+        String build = "";
+        switch (type) {
+            case "JSDataContainerRefreshParameters":
+                build += "\"forceOption\":" + this.forceOption;
+                break;
+            case "JSDataContainerRestoreParameters":
+                build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.bookmark + "\"}";
+                build += "\"forceOption\":" + this.forceOption;
+                break;
+            case "JSDataContainerResetParameters":
+                build += "\"forceOption\":" + this.forceOption;
+                break;
+            case "JSDataContainerLockParameters":
+                break;
+        }
+        return build;
+    }
+
     public String toJson() {
         String build = "{";
         build += "\"type\":\"" +this.type + "\",";
-        if (this.bookmark != "") {
-            build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.bookmark + "\"}";
-        }
-        build += "\"forceOption\":" + this.forceOption;
+        build += this.buildRequestBody(this.type);
         build += "}";
         return build;
     }

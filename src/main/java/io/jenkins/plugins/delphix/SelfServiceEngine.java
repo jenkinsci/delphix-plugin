@@ -92,91 +92,108 @@ public class SelfServiceEngine extends DelphixEngine {
      * Refreshes a Self Service Container
      *
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(
             PATH_ROOT + "container/%s/refresh", environmentRef),
             new SelfServiceRequest("JSDataContainerRefreshParameters", false, "").toJson()
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
     }
 
     /**
      * Restore a Self Service Container
      *
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String restoreSelfServiceContainer(String environmentRef, String bookmark) throws IOException, DelphixEngineException {
+    public JsonNode restoreSelfServiceContainer(String environmentRef, String bookmark) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/restore", environmentRef),
             new SelfServiceRequest("JSDataContainerRestoreParameters", false, bookmark).toJson()
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
     }
 
     /**
      * Reset a Self Service Container
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/reset", environmentRef),
             new SelfServiceRequest("JSDataContainerResetParameters", false, "").toJson()
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
     }
 
     /**
      * Enable a Self Service Container that has been Disabled.
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String enableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode enableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/enable", environmentRef),
             "{}"
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
     }
 
     /**
      * Disable a Self Service Container
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String disableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode disableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/disable", environmentRef),
             "{}"
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
     }
 
     /**
      * Recover a Self Service Container from the INCONSISTENT state
      * @param  environmentRef         String
-     * @return                        String
+     * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public String recoverSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode recoverSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/recover", environmentRef),
             "{}"
         );
-        return result.get(FIELD_JOB).asText();
+        return result;
+    }
+
+
+    /**
+     * Unlock the container to let other users perform opeartions on it.
+     *
+     * @param  environmentRef         String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode unlockSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/unlock", environmentRef),
+            "{}"
+        );
+        return result;
     }
 }

@@ -28,6 +28,8 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
 import jenkins.tasks.SimpleBuildStep;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Describes a build step for managing a Delphix Self Service Container
@@ -35,22 +37,11 @@ import jenkins.tasks.SimpleBuildStep;
  */
 public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
 
-    /**
-     * Delphix Engine that hosts the Container
-     */
     public final String delphixEngine;
-
-    /**
-     * Container to be Updated
-     */
     public final String delphixEnvironment;
-
-    /**
-     * Operation used to update Container
-     */
     public final String delphixOperation;
-
     public final String delphixBookmark;
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * [SelfServiceBuilder description]
@@ -105,10 +96,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             operations.add("Enable","Enable");
             operations.add("Disable","Disable");
             operations.add("Recover","Recover");
-
-            //operations.add("Branch","Branch");
-            //operations.add("Bookmark","Bookmark");
-            //operations.add("Share","Share");
+            operations.add("Unlock","Unlock");
             return operations;
         }
 
@@ -133,7 +121,6 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
         }
 
-        // Get the engine, environment and operation on the engine on which to operate
         String engine = delphixEngine;
         String environment = delphixEnvironment;
         String operationType = delphixOperation;
@@ -145,27 +132,26 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         SelfServiceEngine delphixEngine = new SelfServiceEngine(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
 
-        String job = "";
+        JsonNode action = MAPPER.createObjectNode();
         try {
-            //Log-in to engine
             delphixEngine.login();
-
             switch (operationType) {
-                case "Refresh": job = delphixEngine.refreshSelfServiceContainer(environment);
+                case "Refresh": action = delphixEngine.refreshSelfServiceContainer(environment);
                     break;
-                case "Reset": job = delphixEngine.resetSelfServiceContainer(environment);
+                case "Reset": action = delphixEngine.resetSelfServiceContainer(environment);
                     break;
-                case "Restore": job = delphixEngine.restoreSelfServiceContainer(environment, bookmark);
+                case "Restore": action = delphixEngine.restoreSelfServiceContainer(environment, bookmark);
                     break;
-                case "Enable": job = delphixEngine.enableSelfServiceContainer(environment);
+                case "Enable": action = delphixEngine.enableSelfServiceContainer(environment);
                     break;
-                case "Disable": job = delphixEngine.disableSelfServiceContainer(environment);
+                case "Disable": action = delphixEngine.disableSelfServiceContainer(environment);
                     break;
-                case "Recover": job = delphixEngine.recoverSelfServiceContainer(environment);
+                case "Recover": action = delphixEngine.recoverSelfServiceContainer(environment);
+                    break;
+                case "Unlock": action = delphixEngine.unlockSelfServiceContainer(environment);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }
-
         } catch (DelphixEngineException e) {
             // Print error from engine if job fails and abort Jenkins job
             listener.getLogger().println(e.getMessage());
@@ -174,6 +160,23 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             listener.getLogger().println(
                     Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }));
         }
+
+        //Check for Action with a Completed State
+        try {
+            ActionStatus actionStatus = delphixEngine.getActionStatus(action.get("action").asText());
+            if (actionStatus.getState().equals("COMPLETED")){
+                String message = actionStatus.getTitle() + ": " + actionStatus.getState();
+                listener.getLogger().println(message);
+                return;
+            }
+        } catch (DelphixEngineException e) {
+            listener.getLogger().println(e.getMessage());
+        } catch (IOException e) {
+            listener.getLogger().println(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
+                    new String[] { delphixEngine.getEngineAddress() }));
+        }
+
+        String job = action.get("job").asText();
 
         // Make job state available to clean up after run completes
         run.addAction(new PublishEnvVarAction(environment, engine));

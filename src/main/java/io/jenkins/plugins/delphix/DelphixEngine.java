@@ -61,6 +61,7 @@ public class DelphixEngine {
     private static final String PATH_LOGIN = "/resources/json/delphix/login";
     private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
     private static final String PATH_JOB = "/resources/json/delphix/job/%s";
+    private static final String PATH_ACTION = "/resources/json/delphix/action/%s";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
 
@@ -288,6 +289,23 @@ public class DelphixEngine {
         String targetName = jobStatus.get(FIELD_TARGET_NAME).asText();
         String actionType = jobStatus.get(FIELD_ACTION_TYPE).asText();
         return new JobStatus(status, summary, target, targetName, actionType);
+    }
+
+    /**
+     * Get the Status of an Action on the Delphix Engine
+     *
+     * @param  action                  String
+     *
+     * @return                         ActionStatus
+     *
+     * @throws ClientProtocolException [description]
+     * @throws IOException             [description]
+     * @throws DelphixEngineException  [description]
+     */
+    public ActionStatus getActionStatus(String action) throws ClientProtocolException, IOException, DelphixEngineException {
+        JsonNode result = engineGET(String.format(PATH_ACTION, action));
+        JsonNode actionStatus = result.get(FIELD_RESULT);
+        return new ActionStatus(actionStatus.get("title").asText(), actionStatus.get("state").asText());
     }
 
     /**
