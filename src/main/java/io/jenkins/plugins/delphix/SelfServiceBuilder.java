@@ -128,7 +128,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         }
 
         String engine = delphixEngine;
-        String environment = delphixEnvironment;
+        String selfServiceContainer = delphixEnvironment;
         String operationType = delphixOperation;
         String bookmark = delphixBookmark;
 
@@ -144,28 +144,28 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         try {
             delphixEngine.login();
             switch (operationType) {
-                case "Refresh": action = delphixEngine.refreshSelfServiceContainer(environment);
+                case "Refresh": action = delphixEngine.refreshSelfServiceContainer(selfServiceContainer);
                     break;
-                case "Reset": action = delphixEngine.resetSelfServiceContainer(environment);
+                case "Reset": action = delphixEngine.resetSelfServiceContainer(selfServiceContainer);
                     break;
-                case "Restore": action = delphixEngine.restoreSelfServiceContainer(environment, bookmark);
+                case "Restore": action = delphixEngine.restoreSelfServiceContainer(selfServiceContainer, bookmark);
                     break;
-                case "Enable": action = delphixEngine.enableSelfServiceContainer(environment);
+                case "Enable": action = delphixEngine.enableSelfServiceContainer(selfServiceContainer);
                     break;
-                case "Disable": action = delphixEngine.disableSelfServiceContainer(environment);
+                case "Disable": action = delphixEngine.disableSelfServiceContainer(selfServiceContainer);
                     break;
-                case "Recover": action = delphixEngine.recoverSelfServiceContainer(environment);
+                case "Recover": action = delphixEngine.recoverSelfServiceContainer(selfServiceContainer);
                     break;
                 case "Undo" :
-                    SelfServiceContainer container = delphixEngine.getSelfServiceContainer(environment);
-                    action = delphixEngine.undoSelfServiceContainer(environment, container.getLastOperation());
+                    SelfServiceContainer container = delphixEngine.getSelfServiceContainer(selfServiceContainer);
+                    action = delphixEngine.undoSelfServiceContainer(selfServiceContainer, container.getLastOperation());
                     break;
                 case "Lock":
                     userRepo.login();
                     User user = userRepo.getCurrent();
-                    action = delphixEngine.lockSelfServiceContainer(environment, user.getReference());
+                    action = delphixEngine.lockSelfServiceContainer(selfServiceContainer, user.getReference());
                     break;
-                case "Unlock": action = delphixEngine.unlockSelfServiceContainer(environment);
+                case "Unlock": action = delphixEngine.unlockSelfServiceContainer(selfServiceContainer);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }
@@ -196,7 +196,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         String job = action.get("job").asText();
 
         // Make job state available to clean up after run completes
-        run.addAction(new PublishEnvVarAction(environment, engine));
+        run.addAction(new PublishEnvVarAction(selfServiceContainer, engine));
         run.addAction(new PublishEnvVarAction(job, engine));
 
         JobStatus status = new JobStatus();

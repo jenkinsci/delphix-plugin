@@ -106,14 +106,14 @@ public class SelfServiceRepository extends DelphixEngine {
     /**
      * Refreshes a Self Service Container
      *
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode refreshSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode refreshSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(
-            PATH_ROOT + "container/%s/refresh", environmentRef),
+            PATH_ROOT + "container/%s/refresh", containerRef),
             new SelfServiceRequest("JSDataContainerRefreshParameters", false, "").toJson()
         );
         return result;
@@ -122,14 +122,14 @@ public class SelfServiceRepository extends DelphixEngine {
     /**
      * Restore a Self Service Container
      *
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode restoreSelfServiceContainer(String environmentRef, String bookmark) throws IOException, DelphixEngineException {
+    public JsonNode restoreSelfServiceContainer(String containerRef, String bookmark) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/restore", environmentRef),
+            String.format(PATH_ROOT + "container/%s/restore", containerRef),
             new SelfServiceRequest("JSDataContainerRestoreParameters", false, bookmark).toJson()
         );
         return result;
@@ -137,14 +137,14 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Reset a Self Service Container
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode resetSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode resetSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/reset", environmentRef),
+            String.format(PATH_ROOT + "container/%s/reset", containerRef),
             new SelfServiceRequest("JSDataContainerResetParameters", false, "").toJson()
         );
         return result;
@@ -152,14 +152,14 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Enable a Self Service Container that has been Disabled.
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode enableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode enableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/enable", environmentRef),
+            String.format(PATH_ROOT + "container/%s/enable", containerRef),
             "{}"
         );
         return result;
@@ -167,14 +167,14 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Disable a Self Service Container
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode disableSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode disableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/disable", environmentRef),
+            String.format(PATH_ROOT + "container/%s/disable", containerRef),
             "{}"
         );
         return result;
@@ -182,14 +182,14 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Recover a Self Service Container from the INCONSISTENT state
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode recoverSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode recoverSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/recover", environmentRef),
+            String.format(PATH_ROOT + "container/%s/recover", containerRef),
             "{}"
         );
         return result;
@@ -198,15 +198,15 @@ public class SelfServiceRepository extends DelphixEngine {
     /**
      * Undo the given operation. This is only valid for RESET, RESTORE, UNDO, and REFRESH operations.
      *
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @param  actionRef              String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode undoSelfServiceContainer(String environmentRef, String actionRef) throws IOException, DelphixEngineException {
+    public JsonNode undoSelfServiceContainer(String containerRef, String actionRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/undo", environmentRef),
+            String.format(PATH_ROOT + "container/%s/undo", containerRef),
             new SelfServiceRequest("JSDataContainerUndoParameters", false, actionRef).toJson()
         );
         return result;
@@ -214,14 +214,14 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Lock the container to prevent other users from performing any opeartions on it.
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode lockSelfServiceContainer(String environmentRef, String userRef) throws IOException, DelphixEngineException {
+    public JsonNode lockSelfServiceContainer(String containerRef, String userRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/lock", environmentRef),
+            String.format(PATH_ROOT + "container/%s/lock", containerRef),
             new SelfServiceRequest("JSDataContainerUndoParameters", false, userRef).toJson()
         );
         return result;
@@ -230,14 +230,14 @@ public class SelfServiceRepository extends DelphixEngine {
     /**
      * Unlock the container to let other users perform opeartions on it.
      *
-     * @param  environmentRef         String
+     * @param  containerRef         String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode unlockSelfServiceContainer(String environmentRef) throws IOException, DelphixEngineException {
+    public JsonNode unlockSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/unlock", environmentRef),
+            String.format(PATH_ROOT + "container/%s/unlock", containerRef),
             "{}"
         );
         return result;
