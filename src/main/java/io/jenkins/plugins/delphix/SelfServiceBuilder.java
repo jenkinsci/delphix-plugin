@@ -144,28 +144,28 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         try {
             delphixEngine.login();
             switch (operationType) {
-                case "Refresh": action = delphixEngine.refreshSelfServiceContainer(selfServiceContainer);
+                case "Refresh": action = delphixEngine.refresh(selfServiceContainer);
                     break;
-                case "Reset": action = delphixEngine.resetSelfServiceContainer(selfServiceContainer);
+                case "Reset": action = delphixEngine.reset(selfServiceContainer);
                     break;
-                case "Restore": action = delphixEngine.restoreSelfServiceContainer(selfServiceContainer, bookmark);
+                case "Restore": action = delphixEngine.restore(selfServiceContainer, bookmark);
                     break;
-                case "Enable": action = delphixEngine.enableSelfServiceContainer(selfServiceContainer);
+                case "Enable": action = delphixEngine.enable(selfServiceContainer);
                     break;
-                case "Disable": action = delphixEngine.disableSelfServiceContainer(selfServiceContainer);
+                case "Disable": action = delphixEngine.disable(selfServiceContainer);
                     break;
-                case "Recover": action = delphixEngine.recoverSelfServiceContainer(selfServiceContainer);
+                case "Recover": action = delphixEngine.recover(selfServiceContainer);
                     break;
                 case "Undo" :
-                    SelfServiceContainer container = delphixEngine.getSelfServiceContainer(selfServiceContainer);
-                    action = delphixEngine.undoSelfServiceContainer(selfServiceContainer, container.getLastOperation());
+                    SelfServiceContainer container = delphixEngine.get(selfServiceContainer);
+                    action = delphixEngine.undo(selfServiceContainer, container.getLastOperation());
                     break;
                 case "Lock":
                     userRepo.login();
                     User user = userRepo.getCurrent();
-                    action = delphixEngine.lockSelfServiceContainer(selfServiceContainer, user.getReference());
+                    action = delphixEngine.lock(selfServiceContainer, user.getReference());
                     break;
-                case "Unlock": action = delphixEngine.unlockSelfServiceContainer(selfServiceContainer);
+                case "Unlock": action = delphixEngine.unlock(selfServiceContainer);
                     break;
                 default: throw new DelphixEngineException("Undefined Self Service Operation");
             }

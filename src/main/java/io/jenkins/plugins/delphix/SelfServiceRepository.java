@@ -71,7 +71,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public SelfServiceContainer getSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public SelfServiceContainer get(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = engineGET(String.format(
             PATH_ROOT + "/%s", containerRef)
         ).get(FIELD_RESULT);
@@ -87,7 +87,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode refreshSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode refresh(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(
             PATH_ROOT + "/%s/refresh", containerRef),
             new SelfServiceRequest("JSDataContainerRefreshParameters", false, "").toJson()
@@ -103,7 +103,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode restoreSelfServiceContainer(String containerRef, String bookmark) throws IOException, DelphixEngineException {
+    public JsonNode restore(String containerRef, String bookmark) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/restore", containerRef),
             new SelfServiceRequest("JSDataContainerRestoreParameters", false, bookmark).toJson()
@@ -118,7 +118,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode resetSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode reset(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/reset", containerRef),
             new SelfServiceRequest("JSDataContainerResetParameters", false, "").toJson()
@@ -133,7 +133,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode enableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode enable(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/enable", containerRef),
             "{}"
@@ -148,7 +148,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode disableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode disable(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/disable", containerRef),
             "{}"
@@ -163,7 +163,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode recoverSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode recover(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/recover", containerRef),
             "{}"
@@ -180,7 +180,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode undoSelfServiceContainer(String containerRef, String actionRef) throws IOException, DelphixEngineException {
+    public JsonNode undo(String containerRef, String actionRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/undo", containerRef),
             new SelfServiceRequest("JSDataContainerUndoParameters", false, actionRef).toJson()
@@ -195,7 +195,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode lockSelfServiceContainer(String containerRef, String userRef) throws IOException, DelphixEngineException {
+    public JsonNode lock(String containerRef, String userRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/lock", containerRef),
             new SelfServiceRequest("JSDataContainerLockParameters", false, userRef).toJson()
@@ -211,7 +211,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode unlockSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+    public JsonNode unlock(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "/%s/unlock", containerRef),
             "{}"

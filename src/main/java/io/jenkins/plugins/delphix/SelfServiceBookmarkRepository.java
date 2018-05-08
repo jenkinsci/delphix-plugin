@@ -112,22 +112,4 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
         return result;
     }
 
-/*
-
-=== POST /resources/json/delphix/jetstream/bookmark ===
-{
-    "type": "JSBookmarkCreateParameters",
-    "bookmark": {
-        "type": "JSBookmark",
-        "name": "TestFromCLI",
-        "branch": "JS_BRANCH-4"
-    },
-    "timelinePointParameters": {
-        "type": "JSTimelinePointLatestTimeInput",
-        "sourceDataLayout": "CTO-Source"
-    }
-}
-*/
-
-
 }

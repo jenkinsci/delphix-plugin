@@ -132,7 +132,7 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
             switch (operationType) {
                 case "Create":
                     containerRepo.login();
-                    SelfServiceContainer container = containerRepo.getSelfServiceContainer(delphixContainer);
+                    SelfServiceContainer container = containerRepo.get(delphixContainer);
                     action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
                     break;
                 case "Delete":
