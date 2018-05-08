@@ -57,8 +57,7 @@ public class SelfServiceRepository extends DelphixEngine {
         // Loop through container list
         for (int i = 0; i < environmentsJSON.size(); i++) {
             JsonNode environmentJSON = environmentsJSON.get(i);
-            SelfServiceContainer environment = new SelfServiceContainer(environmentJSON.get(FIELD_REFERENCE).asText(),
-                    environmentJSON.get(FIELD_NAME).asText());
+            SelfServiceContainer environment = SelfServiceContainer.fromJson(environmentJSON);
             environments.put(environment.getReference(), environment);
         }
 
@@ -81,13 +80,27 @@ public class SelfServiceRepository extends DelphixEngine {
 
             for (int i = 0; i < bookmarksJSON.size(); i++) {
                 JsonNode bookmarkJSON = bookmarksJSON.get(i);
-                SelfServiceBookmark bookmark = new SelfServiceBookmark(
-                        bookmarkJSON.get(FIELD_REFERENCE).asText(),
-                        bookmarkJSON.get(FIELD_NAME).asText());
+                SelfServiceBookmark bookmark = SelfServiceBookmark.fromJson(bookmarkJSON);
                 bookmarks.put(bookmark.getReference(), bookmark);
             }
 
             return bookmarks;
+    }
+
+    /**
+     * Get Self Service Container by Refernce
+     *
+     * @param  containerRef           String
+     * @return                        SelfServiceContainer
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public SelfServiceContainer getSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
+        JsonNode result = engineGET(String.format(
+            PATH_ROOT + "container/%s", containerRef)
+        ).get(FIELD_RESULT);
+        SelfServiceContainer container = SelfServiceContainer.fromJson(result);
+        return container;
     }
 
     /**
@@ -183,6 +196,23 @@ public class SelfServiceRepository extends DelphixEngine {
     }
 
     /**
+     * Undo the given operation. This is only valid for RESET, RESTORE, UNDO, and REFRESH operations.
+     *
+     * @param  environmentRef         String
+     * @param  actionRef              String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode undoSelfServiceContainer(String environmentRef, String actionRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/undo", environmentRef),
+            new SelfServiceRequest("JSDataContainerUndoParameters", false, actionRef).toJson()
+        );
+        return result;
+    }
+
+    /**
      * Lock the container to prevent other users from performing any opeartions on it.
      * @param  environmentRef         String
      * @return                        JsonNode
@@ -192,7 +222,7 @@ public class SelfServiceRepository extends DelphixEngine {
     public JsonNode lockSelfServiceContainer(String environmentRef, String userRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/lock", environmentRef),
-            new SelfServiceRequest("JSDataContainerLockParameters", false, userRef).toJson()
+            new SelfServiceRequest("JSDataContainerUndoParameters", false, userRef).toJson()
         );
         return result;
     }

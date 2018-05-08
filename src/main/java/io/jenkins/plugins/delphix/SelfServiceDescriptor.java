@@ -68,7 +68,7 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
             return new ListBoxModel(options);
         }
 
-        SelfServiceEngine engine = new SelfServiceEngine(
+        SelfServiceRepository engine = new SelfServiceRepository(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
 
         try {

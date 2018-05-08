@@ -37,11 +37,14 @@ public class SelfServiceRequest {
                 build += "\"forceOption\":" + this.forceOption;
                 break;
             case "JSDataContainerRestoreParameters":
-                build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.optionalParam + "\"}";
+                build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.optionalParam + "\"},";
                 build += "\"forceOption\":" + this.forceOption;
                 break;
             case "JSDataContainerResetParameters":
                 build += "\"forceOption\":" + this.forceOption;
+                break;
+            case "JSDataContainerUndoParameters":
+                build += "\"operation\":\"" + this.optionalParam + "\"";
                 break;
             case "JSDataContainerLockParameters":
                 build += "\"lockUser\":\"" + this.optionalParam + "\"";

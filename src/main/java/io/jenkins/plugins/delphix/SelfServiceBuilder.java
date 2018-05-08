@@ -16,6 +16,7 @@
 package io.jenkins.plugins.delphix;
 import io.jenkins.plugins.delphix.objects.ActionStatus;
 import io.jenkins.plugins.delphix.objects.JobStatus;
+import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 import io.jenkins.plugins.delphix.objects.User;
 
 import java.io.IOException;
@@ -95,10 +96,11 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             ListBoxModel operations = new ListBoxModel();
             operations.add("Refresh","Refresh");
             operations.add("Restore","Restore");
-            operations.add("Reset","Reset");
             operations.add("Enable","Enable");
             operations.add("Disable","Disable");
             operations.add("Recover","Recover");
+            operations.add("Reset","Reset");
+            operations.add("Undo","Undo");
             operations.add("Lock","Lock");
             operations.add("Unlock","Unlock");
             return operations;
@@ -153,6 +155,10 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                 case "Disable": action = delphixEngine.disableSelfServiceContainer(environment);
                     break;
                 case "Recover": action = delphixEngine.recoverSelfServiceContainer(environment);
+                    break;
+                case "Undo" :
+                    SelfServiceContainer container = delphixEngine.getSelfServiceContainer(environment);
+                    action = delphixEngine.undoSelfServiceContainer(environment, container.getLastOperation());
                     break;
                 case "Lock":
                     userRepo.login();
