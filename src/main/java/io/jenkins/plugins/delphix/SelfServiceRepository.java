@@ -222,7 +222,7 @@ public class SelfServiceRepository extends DelphixEngine {
     public JsonNode lockSelfServiceContainer(String containerRef, String userRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
             String.format(PATH_ROOT + "container/%s/lock", containerRef),
-            new SelfServiceRequest("JSDataContainerUndoParameters", false, userRef).toJson()
+            new SelfServiceRequest("JSDataContainerLockParameters", false, userRef).toJson()
         );
         return result;
     }
