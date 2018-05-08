@@ -16,6 +16,7 @@
 package io.jenkins.plugins.delphix;
 import io.jenkins.plugins.delphix.objects.ActionStatus;
 import io.jenkins.plugins.delphix.objects.JobStatus;
+import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 
 import java.io.IOException;
 
@@ -42,6 +43,7 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
     public final String delphixEngine;
     public final String delphixBookmark;
     public final String delphixOperation;
+    public final String delphixContainer;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -55,11 +57,13 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
     public SelfServiceBookmarkBuilder(
         String delphixEngine,
         String delphixBookmark,
-        String delphixOperation
+        String delphixOperation,
+        String delphixContainer
     ) {
         this.delphixEngine = delphixEngine;
         this.delphixOperation = delphixOperation;
         this.delphixBookmark = delphixBookmark;
+        this.delphixContainer = delphixContainer;
     }
 
     @Extension
@@ -74,6 +78,10 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
 
         public ListBoxModel doFillDelphixBookmarkItems(@QueryParameter String delphixEngine) {
             return super.doFillDelphixBookmarkItems(delphixEngine);
+        }
+
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixSelfServiceItems(delphixEngine);
         }
 
         public ListBoxModel doFillDelphixOperationItems() {
@@ -116,11 +124,17 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
 
         DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
         SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(loadedEngine);
+        SelfServiceRepository containerRepo = new SelfServiceRepository(loadedEngine);
 
         JsonNode action = MAPPER.createObjectNode();
         try {
             bookmarkRepo.login();
             switch (operationType) {
+                case "Create":
+                    containerRepo.login();
+                    SelfServiceContainer container = containerRepo.getSelfServiceContainer(delphixContainer);
+                    action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
+                    break;
                 case "Delete":
                     action = bookmarkRepo.delete(bookmark);
                     break;

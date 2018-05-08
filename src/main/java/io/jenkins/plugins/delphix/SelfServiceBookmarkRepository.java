@@ -89,7 +89,32 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
         return result;
     }
 
+    /**
+     * Create a new Self Service Bookmark
+     *
+     * @param  name                   String
+     * @param  branch                 String
+     * @param  sourceDataLayout       String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode create(String name, String branch, String sourceDataLayout) throws IOException, DelphixEngineException {
+        String request = "{"
+        + "\"type\": \"JSBookmarkCreateParameters\","
+        + "\"bookmark\": { \"type\": \"JSBookmark\","
+        + "\"name\": \"" + name + "\","
+        + "\"branch\": \"" + branch + "\""
+        + "},\"timelinePointParameters\": {\"type\": \"JSTimelinePointLatestTimeInput\","
+        + "\"sourceDataLayout\": \"" + sourceDataLayout + "\""
+        + "}}";
+        JsonNode result = enginePOST(PATH_ROOT, request);
+        return result;
+    }
+
 /*
+
+=== POST /resources/json/delphix/jetstream/bookmark ===
 {
     "type": "JSBookmarkCreateParameters",
     "bookmark": {
@@ -99,8 +124,10 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
     },
     "timelinePointParameters": {
         "type": "JSTimelinePointLatestTimeInput",
-        "sourceDataLayout": "JS_DATA_CONTAINER-2"
+        "sourceDataLayout": "CTO-Source"
     }
 }
- */
+*/
+
+
 }

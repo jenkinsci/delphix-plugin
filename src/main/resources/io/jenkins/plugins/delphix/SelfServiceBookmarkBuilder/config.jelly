@@ -13,7 +13,9 @@
             <f:entry title="Operation" field="delphixOperation">
                 <f:select id="delphixOperation" default=" "/>
             </f:entry>
-
+            <f:entry title="Self Service Container" field="delphixContainer">
+                <f:select id="delphixSelfService" default=" "/>
+            </f:entry>
     </form>
     </f:section>
 </j:jelly>
