@@ -16,6 +16,7 @@
 package io.jenkins.plugins.delphix;
 import io.jenkins.plugins.delphix.objects.ActionStatus;
 import io.jenkins.plugins.delphix.objects.JobStatus;
+import io.jenkins.plugins.delphix.objects.User;
 
 import java.io.IOException;
 
@@ -134,8 +135,8 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         }
 
         DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
-        SelfServiceEngine delphixEngine = new SelfServiceEngine(loadedEngine);
-        UserEngine userEngine = new UserEngine(loadedEngine);
+        SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
+        UserRepository userRepo = new UserRepository(loadedEngine);
 
         JsonNode action = MAPPER.createObjectNode();
         try {
@@ -154,9 +155,9 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                 case "Recover": action = delphixEngine.recoverSelfServiceContainer(environment);
                     break;
                 case "Lock":
-                    userEngine.login();
-                    JsonNode user = userEngine.getCurrent();
-                    action = delphixEngine.lockSelfServiceContainer(environment, user.get("reference").asText());
+                    userRepo.login();
+                    User user = userRepo.getCurrent();
+                    action = delphixEngine.lockSelfServiceContainer(environment, user.getReference());
                     break;
                 case "Unlock": action = delphixEngine.unlockSelfServiceContainer(environment);
                     break;

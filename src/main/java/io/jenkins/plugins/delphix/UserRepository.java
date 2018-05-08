@@ -14,6 +14,7 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.objects.User;
 
 import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -22,16 +23,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Used for interacting with a Delphix Engine
  */
-public class UserEngine extends DelphixEngine {
+public class UserRepository extends DelphixEngine {
 
     private static final String PATH_ROOT = "/resources/json/delphix/user/";
 
     @DataBoundConstructor
-    public UserEngine(String engineAddress, String engineUsername, String enginePassword) {
+    public UserRepository(String engineAddress, String engineUsername, String enginePassword) {
         super(engineAddress, engineUsername, enginePassword);
     }
 
-    public UserEngine(DelphixEngine engine) {
+    public UserRepository(DelphixEngine engine) {
         super(engine);
     }
 
@@ -42,8 +43,8 @@ public class UserEngine extends DelphixEngine {
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
      */
-    public JsonNode getCurrent() throws IOException, DelphixEngineException {
+    public User getCurrent() throws IOException, DelphixEngineException {
         JsonNode result = engineGET(PATH_ROOT + "current").get(FIELD_RESULT);
-        return result;
+        return User.fromJson(result);
     }
 }

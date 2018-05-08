@@ -26,16 +26,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Used for interacting with a Delphix Engine
  */
-public class SelfServiceEngine extends DelphixEngine {
+public class SelfServiceRepository extends DelphixEngine {
 
     private static final String PATH_ROOT = "/resources/json/delphix/jetstream/";
 
     @DataBoundConstructor
-    public SelfServiceEngine(String engineAddress, String engineUsername, String enginePassword) {
+    public SelfServiceRepository(String engineAddress, String engineUsername, String enginePassword) {
         super(engineAddress, engineUsername, enginePassword);
     }
 
-    public SelfServiceEngine(DelphixEngine engine) {
+    public SelfServiceRepository(DelphixEngine engine) {
         super(engine);
     }
 
