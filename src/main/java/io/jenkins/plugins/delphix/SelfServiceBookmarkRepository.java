@@ -38,7 +38,6 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
         super(engine);
     }
 
-
     /**
      * List Bookmarks in the Delphix Engine
      *
@@ -73,4 +72,35 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
         JsonNode result = engineGET(PATH_ROOT).get(FIELD_RESULT);
         return result;
     }
+
+    /**
+     * Delete a Self Service Bookmark by Reference
+     *
+     * @param  bookmarkRef            String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode delete(String bookmarkRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "/%s/delete", bookmarkRef),
+            "{}"
+        );
+        return result;
+    }
+
+/*
+{
+    "type": "JSBookmarkCreateParameters",
+    "bookmark": {
+        "type": "JSBookmark",
+        "name": "TestFromCLI",
+        "branch": "JS_BRANCH-4"
+    },
+    "timelinePointParameters": {
+        "type": "JSTimelinePointLatestTimeInput",
+        "sourceDataLayout": "JS_DATA_CONTAINER-2"
+    }
+}
+ */
 }

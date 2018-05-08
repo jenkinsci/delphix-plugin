@@ -14,7 +14,6 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 
 import java.io.IOException;
@@ -33,9 +32,9 @@ import hudson.util.ListBoxModel.Option;
  * This class controls the drop down that is presented to the user when
  * configuring a Delphix build step in Jenkins job configuration.
  */
-public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder> {
+public abstract class SelfServiceBookmarkDescriptor extends BuildStepDescriptor<Builder> {
 
-    public SelfServiceDescriptor() {
+    public SelfServiceBookmarkDescriptor() {
         load();
     }
 
@@ -51,10 +50,10 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
     /**
      * Fill Item ListBoxModels
      *
-     * @param  delphixEngine [description]
-     * @param  itemType      [description]
+     * @param  delphixEngine String
+     * @param  itemType      String
      *
-     * @return               [description]
+     * @return               ListBoxModel
      */
     private ListBoxModel fillItems(String delphixEngine, String itemType) {
         ArrayList<Option> options = new ArrayList<Option>();
@@ -74,12 +73,6 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
             try {
                 engine.login();
                 switch (itemType) {
-                    case "SelfService":
-                        LinkedHashMap<String, SelfServiceContainer> environments = engine.listSelfServices();
-                        for (SelfServiceContainer environment : environments.values()) {
-                            options.add(new Option(environment.getName(), environment.getReference()));
-                        }
-                        break;
                     case "Bookmark":
                         SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(engine);
                         bookmarkRepo.login();
@@ -105,17 +98,6 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
         }
 
         return new ListBoxModel(options);
-    }
-
-    /**
-     * Add groups to drop down for build action
-     *
-     * @param   delphixEngine   String
-     *
-     * @return  ListBoxModel
-     */
-    public ListBoxModel doFillDelphixSelfServiceItems(@QueryParameter String delphixEngine) {
-        return fillItems(delphixEngine, "SelfService");
     }
 
     /**

@@ -7,15 +7,13 @@
             <f:entry title="Delphix Engine" field="delphixEngine">
                 <f:select id="delphixEngine" default=" "/>
             </f:entry>
-            <f:entry title="Self Service Container" field="delphixEnvironment">
-                <f:select id="delphixSelfService" default=" "/>
+            <f:entry title="Bookmark" field="delphixBookmark">
+                <f:select id="delphixBookmark" default=" "/>
             </f:entry>
             <f:entry title="Operation" field="delphixOperation">
                 <f:select id="delphixOperation" default=" "/>
             </f:entry>
-            <f:entry title="Bookmark" field="delphixBookmark">
-                <f:select id="delphixBookmark" default=" "/>
-            </f:entry>
+
     </form>
     </f:section>
 </j:jelly>
