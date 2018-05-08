@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.objects;
 
 /**
  * Tracks information about the status of a job.

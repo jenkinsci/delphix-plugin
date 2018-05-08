@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.objects;
 
 /**
- * Represents a bookmark in the Delphix Engine
+ * Represents a group in the Delphix Engine
  */
-public class SelfServiceBookmark {
+public class SelfServiceContainer {
 
     private final String reference;
-
     private final String name;
 
-    public SelfServiceBookmark(String reference, String name) {
+    public SelfServiceContainer(String reference, String name) {
         this.reference = reference;
         this.name = name;
     }

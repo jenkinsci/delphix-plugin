@@ -14,6 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
+import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,8 +76,8 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
                 engine.login();
                 switch (itemType) {
                     case "SelfService":
-                        LinkedHashMap<String, DelphixSelfService> environments = engine.listSelfServices();
-                        for (DelphixSelfService environment : environments.values()) {
+                        LinkedHashMap<String, SelfServiceContainer> environments = engine.listSelfServices();
+                        for (SelfServiceContainer environment : environments.values()) {
                             options.add(new Option(environment.getName(), environment.getReference()));
                         }
                         break;

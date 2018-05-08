@@ -13,26 +13,26 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.objects;
 
 /**
- * Tracks information about the status of a action.
+ * Represents a bookmark in the Delphix Engine
  */
-public class ActionStatus {
+public class SelfServiceBookmark {
 
-    private final String title;
-    private final String state;
+    private final String reference;
+    private final String name;
 
-    public ActionStatus(String title, String state) {
-        this.title = title;
-        this.state = state;
+    public SelfServiceBookmark(String reference, String name) {
+        this.reference = reference;
+        this.name = name;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return this.name;
     }
 
-    public String getState() {
-        return state;
+    public String getReference() {
+        return this.reference;
     }
 }

@@ -14,6 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
+import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -46,16 +48,16 @@ public class SelfServiceEngine extends DelphixEngine {
      * @throws IOException             [description]
      * @throws DelphixEngineException  [description]
      */
-    public LinkedHashMap<String, DelphixSelfService> listSelfServices()
+    public LinkedHashMap<String, SelfServiceContainer> listSelfServices()
             throws ClientProtocolException, IOException, DelphixEngineException {
         // Get containers
-        LinkedHashMap<String, DelphixSelfService> environments = new LinkedHashMap<String, DelphixSelfService>();
+        LinkedHashMap<String, SelfServiceContainer> environments = new LinkedHashMap<String, SelfServiceContainer>();
         JsonNode environmentsJSON = engineGET(PATH_ROOT + "container").get(FIELD_RESULT);
 
         // Loop through container list
         for (int i = 0; i < environmentsJSON.size(); i++) {
             JsonNode environmentJSON = environmentsJSON.get(i);
-            DelphixSelfService environment = new DelphixSelfService(environmentJSON.get(FIELD_REFERENCE).asText(),
+            SelfServiceContainer environment = new SelfServiceContainer(environmentJSON.get(FIELD_REFERENCE).asText(),
                     environmentJSON.get(FIELD_NAME).asText());
             environments.put(environment.getReference(), environment);
         }
@@ -180,6 +182,20 @@ public class SelfServiceEngine extends DelphixEngine {
         return result;
     }
 
+    /**
+     * Lock the container to prevent other users from performing any opeartions on it.
+     * @param  environmentRef         String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode lockSelfServiceContainer(String environmentRef, String userRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "container/%s/lock", environmentRef),
+            new SelfServiceRequest("JSDataContainerLockParameters", false, userRef).toJson()
+        );
+        return result;
+    }
 
     /**
      * Unlock the container to let other users perform opeartions on it.

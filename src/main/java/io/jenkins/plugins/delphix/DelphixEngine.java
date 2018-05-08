@@ -14,6 +14,7 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.objects.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -22,7 +23,6 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
-
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;

@@ -13,27 +13,26 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.objects;
 
 /**
- * Represents a group in the Delphix Engine
+ * Tracks information about the status of a action.
  */
-public class DelphixSelfService {
+public class ActionStatus {
 
-    private final String reference;
+    private final String title;
+    private final String state;
 
-    private final String name;
-
-    public DelphixSelfService(String reference, String name) {
-        this.reference = reference;
-        this.name = name;
+    public ActionStatus(String title, String state) {
+        this.title = title;
+        this.state = state;
     }
 
-    public String getName() {
-        return this.name;
+    public String getTitle() {
+        return title;
     }
 
-    public String getReference() {
-        return this.reference;
+    public String getState() {
+        return state;
     }
 }

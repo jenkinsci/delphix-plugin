@@ -14,6 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.objects.ActionStatus;
+import io.jenkins.plugins.delphix.objects.JobStatus;
 
 import java.io.IOException;
 
@@ -96,6 +98,7 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
             operations.add("Enable","Enable");
             operations.add("Disable","Disable");
             operations.add("Recover","Recover");
+            operations.add("Lock","Lock");
             operations.add("Unlock","Unlock");
             return operations;
         }
@@ -129,8 +132,10 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
         }
-        SelfServiceEngine delphixEngine = new SelfServiceEngine(
-                GlobalConfiguration.getPluginClassDescriptor().getEngine(engine));
+
+        DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
+        SelfServiceEngine delphixEngine = new SelfServiceEngine(loadedEngine);
+        UserEngine userEngine = new UserEngine(loadedEngine);
 
         JsonNode action = MAPPER.createObjectNode();
         try {
@@ -147,6 +152,11 @@ public class SelfServiceBuilder extends Builder implements SimpleBuildStep {
                 case "Disable": action = delphixEngine.disableSelfServiceContainer(environment);
                     break;
                 case "Recover": action = delphixEngine.recoverSelfServiceContainer(environment);
+                    break;
+                case "Lock":
+                    userEngine.login();
+                    JsonNode user = userEngine.getCurrent();
+                    action = delphixEngine.lockSelfServiceContainer(environment, user.get("reference").asText());
                     break;
                 case "Unlock": action = delphixEngine.unlockSelfServiceContainer(environment);
                     break;

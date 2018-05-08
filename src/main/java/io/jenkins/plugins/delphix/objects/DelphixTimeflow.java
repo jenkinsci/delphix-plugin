@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.objects;
 
 /**
  * Represents a group in the Delphix Engine
@@ -21,11 +21,8 @@ package io.jenkins.plugins.delphix;
 public class DelphixTimeflow {
 
     private final String reference;
-
     private final String name;
-
     private final String timestamp;
-
     private final String container;
 
     public DelphixTimeflow(String reference, String name, String timestamp, String container) {

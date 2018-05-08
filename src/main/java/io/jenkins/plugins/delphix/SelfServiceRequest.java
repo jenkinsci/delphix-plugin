@@ -22,12 +22,12 @@ public class SelfServiceRequest {
 
     private final String type;
     private final Boolean forceOption;
-    private final String bookmark;
+    private final String optionalParam;
 
-    public SelfServiceRequest(String type, Boolean forceOption, String bookmark) {
+    public SelfServiceRequest(String type, Boolean forceOption, String optionalParam) {
         this.type = type;
         this.forceOption = forceOption;
-        this.bookmark = bookmark;
+        this.optionalParam = optionalParam;
     }
 
     private String buildRequestBody(String type){
@@ -37,13 +37,14 @@ public class SelfServiceRequest {
                 build += "\"forceOption\":" + this.forceOption;
                 break;
             case "JSDataContainerRestoreParameters":
-                build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.bookmark + "\"}";
+                build += "\"timelinePointParameters\":{\"type\":\"JSTimelinePointBookmarkInput\",\"bookmark\":\""+ this.optionalParam + "\"}";
                 build += "\"forceOption\":" + this.forceOption;
                 break;
             case "JSDataContainerResetParameters":
                 build += "\"forceOption\":" + this.forceOption;
                 break;
             case "JSDataContainerLockParameters":
+                build += "\"lockUser\":\"" + this.optionalParam + "\"";
                 break;
         }
         return build;
