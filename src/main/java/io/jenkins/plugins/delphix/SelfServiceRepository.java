@@ -15,7 +15,6 @@
 
 package io.jenkins.plugins.delphix;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
-import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -28,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class SelfServiceRepository extends DelphixEngine {
 
-    private static final String PATH_ROOT = "/resources/json/delphix/jetstream/";
+    private static final String PATH_ROOT = "/resources/json/delphix/jetstream/container";
 
     @DataBoundConstructor
     public SelfServiceRepository(String engineAddress, String engineUsername, String enginePassword) {
@@ -52,7 +51,7 @@ public class SelfServiceRepository extends DelphixEngine {
             throws ClientProtocolException, IOException, DelphixEngineException {
         // Get containers
         LinkedHashMap<String, SelfServiceContainer> environments = new LinkedHashMap<String, SelfServiceContainer>();
-        JsonNode environmentsJSON = engineGET(PATH_ROOT + "container").get(FIELD_RESULT);
+        JsonNode environmentsJSON = engineGET(PATH_ROOT).get(FIELD_RESULT);
 
         // Loop through container list
         for (int i = 0; i < environmentsJSON.size(); i++) {
@@ -65,29 +64,6 @@ public class SelfServiceRepository extends DelphixEngine {
     }
 
     /**
-     * List Bookmarks in the Delphix Engine
-     *
-     * @return LinkedHashMap
-     *
-     * @throws ClientProtocolException [description]
-     * @throws IOException             [description]
-     * @throws DelphixEngineException  [description]
-     */
-    public LinkedHashMap<String, SelfServiceBookmark> listBookmarks()
-        throws ClientProtocolException, IOException, DelphixEngineException {
-            LinkedHashMap<String, SelfServiceBookmark> bookmarks = new LinkedHashMap<String, SelfServiceBookmark>();
-            JsonNode bookmarksJSON = engineGET(PATH_ROOT + "bookmark").get(FIELD_RESULT);
-
-            for (int i = 0; i < bookmarksJSON.size(); i++) {
-                JsonNode bookmarkJSON = bookmarksJSON.get(i);
-                SelfServiceBookmark bookmark = SelfServiceBookmark.fromJson(bookmarkJSON);
-                bookmarks.put(bookmark.getReference(), bookmark);
-            }
-
-            return bookmarks;
-    }
-
-    /**
      * Get Self Service Container by Refernce
      *
      * @param  containerRef           String
@@ -97,7 +73,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public SelfServiceContainer getSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = engineGET(String.format(
-            PATH_ROOT + "container/%s", containerRef)
+            PATH_ROOT + "/%s", containerRef)
         ).get(FIELD_RESULT);
         SelfServiceContainer container = SelfServiceContainer.fromJson(result);
         return container;
@@ -113,7 +89,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode refreshSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(String.format(
-            PATH_ROOT + "container/%s/refresh", containerRef),
+            PATH_ROOT + "/%s/refresh", containerRef),
             new SelfServiceRequest("JSDataContainerRefreshParameters", false, "").toJson()
         );
         return result;
@@ -129,7 +105,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode restoreSelfServiceContainer(String containerRef, String bookmark) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/restore", containerRef),
+            String.format(PATH_ROOT + "/%s/restore", containerRef),
             new SelfServiceRequest("JSDataContainerRestoreParameters", false, bookmark).toJson()
         );
         return result;
@@ -144,7 +120,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode resetSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/reset", containerRef),
+            String.format(PATH_ROOT + "/%s/reset", containerRef),
             new SelfServiceRequest("JSDataContainerResetParameters", false, "").toJson()
         );
         return result;
@@ -159,7 +135,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode enableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/enable", containerRef),
+            String.format(PATH_ROOT + "/%s/enable", containerRef),
             "{}"
         );
         return result;
@@ -174,7 +150,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode disableSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/disable", containerRef),
+            String.format(PATH_ROOT + "/%s/disable", containerRef),
             "{}"
         );
         return result;
@@ -189,7 +165,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode recoverSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/recover", containerRef),
+            String.format(PATH_ROOT + "/%s/recover", containerRef),
             "{}"
         );
         return result;
@@ -206,7 +182,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode undoSelfServiceContainer(String containerRef, String actionRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/undo", containerRef),
+            String.format(PATH_ROOT + "/%s/undo", containerRef),
             new SelfServiceRequest("JSDataContainerUndoParameters", false, actionRef).toJson()
         );
         return result;
@@ -221,7 +197,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode lockSelfServiceContainer(String containerRef, String userRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/lock", containerRef),
+            String.format(PATH_ROOT + "/%s/lock", containerRef),
             new SelfServiceRequest("JSDataContainerLockParameters", false, userRef).toJson()
         );
         return result;
@@ -237,7 +213,7 @@ public class SelfServiceRepository extends DelphixEngine {
      */
     public JsonNode unlockSelfServiceContainer(String containerRef) throws IOException, DelphixEngineException {
         JsonNode result = enginePOST(
-            String.format(PATH_ROOT + "container/%s/unlock", containerRef),
+            String.format(PATH_ROOT + "/%s/unlock", containerRef),
             "{}"
         );
         return result;

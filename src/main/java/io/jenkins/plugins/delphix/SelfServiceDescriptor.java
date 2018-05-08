@@ -48,7 +48,6 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
         return DelphixEngine.fillEnginesForDropdown();
     }
 
-
     /**
      * Fill Item ListBoxModels
      *
@@ -82,7 +81,9 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
                         }
                         break;
                     case "Bookmark":
-                        LinkedHashMap<String, SelfServiceBookmark> bookmarks = engine.listBookmarks();
+                        SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(engine);
+                        bookmarkRepo.login();
+                        LinkedHashMap<String, SelfServiceBookmark> bookmarks = bookmarkRepo.listBookmarks();
                         for (SelfServiceBookmark bookmark : bookmarks.values()) {
                             options.add(new Option(bookmark.getName(), bookmark.getReference()));
                         }
