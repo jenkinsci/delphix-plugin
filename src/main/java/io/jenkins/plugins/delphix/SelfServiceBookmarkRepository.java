@@ -112,4 +112,35 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
         return result;
     }
 
+    /**
+     * [share description]
+     *
+     * @param  bookmarkRef            String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode share(String bookmarkRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "/%s/share", bookmarkRef),
+            "{}"
+        );
+        return result;
+    }
+
+    /**
+     * [unshare description]
+     *
+     * @param  bookmarkRef            String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
+     */
+    public JsonNode unshare(String bookmarkRef) throws IOException, DelphixEngineException {
+        JsonNode result = enginePOST(
+            String.format(PATH_ROOT + "/%s/unshare", bookmarkRef),
+            "{}"
+        );
+        return result;
+    }
 }

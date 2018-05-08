@@ -87,9 +87,9 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
         public ListBoxModel doFillDelphixOperationItems() {
             ListBoxModel operations = new ListBoxModel();
             operations.add("Create","Create");
-            operations.add("Update","Update");
             operations.add("Delete","Delete");
             operations.add("Share","Share");
+            operations.add("Unshare","Unshare");
             return operations;
         }
 
@@ -134,6 +134,12 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
                     containerRepo.login();
                     SelfServiceContainer container = containerRepo.get(delphixContainer);
                     action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
+                    break;
+                case "Share":
+                    action = bookmarkRepo.share(bookmark);
+                    break;
+                case "Unshare":
+                    action = bookmarkRepo.unshare(bookmark);
                     break;
                 case "Delete":
                     action = bookmarkRepo.delete(bookmark);
