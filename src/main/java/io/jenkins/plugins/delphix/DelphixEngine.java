@@ -14,7 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.objects.*;
+import io.jenkins.plugins.delphix.objects.ActionStatus;
+import io.jenkins.plugins.delphix.objects.JobStatus;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

@@ -14,8 +14,6 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.objects.ActionStatus;
-import io.jenkins.plugins.delphix.objects.JobStatus;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 
 import java.io.IOException;
@@ -26,7 +24,6 @@ import org.kohsuke.stapler.QueryParameter;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.FilePath;
-import hudson.tasks.Builder;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
@@ -38,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Describes a build step for managing a Delphix Self Service Container
  * These build steps can be added in the job configuration page in Jenkins.
  */
-public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildStep {
+public class SelfServiceBookmarkBuilder extends DelphixBuilder implements SimpleBuildStep {
 
     public final String delphixEngine;
     public final String delphixBookmark;
@@ -156,49 +153,12 @@ public class SelfServiceBookmarkBuilder extends Builder implements SimpleBuildSt
         }
 
         //Check for Action with a Completed State
-        try {
-            ActionStatus actionStatus = bookmarkRepo.getActionStatus(action.get("action").asText());
-            if (actionStatus.getState().equals("COMPLETED")){
-                String message = actionStatus.getTitle() + ": " + actionStatus.getState();
-                listener.getLogger().println(message);
-                return;
-            }
-        } catch (DelphixEngineException e) {
-            listener.getLogger().println(e.getMessage());
-        } catch (IOException e) {
-            listener.getLogger().println(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                    new String[] { bookmarkRepo.getEngineAddress() }));
+        if (this.checkActionIsFinished(listener, loadedEngine, action)) {
+            return;
         }
-
+        
+        //Check Job Status and update Listener
         String job = action.get("job").asText();
-
-        // Make job state available to clean up after run completes
-        run.addAction(new PublishEnvVarAction(bookmark, engine));
-        run.addAction(new PublishEnvVarAction(job, engine));
-
-        JobStatus status = new JobStatus();
-        JobStatus lastStatus = new JobStatus();
-
-        // Display status of job
-        while (status.getStatus().equals(JobStatus.StatusEnum.RUNNING)) {
-            // Get current job status and abort the Jenkins job if getting the
-            // status fails
-            try {
-                status = bookmarkRepo.getJobStatus(job);
-            } catch (DelphixEngineException e) {
-                listener.getLogger().println(e.getMessage());
-            } catch (IOException e) {
-                listener.getLogger().println(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                        new String[] { bookmarkRepo.getEngineAddress() }));
-            }
-
-            // Update status if it has changed on Engine
-            if (!status.getSummary().equals(lastStatus.getSummary())) {
-                listener.getLogger().println(status.getSummary());
-                lastStatus = status;
-            }
-            // Sleep for one second before checking again
-            Thread.sleep(1000);
-        }
+        this.checkJobStatus(run, listener, loadedEngine, job, engine, bookmark);
     }
 }
