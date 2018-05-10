@@ -156,7 +156,7 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
         if (this.checkActionIsFinished(listener, loadedEngine, action)) {
             return;
         }
-        
+
         //Check Job Status and update Listener
         String job = action.get("job").asText();
         this.checkJobStatus(run, listener, loadedEngine, job, engine, bookmark);

@@ -97,17 +97,10 @@ public class DelphixEngine {
     /*
      * Fields used in JSON requests and responses
      */
-    private static final String FIELD_EVENTS = "events";
-    private static final String FIELD_JOB_STATE = "jobState";
     protected static final String FIELD_RESULT = "result";
     protected static final String FIELD_JOB = "job";
     protected static final String FIELD_NAME = "name";
     protected static final String FIELD_REFERENCE = "reference";
-    private static final String FIELD_TARGET = "target";
-    private static final String FIELD_TARGET_NAME = "targetName";
-    private static final String FIELD_ACTION_TYPE = "actionType";
-    private static final String FIELD_TIMESTAMP = "timestamp";
-    private static final String FIELD_MESSAGE_DETAILS = "messageDetails";
     private static final String FIELD_STATUS = "status";
     private static final String FIELD_API_VERSION = "apiVersion";
     private static final String FIELD_MAJOR = "major";
@@ -276,20 +269,9 @@ public class DelphixEngine {
      * @throws DelphixEngineException  [description]
      */
     public JobStatus getJobStatus(String job) throws ClientProtocolException, IOException, DelphixEngineException {
-        // Get job status
         JsonNode result = engineGET(String.format(PATH_JOB, job));
-
-        // Parse JSON to construct object
         JsonNode jobStatus = result.get(FIELD_RESULT);
-        JsonNode events = jobStatus.get(FIELD_EVENTS);
-        JsonNode recentEvent = events.get(events.size() - 1);
-        JobStatus.StatusEnum status = JobStatus.StatusEnum.valueOf(jobStatus.get(FIELD_JOB_STATE).asText());
-        String summary =
-                recentEvent.get(FIELD_TIMESTAMP).asText() + " - " + recentEvent.get(FIELD_MESSAGE_DETAILS).asText();
-        String target = jobStatus.get(FIELD_TARGET).asText();
-        String targetName = jobStatus.get(FIELD_TARGET_NAME).asText();
-        String actionType = jobStatus.get(FIELD_ACTION_TYPE).asText();
-        return new JobStatus(status, summary, target, targetName, actionType);
+        return JobStatus.fromJson(jobStatus);
     }
 
     /**

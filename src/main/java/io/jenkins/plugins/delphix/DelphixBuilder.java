@@ -25,10 +25,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import hudson.tasks.Builder;
 
 /**
- * Describes a build step for managing a Delphix Self Service Container
- * These build steps can be added in the job configuration page in Jenkins.
+ * Shared Methods for Delphix Builders
  */
-public class DelphixBuilder extends Builder {
+abstract public class DelphixBuilder extends Builder {
 
     protected Boolean checkActionIsFinished(TaskListener listener, DelphixEngine engine, JsonNode action){
         Boolean status = false;
@@ -50,8 +49,8 @@ public class DelphixBuilder extends Builder {
     }
 
     protected void checkJobStatus(
-            Run<?, ?> run, 
-            TaskListener listener, 
+            Run<?, ?> run,
+            TaskListener listener,
             DelphixEngine loadedEngine,
             String job,
             String engine,
@@ -61,13 +60,34 @@ public class DelphixBuilder extends Builder {
         run.addAction(new PublishEnvVarAction(action, engine));
         run.addAction(new PublishEnvVarAction(job, engine));
 
-        JobStatus status = new JobStatus();
-        JobStatus lastStatus = new JobStatus();
+        JobStatus status = new JobStatus(
+            JobStatus.StatusEnum.RUNNING,
+            "type",
+            "reference",
+            "namespace",
+            "name",
+            "actionType",
+            "target",
+            "targetObjectType",
+            "jobState",
+            "startTime",
+            "updateTime",
+            false,
+            false,
+            false,
+            "user",
+            "emailAddresses",
+            "title",
+            "cancelReason",
+            0,
+            "targetName",
+            "parentActionState",
+            "parentAction"
+       );
+        JobStatus lastStatus = status;
 
         // Display status of job
         while (status.getStatus().equals(JobStatus.StatusEnum.RUNNING)) {
-            // Get current job status and abort the Jenkins job if getting the
-            // status fails
             try {
                 status = loadedEngine.getJobStatus(job);
             } catch (DelphixEngineException e) {
@@ -78,10 +98,10 @@ public class DelphixBuilder extends Builder {
             }
 
             // Update status if it has changed on Engine
-            if (!status.getSummary().equals(lastStatus.getSummary())) {
-                listener.getLogger().println(status.getSummary());
-                lastStatus = status;
+            if ( !status.getPercentComplete().equals(lastStatus.getPercentComplete()) ){
+                listener.getLogger().println(status.getActionType() + ": " + status.getPercentComplete() + "% COMPLETED.");
             }
+            lastStatus = status;
 
             // Sleep for one second before checking again
             try {

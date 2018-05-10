@@ -137,6 +137,7 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
         UserRepository userRepo = new UserRepository(loadedEngine);
 
+        //Run main operation as defined by build settings
         JsonNode action = MAPPER.createObjectNode();
         try {
             delphixEngine.login();
@@ -179,9 +180,9 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         if (this.checkActionIsFinished(listener, loadedEngine, action)) {
             return;
         }
-        
+
         //Check Job Status and update Listener
         String job = action.get("job").asText();
-        this.checkJobStatus(run, listener, loadedEngine, job, engine, bookmark);
+        this.checkJobStatus(run, listener, loadedEngine, job, engine, selfServiceContainer);
     }
 }
