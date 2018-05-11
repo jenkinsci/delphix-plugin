@@ -39,7 +39,7 @@
         <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
     </scm>
-    -->
+
     <dependencies>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

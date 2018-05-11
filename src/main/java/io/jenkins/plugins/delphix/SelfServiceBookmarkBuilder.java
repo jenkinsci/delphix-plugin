@@ -14,13 +14,12 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.repos.UserRepository;
+
 import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
+import io.jenkins.plugins.delphix.repos.SelfServiceBookmarkRepository;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
-import io.jenkins.plugins.delphix.objects.User;
 
 import java.io.IOException;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -38,71 +37,59 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Describes a build step for managing a Delphix Self Service Container
  * These build steps can be added in the job configuration page in Jenkins.
  */
-public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildStep {
+public class SelfServiceBookmarkBuilder extends DelphixBuilder implements SimpleBuildStep {
 
     public final String delphixEngine;
-    public final String delphixEnvironment;
-    public final String delphixOperation;
     public final String delphixBookmark;
+    public final String delphixOperation;
+    public final String delphixContainer;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
-     * [SelfServiceBuilder description]
+     * [SelfServiceBookmarkBuilder description]
      *
      * @param delphixEngine         String
-     * @param delphixEnvironment    String
+     * @param delphixBookmark       String
      * @param delphixOperation      String
-     * @param delphixBookmark      String
+     * @param delphixContainer      String
      */
     @DataBoundConstructor
-    public SelfServiceBuilder(
+    public SelfServiceBookmarkBuilder(
         String delphixEngine,
-        String delphixEnvironment,
+        String delphixBookmark,
         String delphixOperation,
-        String delphixBookmark
+        String delphixContainer
     ) {
         this.delphixEngine = delphixEngine;
-        this.delphixEnvironment = delphixEnvironment;
         this.delphixOperation = delphixOperation;
         this.delphixBookmark = delphixBookmark;
+        this.delphixContainer = delphixContainer;
     }
 
     @Extension
     public static final class RefreshDescriptor extends SelfServiceDescriptor {
 
         /**
-         * Add containers to drop down for Refresh action
+         * Add Engines to drop down
          */
         public ListBoxModel doFillDelphixEngineItems() {
             return super.doFillDelphixEngineItems();
         }
 
-        /**
-         * Add containers to drop down for Refresh action
-         *
-         * @param  delphixEngine String
-         * @return               ListBoxModel
-         */
-        public ListBoxModel doFillDelphixEnvironmentItems(@QueryParameter String delphixEngine) {
-            return super.doFillDelphixSelfServiceItems(delphixEngine);
-        }
-
-
         public ListBoxModel doFillDelphixBookmarkItems(@QueryParameter String delphixEngine) {
             return super.doFillDelphixBookmarkItems(delphixEngine);
         }
 
+        public ListBoxModel doFillDelphixContainerItems(@QueryParameter String delphixEngine) {
+            return super.doFillDelphixSelfServiceItems(delphixEngine);
+        }
+
         public ListBoxModel doFillDelphixOperationItems() {
             ListBoxModel operations = new ListBoxModel();
-            operations.add("Refresh","Refresh");
-            operations.add("Restore","Restore");
-            operations.add("Enable","Enable");
-            operations.add("Disable","Disable");
-            operations.add("Recover","Recover");
-            operations.add("Reset","Reset");
-            operations.add("Undo","Undo");
-            operations.add("Lock","Lock");
-            operations.add("Unlock","Unlock");
+            operations.add("Create","Create");
+            operations.add("Delete","Delete");
+            operations.add("Share","Share");
+            operations.add("Unshare","Unshare");
             return operations;
         }
 
@@ -111,7 +98,7 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
          */
         @Override
         public String getDisplayName() {
-            return Messages.getMessage(Messages.SELFSERVICE_OPERATION);
+            return "Delphix - Self Service Bookmark";
         }
     }
 
@@ -123,12 +110,11 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         TaskListener listener
     ) throws InterruptedException, IOException {
         // Check if the input engine is not valid
-        if (delphixEnvironment.equals("NULL")) {
+        if (delphixBookmark.equals("NULL")) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
         }
 
         String engine = delphixEngine;
-        String selfServiceContainer = delphixEnvironment;
         String operationType = delphixOperation;
         String bookmark = delphixBookmark;
 
@@ -137,38 +123,28 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         }
 
         DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
-        SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
-        UserRepository userRepo = new UserRepository(loadedEngine);
+        SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(loadedEngine);
+        SelfServiceRepository containerRepo = new SelfServiceRepository(loadedEngine);
 
-        //Run main operation as defined by build settings
         JsonNode action = MAPPER.createObjectNode();
         try {
-            delphixEngine.login();
+            bookmarkRepo.login();
             switch (operationType) {
-                case "Refresh": action = delphixEngine.refresh(selfServiceContainer);
+                case "Create":
+                    containerRepo.login();
+                    SelfServiceContainer container = containerRepo.get(delphixContainer);
+                    action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
                     break;
-                case "Reset": action = delphixEngine.reset(selfServiceContainer);
+                case "Share":
+                    action = bookmarkRepo.share(bookmark);
                     break;
-                case "Restore": action = delphixEngine.restore(selfServiceContainer, bookmark);
+                case "Unshare":
+                    action = bookmarkRepo.unshare(bookmark);
                     break;
-                case "Enable": action = delphixEngine.enable(selfServiceContainer);
+                case "Delete":
+                    action = bookmarkRepo.delete(bookmark);
                     break;
-                case "Disable": action = delphixEngine.disable(selfServiceContainer);
-                    break;
-                case "Recover": action = delphixEngine.recover(selfServiceContainer);
-                    break;
-                case "Undo" :
-                    SelfServiceContainer container = delphixEngine.get(selfServiceContainer);
-                    action = delphixEngine.undo(selfServiceContainer, container.getLastOperation());
-                    break;
-                case "Lock":
-                    userRepo.login();
-                    User user = userRepo.getCurrent();
-                    action = delphixEngine.lock(selfServiceContainer, user.getReference());
-                    break;
-                case "Unlock": action = delphixEngine.unlock(selfServiceContainer);
-                    break;
-                default: throw new DelphixEngineException("Undefined Self Service Operation");
+                default: throw new DelphixEngineException("Undefined Self Service Bookmark Operation");
             }
         } catch (DelphixEngineException e) {
             // Print error from engine if job fails and abort Jenkins job
@@ -176,7 +152,7 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         } catch (IOException e) {
             // Print error if unable to connect to engine and abort Jenkins job
             listener.getLogger().println(
-                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { delphixEngine.getEngineAddress() }));
+                    Messages.getMessage(Messages.UNABLE_TO_CONNECT, new String[] { bookmarkRepo.getEngineAddress() }));
         }
 
         //Check for Action with a Completed State
@@ -186,6 +162,6 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
 
         //Check Job Status and update Listener
         String job = action.get("job").asText();
-        this.checkJobStatus(run, listener, loadedEngine, job, engine, selfServiceContainer);
+        this.checkJobStatus(run, listener, loadedEngine, job, engine, bookmark);
     }
 }

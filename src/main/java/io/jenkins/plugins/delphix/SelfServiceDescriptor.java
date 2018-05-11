@@ -14,6 +14,10 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.repos.SelfServiceBookmarkRepository;
+import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
+import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
+import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,71 +47,52 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
      * @return ListBoxModel
      */
     public ListBoxModel doFillDelphixEngineItems() {
-        ArrayList<Option> options = new ArrayList<Option>();
-        // Loop through all engines added to Jenkins
-        for (DelphixEngine engine : GlobalConfiguration.getPluginClassDescriptor().getEngines()) {
-            DelphixEngine delphixEngine = new DelphixEngine(engine);
-            try {
-                // login to engine
-                try {
-                    delphixEngine.login();
-
-                    options.add(new Option(delphixEngine.getEngineAddress(), delphixEngine.getEngineAddress()));
-                } catch (DelphixEngineException e) {
-                    // Add message to drop down if unable to login to engine
-                    options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_LOGIN,
-                            new String[] { delphixEngine.getEngineAddress() }), "NULL"));
-                    continue;
-                }
-            } catch (IOException e) {
-                // Add message to drop down if unable to connect to engine
-                options.add(new Option(Messages.getMessage(Messages.UNABLE_TO_CONNECT,
-                        new String[] { delphixEngine.getEngineAddress() }), "NULL"));
-            }
-        }
-
-        // If there are no engines state that in the drop down
-        if (GlobalConfiguration.getPluginClassDescriptor().getEngines().size() == 0) {
-            // Add message to drop down if no engines in Jenkins
-            options.add(new Option(Messages.getMessage(Messages.NO_ENGINES), "NULL"));
-        }
-        return new ListBoxModel(options);
+        return DelphixEngine.fillEnginesForDropdown();
     }
 
     /**
-     * Add groups to drop down for build action
+     * Fill Item ListBoxModels
      *
-     * @param   delphixEngine
+     * @param  delphixEngine [description]
+     * @param  itemType      [description]
      *
-     * @return  ListBoxModel
+     * @return               [description]
      */
-    public ListBoxModel doFillDelphixSelfServiceItems(@QueryParameter String delphixEngine) {
+    private ListBoxModel fillItems(String delphixEngine, String itemType) {
         ArrayList<Option> options = new ArrayList<Option>();
 
-        // Mark as N/A if engine is invalid
         if (delphixEngine.equals("NULL") || delphixEngine.equals(" ")) {
             options.add(new Option("N/A", "NULL"));
             return new ListBoxModel(options);
         }
-
         if (delphixEngine.isEmpty()) {
             return new ListBoxModel(options);
         }
-        // Loop through all engines added to Jenkins
-        DelphixEngine engine = new DelphixEngine(
+
+        SelfServiceRepository engine = new SelfServiceRepository(
                 GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
+
         try {
-            // login to engine
             try {
                 engine.login();
-
-                // Get list of groups on engine
-                LinkedHashMap<String, DelphixSelfService> environments = engine.listSelfServices();
-
-                // Add groups to list
-                for (DelphixSelfService environment : environments.values()) {
-                    options.add(new Option(environment.getName(), environment.getReference()));
+                switch (itemType) {
+                    case "SelfService":
+                        LinkedHashMap<String, SelfServiceContainer> environments = engine.listSelfServices();
+                        for (SelfServiceContainer environment : environments.values()) {
+                            options.add(new Option(environment.getName(), environment.getReference()));
+                        }
+                        break;
+                    case "Bookmark":
+                        SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(engine);
+                        bookmarkRepo.login();
+                        LinkedHashMap<String, SelfServiceBookmark> bookmarks = bookmarkRepo.listBookmarks();
+                        for (SelfServiceBookmark bookmark : bookmarks.values()) {
+                            options.add(new Option(bookmark.getName(), bookmark.getReference()));
+                        }
+                        break;
+                    default: throw new DelphixEngineException("Invalid Self Service Item Type");
                 }
+
             } catch (DelphixEngineException e) {
                 // Add message to drop down if unable to login to engine
                 options.add(new Option(
@@ -124,6 +109,28 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
         return new ListBoxModel(options);
     }
 
+    /**
+     * Add groups to drop down for build action
+     *
+     * @param   delphixEngine   String
+     *
+     * @return  ListBoxModel
+     */
+    public ListBoxModel doFillDelphixSelfServiceItems(@QueryParameter String delphixEngine) {
+        return fillItems(delphixEngine, "SelfService");
+    }
+
+    /**
+     *
+     * [doFillDelphixBookmarkItems description]
+     *
+     * @param  delphixEngine [description]
+     *
+     * @return               [description]
+     */
+    public ListBoxModel doFillDelphixBookmarkItems(@QueryParameter String delphixEngine) {
+        return fillItems(delphixEngine, "Bookmark");
+    }
 
     /**
      * isApplicable

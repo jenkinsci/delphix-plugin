@@ -102,6 +102,11 @@ public class GlobalConfiguration extends JobProperty<Job<?, ?>> {
 
         /**
          * Test connection to Delphix Engine and display user status
+         *
+         * @param  engineAddress                  String
+         * @param  engineUsername                 String
+         * @param  enginePassword                 String
+         * @return                                String
          */
         public FormValidation doTestConnection(
                 @QueryParameter(ENGINE_ADDRESS) final String engineAddress,
@@ -123,6 +128,8 @@ public class GlobalConfiguration extends JobProperty<Job<?, ?>> {
 
         /**
          * Add an engine to the list of available engines
+         *
+         * @return void
          */
         private void addEngine(JSONObject engineJSON) {
             String address = engineJSON.getString(ENGINE_ADDRESS);
@@ -133,6 +140,8 @@ public class GlobalConfiguration extends JobProperty<Job<?, ?>> {
 
         /**
          * Get the engines that were added with this plugin
+         *
+         * @return ArrayList
          */
         public ArrayList<DelphixEngine> getEngines() {
             return engines;
@@ -140,6 +149,9 @@ public class GlobalConfiguration extends JobProperty<Job<?, ?>> {
 
         /**
          * Get an engine based upon its address
+         *
+         * @param   address     String
+         * @return              mixed
          */
         public DelphixEngine getEngine(String address) {
             for (DelphixEngine engine : engines) {
