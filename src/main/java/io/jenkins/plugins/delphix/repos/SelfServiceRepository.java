@@ -13,8 +13,12 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.repos;
+
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
+import io.jenkins.plugins.delphix.DelphixEngine;
+import io.jenkins.plugins.delphix.DelphixEngineException;
+import io.jenkins.plugins.delphix.SelfServiceRequest;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -99,6 +103,7 @@ public class SelfServiceRepository extends DelphixEngine {
      * Restore a Self Service Container
      *
      * @param  containerRef         String
+     * @param  bookmark             String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]
@@ -190,7 +195,8 @@ public class SelfServiceRepository extends DelphixEngine {
 
     /**
      * Lock the container to prevent other users from performing any opeartions on it.
-     * @param  containerRef         String
+     * @param  containerRef           String
+     * @param  userRef                String
      * @return                        JsonNode
      * @throws IOException            [description]
      * @throws DelphixEngineException [description]

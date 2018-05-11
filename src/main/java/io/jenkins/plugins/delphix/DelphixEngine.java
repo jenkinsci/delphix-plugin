@@ -14,8 +14,6 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.objects.ActionStatus;
-import io.jenkins.plugins.delphix.objects.JobStatus;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -27,7 +25,6 @@ import hudson.util.ListBoxModel.Option;
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -60,9 +57,6 @@ public class DelphixEngine {
      */
     private static final String PATH_SESSION = "/resources/json/delphix/session";
     private static final String PATH_LOGIN = "/resources/json/delphix/login";
-    private static final String PATH_CANCEL_JOB = "/resources/json/delphix/job/%s/cancel";
-    private static final String PATH_JOB = "/resources/json/delphix/job/%s";
-    private static final String PATH_ACTION = "/resources/json/delphix/action/%s";
     private static final String PATH_ENVIRONMENT = "/resources/json/delphix/environment";
     private static final String PATH_SYSTEM_INFO = "/resources/json/delphix/system";
 
@@ -162,6 +156,12 @@ public class DelphixEngine {
 
     /**
      * Send POST to Delphix Engine and return the result
+     *
+     * @param  path                   String
+     * @param  content                String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     protected JsonNode enginePOST(final String path, final String content) throws IOException, DelphixEngineException {
         // Log requests
@@ -196,6 +196,11 @@ public class DelphixEngine {
 
     /**
      * Send GET to Delphix Engine and return the result
+     *
+     * @param  path                   String
+     * @return                        JsonNode
+     * @throws IOException            [description]
+     * @throws DelphixEngineException [description]
      */
     protected JsonNode engineGET(final String path) throws IOException, DelphixEngineException {
         // Log requests
@@ -242,53 +247,6 @@ public class DelphixEngine {
 
         // Login with most recent API session
         enginePOST(PATH_LOGIN, String.format(CONTENT_LOGIN, engineUsername, enginePassword));
-    }
-
-    /**
-     * Cancel a job running on the Delphix Engine
-     *
-     * @param  jobRef                  String
-     *
-     * @throws ClientProtocolException [description]
-     * @throws IOException             [description]
-     * @throws DelphixEngineException  [description]
-     */
-    public void cancelJob(String jobRef) throws ClientProtocolException, IOException, DelphixEngineException {
-        enginePOST(String.format(PATH_CANCEL_JOB, jobRef), "");
-    }
-
-    /**
-     * Get the status of a job running on the Delphix Engine
-     *
-     * @param  job                     String
-     *
-     * @return                         JobStatus
-     *
-     * @throws ClientProtocolException [description]
-     * @throws IOException             [description]
-     * @throws DelphixEngineException  [description]
-     */
-    public JobStatus getJobStatus(String job) throws ClientProtocolException, IOException, DelphixEngineException {
-        JsonNode result = engineGET(String.format(PATH_JOB, job));
-        JsonNode jobStatus = result.get(FIELD_RESULT);
-        return JobStatus.fromJson(jobStatus);
-    }
-
-    /**
-     * Get the Status of an Action on the Delphix Engine
-     *
-     * @param  action                  String
-     *
-     * @return                         ActionStatus
-     *
-     * @throws ClientProtocolException [description]
-     * @throws IOException             [description]
-     * @throws DelphixEngineException  [description]
-     */
-    public ActionStatus getActionStatus(String action) throws ClientProtocolException, IOException, DelphixEngineException {
-        JsonNode result = engineGET(String.format(PATH_ACTION, action));
-        JsonNode actionStatus = result.get(FIELD_RESULT);
-        return new ActionStatus(actionStatus.get("title").asText(), actionStatus.get("state").asText());
     }
 
     /**

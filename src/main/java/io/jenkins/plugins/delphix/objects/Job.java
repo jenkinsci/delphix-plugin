@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Tracks information about the status of a job.
  */
-public class JobStatus {
+public class Job {
 
     public enum StatusEnum {
         RUNNING, ABORTED, CANCELED, COMPLETED, FAILED
@@ -49,7 +49,7 @@ public class JobStatus {
     private final String parentActionState;
     private final String parentAction;
 
-    public JobStatus(
+    public Job(
         StatusEnum status,
         String type,
         String reference,
@@ -186,9 +186,9 @@ public class JobStatus {
         return this.parentAction;
     }
 
-    public static JobStatus fromJson(JsonNode json) {
-        JobStatus.StatusEnum statusEnum = JobStatus.StatusEnum.valueOf(json.get("jobState").asText());
-        JobStatus status = new JobStatus(
+    public static Job fromJson(JsonNode json) {
+        Job.StatusEnum statusEnum = Job.StatusEnum.valueOf(json.get("jobState").asText());
+        Job status = new Job(
             statusEnum,
             json.get("type").asText(),
             json.get("reference").asText(),

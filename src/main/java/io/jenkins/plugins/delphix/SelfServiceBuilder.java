@@ -14,6 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.repos.UserRepository;
+import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 import io.jenkins.plugins.delphix.objects.User;
 
@@ -50,6 +52,7 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
      * @param delphixEngine         String
      * @param delphixEnvironment    String
      * @param delphixOperation      String
+     * @param delphixBookmark      String
      */
     @DataBoundConstructor
     public SelfServiceBuilder(

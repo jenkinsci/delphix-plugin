@@ -14,10 +14,12 @@
  */
 
 package io.jenkins.plugins.delphix;
+
+import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
+import io.jenkins.plugins.delphix.repos.SelfServiceBookmarkRepository;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 
 import java.io.IOException;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -49,6 +51,7 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
      * @param delphixEngine         String
      * @param delphixBookmark       String
      * @param delphixOperation      String
+     * @param delphixContainer      String
      */
     @DataBoundConstructor
     public SelfServiceBookmarkBuilder(

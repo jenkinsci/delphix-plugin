@@ -14,8 +14,10 @@
  */
 
 package io.jenkins.plugins.delphix;
-import io.jenkins.plugins.delphix.objects.ActionStatus;
-import io.jenkins.plugins.delphix.objects.JobStatus;
+import io.jenkins.plugins.delphix.repos.JobRepository;
+import io.jenkins.plugins.delphix.repos.ActionRepository;
+import io.jenkins.plugins.delphix.objects.Action;
+import io.jenkins.plugins.delphix.objects.Job;
 
 import java.io.IOException;
 
@@ -32,8 +34,9 @@ abstract public class DelphixBuilder extends Builder {
     protected Boolean checkActionIsFinished(TaskListener listener, DelphixEngine engine, JsonNode action){
         Boolean status = false;
         try {
-            engine.login();
-            ActionStatus actionStatus = engine.getActionStatus(action.get("action").asText());
+            ActionRepository actionRepo = new ActionRepository(engine);
+            actionRepo.login();
+            Action actionStatus = actionRepo.get(action.get("action").asText());
             if (actionStatus.getState().equals("COMPLETED")){
                 String message = actionStatus.getTitle() + ": " + actionStatus.getState();
                 listener.getLogger().println(message);
@@ -60,8 +63,8 @@ abstract public class DelphixBuilder extends Builder {
         run.addAction(new PublishEnvVarAction(action, engine));
         run.addAction(new PublishEnvVarAction(job, engine));
 
-        JobStatus status = new JobStatus(
-            JobStatus.StatusEnum.RUNNING,
+        Job status = new Job(
+            Job.StatusEnum.RUNNING,
             "type",
             "reference",
             "namespace",
@@ -84,12 +87,15 @@ abstract public class DelphixBuilder extends Builder {
             "parentActionState",
             "parentAction"
        );
-        JobStatus lastStatus = status;
+        Job lastStatus = status;
+
+        JobRepository jobRepo = new JobRepository(loadedEngine);
 
         // Display status of job
-        while (status.getStatus().equals(JobStatus.StatusEnum.RUNNING)) {
+        while (status.getStatus().equals(Job.StatusEnum.RUNNING)) {
             try {
-                status = loadedEngine.getJobStatus(job);
+                jobRepo.login();
+                status = jobRepo.get(job);
             } catch (DelphixEngineException e) {
                 listener.getLogger().println(e.getMessage());
             } catch (IOException e) {
@@ -99,7 +105,7 @@ abstract public class DelphixBuilder extends Builder {
 
             // Update status if it has changed on Engine
             if ( !status.getPercentComplete().equals(lastStatus.getPercentComplete()) ){
-                listener.getLogger().println(status.getActionType() + ": " + status.getPercentComplete() + "% COMPLETED.");
+                listener.getLogger().println(status.getActionType() + " " + status.getReference() + ": " + status.getPercentComplete() + "% COMPLETED.");
             }
             lastStatus = status;
 

@@ -15,6 +15,7 @@
 
 package io.jenkins.plugins.delphix;
 
+import io.jenkins.plugins.delphix.repos.JobRepository;
 import java.io.IOException;
 import java.util.Map;
 
@@ -46,10 +47,10 @@ public class RunListenerImpl extends RunListener<AbstractBuild<?, ?>> {
                 for (Map.Entry<String, String> jobEngine : build.getEnvironment(listener).entrySet()) {
                     if (jobEngine.getKey().contains("JOB-")) {
                         // Login and cancel job
-                        DelphixEngine delphixEngine = new DelphixEngine(
+                        JobRepository jobRepo = new JobRepository(
                                 GlobalConfiguration.getPluginClassDescriptor().getEngine(jobEngine.getValue()));
-                        delphixEngine.login();
-                        delphixEngine.cancelJob(jobEngine.getKey());
+                        jobRepo.login();
+                        jobRepo.cancel(jobEngine.getKey());
                         listener.getLogger().println(Messages.getMessage(Messages.CANCELED_JOB,
                                 new String[] { jobEngine.getValue() }));
                     }

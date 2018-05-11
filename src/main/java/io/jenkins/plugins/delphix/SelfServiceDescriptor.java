@@ -14,6 +14,8 @@
  */
 
 package io.jenkins.plugins.delphix;
+import io.jenkins.plugins.delphix.repos.SelfServiceBookmarkRepository;
+import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 

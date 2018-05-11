@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.repos;
+
 import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
+import io.jenkins.plugins.delphix.DelphixEngine;
+import io.jenkins.plugins.delphix.DelphixEngineException;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -113,7 +116,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
     }
 
     /**
-     * [share description]
+     * Share a Self Service Bookmark
      *
      * @param  bookmarkRef            String
      * @return                        JsonNode
@@ -129,7 +132,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
     }
 
     /**
-     * [unshare description]
+     * Unshare a Self Service Bookmark
      *
      * @param  bookmarkRef            String
      * @return                        JsonNode

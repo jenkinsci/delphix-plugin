@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
-package io.jenkins.plugins.delphix;
+package io.jenkins.plugins.delphix.repos;
+
 import io.jenkins.plugins.delphix.objects.User;
+import io.jenkins.plugins.delphix.DelphixEngine;
+import io.jenkins.plugins.delphix.DelphixEngineException;
 
 import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
