@@ -4,7 +4,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:section>
-    <form>
+        <form>
             <f:entry title="Delphix Engine" field="delphixEngine">
                 <f:select id="delphixEngine" default=" "/>
             </f:entry>
@@ -17,6 +17,12 @@
             <f:entry title="Bookmark" field="delphixBookmark">
                 <f:select id="delphixBookmark" default=" "/>
             </f:entry>
-    </form>
+            <f:advanced>
+                <f:entry title="Use Previous Bookmark" field="useProps"
+                         description="Use Self Service Bookmark from a Previous Build Step">
+                    <f:checkbox />
+                </f:entry>
+            </f:advanced>
+        </form>
     </f:section>
 </j:jelly>

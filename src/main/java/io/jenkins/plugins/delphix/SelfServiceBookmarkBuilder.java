@@ -14,7 +14,6 @@
  */
 
 package io.jenkins.plugins.delphix;
-
 import io.jenkins.plugins.delphix.repos.SelfServiceRepository;
 import io.jenkins.plugins.delphix.repos.SelfServiceBookmarkRepository;
 import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
@@ -134,6 +133,8 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
                     containerRepo.login();
                     SelfServiceContainer container = containerRepo.get(delphixContainer);
                     action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
+                    DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
+                    delphixProps.setBookmark(action.get("result").toString());
                     break;
                 case "Share":
                     action = bookmarkRepo.share(bookmark);

@@ -22,6 +22,7 @@ import io.jenkins.plugins.delphix.objects.User;
 import java.io.IOException;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 import hudson.Launcher;
@@ -40,10 +41,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildStep {
 
-    public final String delphixEngine;
-    public final String delphixEnvironment;
-    public final String delphixOperation;
-    public final String delphixBookmark;
+    private final String delphixEngine;
+    private final String delphixEnvironment;
+    private final String delphixOperation;
+    private final String delphixBookmark;
+    private boolean useProps;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -65,6 +67,31 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         this.delphixEnvironment = delphixEnvironment;
         this.delphixOperation = delphixOperation;
         this.delphixBookmark = delphixBookmark;
+    }
+
+    public String getDelphixEngine() {
+        return this.delphixEngine;
+    }
+
+    public String getDelphixEnvironment() {
+        return this.delphixEnvironment;
+    }
+
+    public String getDelphixOperation() {
+        return this.delphixOperation;
+    }
+
+    public String getDelphixBookmark() {
+        return this.delphixBookmark;
+    }
+
+    public boolean getUseProps() {
+        return this.useProps;
+    }
+
+    @DataBoundSetter
+    public void setUseProps(boolean useProps) {
+    	this.useProps = useProps;
     }
 
     @Extension
@@ -149,7 +176,16 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
                     break;
                 case "Reset": action = delphixEngine.reset(selfServiceContainer);
                     break;
-                case "Restore": action = delphixEngine.restore(selfServiceContainer, bookmark);
+                case "Restore":
+                    if (this.useProps) {
+                        try {
+                            DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
+                            bookmark = delphixProps.getBookmark();
+                        } catch (Throwable t) {
+                            listener.getLogger().println(t.getMessage());
+                        }
+                    }
+                    action = delphixEngine.restore(selfServiceContainer, bookmark);
                     break;
                 case "Enable": action = delphixEngine.enable(selfServiceContainer);
                     break;
