@@ -28,52 +28,88 @@ public class DelphixProperties {
     private final File file;
     private final Properties properties;
     private final TaskListener listener;
+    private final String engineRef = "engine";
+    private final String bookmarkOperation = "bookmark.operation";
+    private final String containerOperation = "container.operation";
+    private final String bookmarkRef = "bookmark.reference";
+    private final String containerRef = "container.reference";
 
     public DelphixProperties(FilePath workspace, TaskListener listener) {
         this.properties = new Properties();
         this.file = new File(workspace + "/delphix.properties");
         this.listener = listener;
+        try {
+            this.file.createNewFile();
+        } catch (IOException e) {
+            this.listener.getLogger().print(e.getMessage());
+        }
+        this.loadProperties();
     }
 
-    private String read(String key) {
-        String result = "";
+    private void loadProperties() {
         try {
             FileInputStream fileInput = new FileInputStream(this.file);
             this.properties.load(fileInput);
             fileInput.close();
-            result = this.properties.getProperty(key);
         } catch (FileNotFoundException e) {
             this.listener.getLogger().print(e.getMessage());
         } catch (IOException e) {
             this.listener.getLogger().print(e.getMessage());
         }
-        return result.replaceAll("^\"|\"$", "");
+    }
+
+    private String read(String key) {
+        return this.properties.getProperty(key).replaceAll("^\"|\"$", "");
     }
 
     private void write(String key, String value) {
         try {
-            properties.setProperty(key, value);
-            FileOutputStream fileOut = new FileOutputStream(this.file);
-            properties.store(fileOut, "Delphix Properties");
+            this.properties.setProperty(key, value);
+            FileOutputStream fileOut = new FileOutputStream(this.file, false);
+            this.properties.store(fileOut, "Delphix Properties");
             fileOut.close();
         } catch (IOException e) {
             this.listener.getLogger().print(e.getMessage());
         }
     }
 
-    public String getContainer() {
-        return this.read("container");
+    public String getEngine() {
+        return this.read(this.engineRef);
     }
 
-    public String getBookmark() {
-        return this.read("bookmark");
+    public String getContainerOperation() {
+        return this.read(this.containerOperation);
     }
 
-    public void setContainer(String container) {
-        this.write("container", container);
+    public String getBookmarkOperation() {
+        return this.read(this.bookmarkOperation);
     }
 
-    public void setBookmark(String bookmark) {
-        this.write("bookmark", bookmark);
+    public String getContainerReference() {
+        return this.read(this.containerRef);
+    }
+
+    public String getBookmarkReference() {
+        return this.read(this.bookmarkRef);
+    }
+
+    public void setEngine(String engine) {
+        this.write(this.engineRef, engine);
+    }
+
+    public void setContainerOperation(String operation) {
+        this.write(this.containerOperation, operation);
+    }
+
+    public void setBookmarkOperation(String operation) {
+        this.write(this.bookmarkOperation, operation);
+    }
+
+    public void setContainerReference(String container) {
+        this.write(this.containerRef, container);
+    }
+
+    public void setBookmarkReference(String bookmark) {
+        this.write(this.bookmarkRef, bookmark);
     }
 }

@@ -21,6 +21,7 @@ import io.jenkins.plugins.delphix.objects.SelfServiceContainer;
 import java.io.IOException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import hudson.Launcher;
 import hudson.Extension;
@@ -42,6 +43,10 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
     public final String delphixBookmark;
     public final String delphixOperation;
     public final String delphixContainer;
+
+    private boolean saveToProps;
+    private boolean loadFromProps;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -63,6 +68,24 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
         this.delphixOperation = delphixOperation;
         this.delphixBookmark = delphixBookmark;
         this.delphixContainer = delphixContainer;
+    }
+
+    public boolean getSaveToProps() {
+        return this.saveToProps;
+    }
+
+    public boolean getLoadFromProps(){
+        return this.loadFromProps;
+    }
+
+    @DataBoundSetter
+    public void setSaveToProps(boolean saveToProps) {
+        this.saveToProps = saveToProps;
+    }
+
+    @DataBoundSetter
+    public void setLoadFromProps(boolean loadFromProps) {
+        this.loadFromProps = loadFromProps;
     }
 
     @Extension
@@ -115,10 +138,29 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
 
         String engine = delphixEngine;
         String operationType = delphixOperation;
+        String container = delphixContainer;
         String bookmark = delphixBookmark;
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
+        }
+
+        //Overwrite values from Delphix Properties
+        DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
+        if(this.loadFromProps) {
+            try {
+                engine = delphixProps.getEngine();
+                container = delphixProps.getContainerReference();
+                operationType = delphixProps.getContainerOperation();
+                bookmark = delphixProps.getBookmarkReference();
+            } catch (Throwable t) {
+                listener.getLogger().println(t.getMessage());
+            }
+        }
+        if (this.saveToProps) {
+            delphixProps.setEngine(engine);
+            delphixProps.setBookmarkReference(bookmark);
+            delphixProps.setBookmarkOperation(operationType);
         }
 
         DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
@@ -131,10 +173,10 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
             switch (operationType) {
                 case "Create":
                     containerRepo.login();
-                    SelfServiceContainer container = containerRepo.get(delphixContainer);
-                    action = bookmarkRepo.create("Created By Jenkins", container.getActiveBranch(), container.getReference());
-                    DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
-                    delphixProps.setBookmark(action.get("result").toString());
+                    SelfServiceContainer containerObj = containerRepo.get(container);
+                    String buildName = "Created by Jenkins: Job #" + run.number;
+                    action = bookmarkRepo.create(buildName, containerObj.getActiveBranch(), containerObj.getReference());
+                    delphixProps.setBookmarkReference(action.get("result").toString());
                     break;
                 case "Share":
                     action = bookmarkRepo.share(bookmark);

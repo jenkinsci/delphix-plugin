@@ -39,13 +39,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Describes a build step for managing a Delphix Self Service Container
  * These build steps can be added in the job configuration page in Jenkins.
  */
-public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildStep {
+public class SelfServiceContainerBuilder extends DelphixBuilder implements SimpleBuildStep {
 
     private final String delphixEngine;
     private final String delphixEnvironment;
     private final String delphixOperation;
     private final String delphixBookmark;
-    private boolean useProps;
+
+    private boolean saveToProps;
+    private boolean loadFromProps;
+
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
@@ -57,7 +60,7 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
      * @param delphixBookmark      String
      */
     @DataBoundConstructor
-    public SelfServiceBuilder(
+    public SelfServiceContainerBuilder(
         String delphixEngine,
         String delphixEnvironment,
         String delphixOperation,
@@ -85,13 +88,22 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         return this.delphixBookmark;
     }
 
-    public boolean getUseProps() {
-        return this.useProps;
+    public boolean getSaveToProps() {
+        return this.saveToProps;
+    }
+
+    public boolean getLoadFromProps(){
+        return this.loadFromProps;
     }
 
     @DataBoundSetter
-    public void setUseProps(boolean useProps) {
-    	this.useProps = useProps;
+    public void setSaveToProps(boolean saveToProps) {
+    	this.saveToProps = saveToProps;
+    }
+
+    @DataBoundSetter
+    public void setLoadFromProps(boolean loadFromProps) {
+        this.loadFromProps = loadFromProps;
     }
 
     @Extension
@@ -159,6 +171,24 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
         String operationType = delphixOperation;
         String bookmark = delphixBookmark;
 
+        //Overwrite values from Delphix Properties
+        DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
+        if(this.loadFromProps) {
+            try {
+                engine = delphixProps.getEngine();
+                selfServiceContainer = delphixProps.getContainerReference();
+                operationType = delphixProps.getContainerOperation();
+                bookmark = delphixProps.getBookmarkReference();
+            } catch (Throwable t) {
+                listener.getLogger().println(t.getMessage());
+            }
+        }
+        if (this.saveToProps) {
+            delphixProps.setEngine(engine);
+            delphixProps.setContainerReference(selfServiceContainer);
+            delphixProps.setContainerOperation(operationType);
+        }
+
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
             listener.getLogger().println(Messages.getMessage(Messages.INVALID_ENGINE_ENVIRONMENT));
         }
@@ -177,14 +207,6 @@ public class SelfServiceBuilder extends DelphixBuilder implements SimpleBuildSte
                 case "Reset": action = delphixEngine.reset(selfServiceContainer);
                     break;
                 case "Restore":
-                    if (this.useProps) {
-                        try {
-                            DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
-                            bookmark = delphixProps.getBookmark();
-                        } catch (Throwable t) {
-                            listener.getLogger().println(t.getMessage());
-                        }
-                    }
                     action = delphixEngine.restore(selfServiceContainer, bookmark);
                     break;
                 case "Enable": action = delphixEngine.enable(selfServiceContainer);

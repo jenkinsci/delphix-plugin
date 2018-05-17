@@ -18,8 +18,12 @@
                 <f:select id="delphixBookmark" default=" "/>
             </f:entry>
             <f:advanced>
-                <f:entry title="Use Previous Bookmark" field="useProps"
-                         description="Use Self Service Bookmark from a Previous Build Step">
+                <f:entry title="Load Delphix Properties" field="loadFromProps"
+                         description="Load Build Settings from Delphix Properties">
+                    <f:checkbox />
+                </f:entry>
+                <f:entry title="Save Delphix Properties" field="saveToProps"
+                         description="Save Build Settings to Delphix Properties">
                     <f:checkbox />
                 </f:entry>
             </f:advanced>
