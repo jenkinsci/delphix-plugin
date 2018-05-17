@@ -17,6 +17,14 @@
             <f:entry title="Self Service Container" field="delphixContainer">
                 <f:select id="delphixSelfService" default=" "/>
             </f:entry>
+            <f:advanced>
+                <f:entry title="Load Container from Properties" field="loadFromProps">
+                    <f:checkbox />
+                </f:entry>
+                <f:entry title="Save Bookmark to Properties" field="saveToProps">
+                    <f:checkbox />
+                </f:entry>
+            </f:advanced>
         </form>
     </f:section>
 </j:jelly>
