@@ -18,12 +18,10 @@
                 <f:select id="delphixBookmark" default=" "/>
             </f:entry>
             <f:advanced>
-                <f:entry title="Load Delphix Properties" field="loadFromProps"
-                         description="Load Build Settings from Delphix Properties">
+                <f:entry title="Load Bookmark From Properties" field="loadFromProps">
                     <f:checkbox />
                 </f:entry>
-                <f:entry title="Save Delphix Properties" field="saveToProps"
-                         description="Save Build Settings to Delphix Properties">
+                <f:entry title="Save Container To Properties" field="saveToProps">
                     <f:checkbox />
                 </f:entry>
             </f:advanced>

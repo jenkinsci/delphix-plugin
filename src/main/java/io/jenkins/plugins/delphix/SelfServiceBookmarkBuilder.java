@@ -149,18 +149,18 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
         DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
         if(this.loadFromProps) {
             try {
-                engine = delphixProps.getEngine();
+                //engine = delphixProps.getEngine();
                 container = delphixProps.getContainerReference();
-                operationType = delphixProps.getContainerOperation();
-                bookmark = delphixProps.getBookmarkReference();
+                //operationType = delphixProps.getContainerOperation();
+                //bookmark = delphixProps.getBookmarkReference();
             } catch (Throwable t) {
                 listener.getLogger().println(t.getMessage());
             }
         }
         if (this.saveToProps) {
-            delphixProps.setEngine(engine);
+            //delphixProps.setEngine(engine);
             delphixProps.setBookmarkReference(bookmark);
-            delphixProps.setBookmarkOperation(operationType);
+            //delphixProps.setBookmarkOperation(operationType);
         }
 
         DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);

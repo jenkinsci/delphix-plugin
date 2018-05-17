@@ -175,18 +175,18 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
         DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
         if(this.loadFromProps) {
             try {
-                engine = delphixProps.getEngine();
-                selfServiceContainer = delphixProps.getContainerReference();
-                operationType = delphixProps.getContainerOperation();
+                //engine = delphixProps.getEngine();
+                //selfServiceContainer = delphixProps.getContainerReference();
+                //operationType = delphixProps.getContainerOperation();
                 bookmark = delphixProps.getBookmarkReference();
             } catch (Throwable t) {
                 listener.getLogger().println(t.getMessage());
             }
         }
         if (this.saveToProps) {
-            delphixProps.setEngine(engine);
+            //delphixProps.setEngine(engine);
             delphixProps.setContainerReference(selfServiceContainer);
-            delphixProps.setContainerOperation(operationType);
+            //delphixProps.setContainerOperation(operationType);
         }
 
         if (GlobalConfiguration.getPluginClassDescriptor().getEngine(engine) == null) {
