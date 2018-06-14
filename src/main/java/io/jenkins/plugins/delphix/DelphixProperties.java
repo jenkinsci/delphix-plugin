@@ -27,11 +27,11 @@ public class DelphixProperties {
   private final File file;
   private final Properties properties;
   private final TaskListener listener;
-  private final String engineRef = "engine";
-  private final String bookmarkOperation = "bookmark.operation";
-  private final String containerOperation = "container.operation";
-  private final String bookmarkRef = "bookmark.reference";
-  private final String containerRef = "container.reference";
+  static final String engineRef = "engine";
+  static final String bookmarkOperation = "bookmark.operation";
+  static final String containerOperation = "container.operation";
+  static final String bookmarkRef = "bookmark.reference";
+  static final String containerRef = "container.reference";
 
   /**
    * Constructor of Delphix Properties.
@@ -52,12 +52,8 @@ public class DelphixProperties {
   }
 
   private void loadProperties() {
-    try {
-      FileInputStream fileInput = new FileInputStream(this.file);
+    try (FileInputStream fileInput = new FileInputStream(this.file)) {
       this.properties.load(fileInput);
-      fileInput.close();
-    } catch (FileNotFoundException e) {
-      this.listener.getLogger().print(e.getMessage());
     } catch (IOException e) {
       this.listener.getLogger().print(e.getMessage());
     }
@@ -68,53 +64,51 @@ public class DelphixProperties {
   }
 
   private void write(String key, String value) {
-    try {
+    try (FileOutputStream fileOut = new FileOutputStream(this.file, false);) {
       this.properties.setProperty(key, value);
-      FileOutputStream fileOut = new FileOutputStream(this.file, false);
       this.properties.store(fileOut, "Delphix Properties");
-      fileOut.close();
     } catch (IOException e) {
       this.listener.getLogger().print(e.getMessage());
     }
   }
 
   public String getEngine() {
-    return this.read(this.engineRef);
+    return this.read(engineRef);
   }
 
   public String getContainerOperation() {
-    return this.read(this.containerOperation);
+    return this.read(containerOperation);
   }
 
   public String getBookmarkOperation() {
-    return this.read(this.bookmarkOperation);
+    return this.read(bookmarkOperation);
   }
 
   public String getContainerReference() {
-    return this.read(this.containerRef);
+    return this.read(containerRef);
   }
 
   public String getBookmarkReference() {
-    return this.read(this.bookmarkRef);
+    return this.read(bookmarkRef);
   }
 
   public void setEngine(String engine) {
-    this.write(this.engineRef, engine);
+    this.write(engineRef, engine);
   }
 
   public void setContainerOperation(String operation) {
-    this.write(this.containerOperation, operation);
+    this.write(containerOperation, operation);
   }
 
   public void setBookmarkOperation(String operation) {
-    this.write(this.bookmarkOperation, operation);
+    this.write(bookmarkOperation, operation);
   }
 
   public void setContainerReference(String container) {
-    this.write(this.containerRef, container);
+    this.write(containerRef, container);
   }
 
   public void setBookmarkReference(String bookmark) {
-    this.write(this.bookmarkRef, bookmark);
+    this.write(bookmarkRef, bookmark);
   }
 }
