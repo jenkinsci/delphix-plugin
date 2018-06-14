@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Copyright (c) 2012, 2017 by Delphix. All rights reserved.
+-->
+
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+    <!-- Display file names in error messages relative to the build's base directory -->
+    <property name="basedir" value="${app.top.dir}"/>
+
+    <!-- Check for Delphix copyright headers in all Java files. -->
+    <module name="RegexpHeader">
+        <property name="id" value="copyrightHeader"/>
+        <property name="headerFile" value="${ant.checkstyle.config.dir}/java.header"/>
+        <property name="fileExtensions" value="java"/>
+        <message key="header.missing" value="Invalid or missing Delphix copyright header."/>
+        <message key="header.mismatch" value="Invalid or missing Delphix copyright header."/>
+    </module>
+
+    <module name="RegexpMultiline">
+        <property name="id" value="multipleBlank"/>
+        <property name="message" value="Multiple blank lines in a row are disallowed"/>
+        <!-- one for the last non-blank line, one for the first blank line, one or more for subsequent blank lines. -->
+        <property name="format" value="\n{3,}"/>
+    </module>
+
+    <property name="charset" value="UTF-8"/>
+
+    <property name="severity" value="error"/>
+
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <module name="OuterTypeFilename"/>
+
+        <!-- Detects direct use of log4j, com.delphix.appliance.logger.Logger should be used instead -->
+        <module name="IllegalImport">
+            <property name="id" value="log4jUse"/>
+            <property name="illegalPkgs" value="org.apache.log4j"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use com.delphix.appliance.logger.Logger for logging."/>
+        </module>
+
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="^.*Logger\s+(?!logger\s)([a-zA-Z0-9_]+\s)\s*=\s+Logger.getLogger\(\);$"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Loggers must be named 'logger'."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="^((?!private).)*Logger\s+logger\s+=\s+Logger.getLogger\(\);$"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Loggers must be declared 'private'."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="^((?!static).)*Logger\s+logger\s+=\s+Logger.getLogger\(\);$"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Loggers must be declared 'static'."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="^((?!final).)*Logger\s+logger\s+=\s+Logger.getLogger\(\);$"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="message" value="Loggers must be declared 'final'."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="org.springframework.transaction.annotation"/>
+            <message key="import.illegal" value="Using spring transactional annotations is not allowed, use daoFactory.runInTransaction instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="testngLibraryUse"/>
+            <property name="illegalPkgs" value="org.testng"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use the JUnit framework instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="org.springframework.beans.factory.annotation"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use standard annotations like @Inject instead."/>
+        </module>
+
+        <module name="ImportControl">
+            <property name="file" value="${ant.checkstyle.config.dir}/import-control.xml"/>
+        </module>
+
+        <!-- Detects direct use of TransactionTemplates -->
+        <module name="IllegalType">
+            <property name="id" value="transactionTemplateUse"/>
+            <property name="illegalClassNames" value="org.springframework.transaction.support.TransactionTemplate"/>
+            <property name="format" value="TransactionTemplate"/>
+            <message key="import.illegal" value="Using TransactionTemplate is not allowed. Use daoFactory.runInTransaction instead."/>
+        </module>
+
+        <!-- Detects improper definition of equals() and hashCode() methods. -->
+        <module name="CovariantEquals">
+            <property name="id" value="covariantEquals"/>
+            <message key="covariant.equals" value="Class defines covariant equals() without overriding equals(java.lang.Object)."/>
+        </module>
+
+        <!-- Detects multiple statements on a single line. -->
+        <module name="OneStatementPerLine">
+            <property name="id" value="oneStatement"/>
+        </module>
+
+        <!-- Detects improper modifier order. -->
+        <module name="ModifierOrder">
+            <property name="id" value="modifierOrder"/>
+        </module>
+
+        <!-- Detects overly-complicated boolean logic. -->
+        <module name="SimplifyBooleanExpression">
+            <property name="id" value="simplifyBoolean"/>
+            <message key="simplify.expression" value="Expression contains unecessary comparison with literal true/false."/>
+        </module>
+
+        <module name="SimplifyBooleanReturn">
+            <property name="id" value="simplifyBoolean"/>
+            <message key="simplify.boolreturn" value="Conditional return unecessary, return boolean expression directly."/>
+        </module>
+
+        <!-- Detects methods which are declared as throwing Throwable/Exception -->
+        <!-- An exception is made for the finalize() method and the invoke() method of InvokationHandlers and unit tests -->
+        <module name="IllegalThrows">
+            <property name="id" value="illegalThrows"/>
+            <property name="illegalClassNames" value="java.lang.Throwable,java.lang.Exception"/>
+            <property name="ignoredMethodNames" value="finalize,invoke"/>
+            <message key="illegal.throw" value="Methods cannot throw {0}, throw a specific exception instead."/>
+        </module>
+
+        <!-- Detects catching Exception/Throwable/RuntimeException -->
+        <module name="IllegalCatch">
+            <property name="id" value="illegalCatch"/>
+        </module>
+
+        <!-- Detects catching DelphixFatalException -->
+        <module name="IllegalCatch">
+            <property name="id" value="illegalDelphixCatch"/>
+            <property name="illegalClassNames" value="com.delphix.exception.DelphixFatalException,com.delphix.exception.DelphixStressOptionException"/>
+        </module>
+
+        <!-- Detect catch blocks without code or comments. -->
+        <module name="EmptyBlock">
+            <property name="id" value="ignoreException"/>
+            <property name="option" value="text"/>
+            <property name="tokens" value="LITERAL_CATCH"/>
+            <message key="block.empty" value="catch block cannot be empty, at least add a comment justifying ignoring the Exception."/>
+        </module>
+
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+            <property name="tokens" value="LITERAL_TRY, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+        </module>
+
+        <!-- Detects default cases that are not last in a switch statment. -->
+        <module name="DefaultComesLast">
+            <property name="id" value="defaultLast"/>
+        </module>
+
+        <!-- Detects extra nested blocks. -->
+        <module name="AvoidNestedBlocks">
+            <property name="id" value="nestedBlocks"/>
+            <property name="allowInSwitchCase" value="true"/>
+        </module>
+
+        <!-- Detects use of Apache Commons or Spring utilities when Guava should be used instead. -->
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.apache.commons.collections"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava's collection utilities instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.apache.commons.lang"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.springframework.util"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="org.testng.util"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava instead."/>
+        </module>
+
+        <!-- Detects uses of jersey.repackaged when the actual package should be used -->
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="jersey.repackaged"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use the non-repackaged package instead."/>
+        </module>
+
+        <!-- Detects uses of autovalue.shaded when the actual package should be used -->
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="autovalue.shaded"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use the actual package instead."/>
+        </module>
+
+        <!-- Detects uses of jcommander.internal -->
+        <module name="IllegalImport">
+            <property name="id" value="wrongUtilUse"/>
+            <property name="illegalPkgs" value="com.beust.jcommander.internal"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Use Guava if possible."/>
+        </module>
+        
+        <!--
+            Whitespace checks.
+        -->
+
+        <!-- Checks for correct use of whitespace in generics. -->
+        <module name="GenericWhitespace"/>
+
+        <!-- Detects whitespace between method name and following left parenthesis -->
+        <module name="MethodParamPad"/>
+
+        <!-- Makes sure there is whitespace around operators like '+' and keywords. -->
+        <module name="WhitespaceAround">
+            <property name="allowEmptyTypes" value="true"/>
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="ignoreEnhancedForColon" value="false"/>
+            <property name="allowEmptyLoops" value="true"/>
+            <property name="allowEmptyLambdas" value="true"/>
+            <message key="ws.notFollowed"
+             value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
+             <message key="ws.notPreceded"
+             value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
+        </module>
+
+        <module name="NoWhitespaceBefore">
+            <property name="tokens" value="POST_DEC, POST_INC"/>
+        </module>
+
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+        </module>
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI, TYPECAST"/>
+        </module>
+
+        <!-- Do not allow spaces after lparens or before rparens -->
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+
+        <module name="RegexpSinglelineJava">
+            <property name="message" value="Whitespace is disallowed at the end of a line"/>
+            <property name="format" value="\s+$"/>
+        </module>
+
+        <module name="OperatorWrap">
+            <property name="option" value="NL"/>
+            <property name="tokens" value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF "/>
+        </module>
+
+        <!-- The '.' operator should always appear on a new line when line wrapping around it. -->
+        <module name="SeparatorWrap">
+            <property name="id" value="SeparatorWrapDot"/>
+            <property name="tokens" value="DOT"/>
+            <property name="option" value="nl"/>
+        </module>
+
+        <module name="SeparatorWrap">
+            <property name="id" value="SeparatorWrapComma"/>
+            <property name="tokens" value="COMMA"/>
+            <property name="option" value="EOL"/>
+        </module>
+
+        <module name="RedundantModifier">
+            <property name="tokens" value="METHOD_DEF, VARIABLE_DEF, ANNOTATION_FIELD_DEF, INTERFACE_DEF, RESOURCE"/>
+        </module>
+
+        <module name="EmptyLineSeparator">
+            <property name="allowNoEmptyLineBetweenFields" value="true"/>
+        </module>
+
+        <module name="LeftCurly">
+            <property name="maxLineLength" value="120"/>
+        </module>
+
+        <module name="RightCurly">
+            <property name="id" value="RightCurlySame"/>
+            <property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
+        </module>
+
+        <module name="RightCurly">
+            <property name="id" value="RightCurlyAlone"/>
+            <property name="option" value="alone"/>
+            <property name="tokens" value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
+        </module>
+
+        <module name="NeedBraces"/>
+
+        <module name="LineLength">
+            <property name="max" value="120"/>
+            <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+        </module>
+
+        <module name="AvoidStarImport"/>
+
+        <module name="CustomImportOrder">
+            <property name="sortImportsInGroupAlphabetically" value="true"/>
+            <property name="separateLineBetweenGroups" value="true"/>
+            <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
+        </module>
+
+        <module name="IllegalImport">
+            <property name="illegalPkgs" value="org.apache.hadoop.thirdparty.guava.common"/>
+            <message key="import.illegal" value="Importing {0} is not allowed. Import Guava from from the com.google.common namespace instead."/>
+        </module>
+
+        <module name="RedundantImport"/>
+
+        <module name="UnusedImports"/>
+
+        <module name="AnnotationUseStyle"/>
+
+        <!--
+            Fatal exceptions generated by the 'assert' failures are not properly instrumented by ExceptionInstrumentationUtil.
+            We should always prefer guava's Preconditions to make sure we can instrument all fatal excepitons.
+        -->
+        <module name="IllegalTokenText">
+            <property name="tokens" value="LITERAL_ASSERT"/>
+            <property name="format" value=".*"/>
+            <property name="message" value="Use of the 'assert' keyword is forbidden, use guavas Preconditions instead."/>
+        </module>
+
+        <module name="IllegalTokenText">
+            <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
+            <property name="format" value="\\u00(08|09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
+            <property name="message" value="Avoid using corresponding octal or Unicode escape."/>
+        </module>
+
+        <module name="MutableException"/>
+
+        <module name="NoLineWrap"/>
+
+        <module name="GenericWhitespace">
+            <message key="ws.followed"
+             value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+             <message key="ws.preceded"
+             value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+             <message key="ws.illegalFollow"
+             value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+             <message key="ws.notPreceded"
+             value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+        </module>
+
+        <module name="AnnotationLocation">
+            <property name="id" value="AnnotationLocationMostCases"/>
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF"/>
+        </module>
+
+        <module name="AnnotationLocation">
+            <property name="id" value="AnnotationLocationVariables"/>
+            <property name="tokens" value="VARIABLE_DEF"/>
+            <property name="allowSamelineMultipleAnnotations" value="true"/>
+        </module>
+
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="expected"/>
+        </module>
+
+        <module name="CommentsIndentation"/>
+
+        <!--
+             With this regex, we disallow any static, non-final declaration that is not one of the listed types.  Note that this only applies to migration scripts by an entry in filter-exceptions.xml.
+             It is entirely possible that the list does not contain all immutable types, so this might need to be updated as developers use more immutable types in migration scripts.
+
+             Explanation of regex:
+                 (?&lt;!import )           Negative look-behind to avoid static imports
+                 (static )                 Match a static declaration
+                 ((?!(final (...) )).)+    Negative look-ahead to check if we have a static that is not followed by a "final + immutable type", then this is a bad pattern.
+                 ([^\s]+)                  Match a variable name (non-zero length word with no whitespaces)
+                 (;| =)                    Match a declaration (ending in ";"), or an assignment (has an "=")
+        -->
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="onlyStaticFinalVariables"/>
+            <property name="ignoreComments" value="true"/>
+            <property name="format" value="(?&lt;!import )(static )((?!(final (byte|short|int|long|float|double|boolean|char|String|ObjectMapper|Path|ImmutableList&lt;.+&gt;|ImmutableSet&lt;.+&gt;|ImmutableMap&lt;.+&gt;|TypeReference&lt;.+&gt;) )).)+([^\s]+)(;| =)"/>
+            <property name="message" value="Static, non-final variables in migration scripts are not allowed.  Declare as non-static, or use 'static final' if the variable type is immutable.  If the type is immutable but checkstyle still shows errors, please add the type to the 'onlyStaticFinalVariables' check in checks.xml."/>
+        </module>
+
+        <module name="LocalVariableName">
+            <property name="tokens" value="VARIABLE_DEF"/>
+            <property name="format" value="^[a-z].*$"/>
+            <property name="allowOneCharVarInForLoop" value="true"/>
+            <message key="name.invalidPattern"
+             value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+
+        <module name="MethodName">
+            <property name="id" value="methodName"/>
+            <property name="format" value="^[a-z][a-zA-Z0-9_]*$"/>
+            <message key="name.invalidPattern"
+             value="Method name ''{0}'' must match pattern ''{1}''. See filter-exceptions.xml if this method is a JNI binding."/>
+        </module>
+
+    </module>
+
+    <module name="NewlineAtEndOfFile">
+        <property name="lineSeparator" value="lf"/>
+    </module>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="${ant.checkstyle.config.dir}/filter-noncompliant.xml"/>
+    </module>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="${ant.checkstyle.config.dir}/filter-exceptions.xml"/>
+    </module>
+
+</module>
