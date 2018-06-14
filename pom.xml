@@ -43,6 +43,14 @@
     <build>
         <plugins>
             <plugin>
+              <groupId>org.jenkins-ci.tools</groupId>
+              <artifactId>maven-hpi-plugin</artifactId>
+              <extensions>true</extensions>
+              <configuration>
+                <compatibleSinceVersion>2.0.0</compatibleSinceVersion>
+              </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.coveo</groupId>
                 <artifactId>fmt-maven-plugin</artifactId>
                 <version>2.4.0</version>
