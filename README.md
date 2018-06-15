@@ -1,5 +1,6 @@
 # Delphix Plugin
 
+[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/delphix-plugin/master)](https://ci.jenkins.io/job/Plugins/job/delphix-plugin/)
 [![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/delphix.svg)](https://plugins.jenkins.io/delphix)
 [![License](https://img.shields.io/github/license/jenkinsci/delphix-plugin.svg)](LICENSE)
 
