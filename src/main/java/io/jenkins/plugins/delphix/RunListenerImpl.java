@@ -41,10 +41,9 @@ public class RunListenerImpl extends RunListener<AbstractBuild<?, ?>> {
         for (Map.Entry<String, String> jobEngine : build.getEnvironment(listener).entrySet()) {
           if (jobEngine.getKey().contains("JOB-")) {
             // Login and cancel job
-            JobRepository jobRepo =
-                new JobRepository(
-                    GlobalConfiguration.getPluginClassDescriptor().getEngine(jobEngine.getValue()));
-            jobRepo.login();
+            DelphixEngine delphixEngine = new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(jobEngine.getValue()));
+            delphixEngine.login();
+            JobRepository jobRepo = new JobRepository(delphixEngine);
             jobRepo.cancel(jobEngine.getKey());
             listener
                 .getLogger()

@@ -17,22 +17,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.jenkins.plugins.delphix.DelphixEngine;
 import io.jenkins.plugins.delphix.DelphixEngineException;
 import io.jenkins.plugins.delphix.objects.User;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 
 /* Used for interacting with a Delphix Engine */
-public class UserRepository extends DelphixEngine {
+public class UserRepository {
 
   private static final String PATH_ROOT = "/resources/json/delphix/user/";
-
-  @DataBoundConstructor
-  public UserRepository(String engineAddress, String engineUsername, String enginePassword) {
-    super(engineAddress, engineUsername, enginePassword);
-  }
+  public DelphixEngine delphixEngine;
 
   public UserRepository(DelphixEngine engine) {
-    super(engine);
+    delphixEngine = engine;
   }
 
   /**
@@ -44,7 +39,7 @@ public class UserRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public User getCurrent() throws IOException, DelphixEngineException {
-    JsonNode result = engineGet(PATH_ROOT + "current").get(FIELD_RESULT);
+    JsonNode result = delphixEngine.engineGet(PATH_ROOT + "current").get("result");
     return User.fromJson(result);
   }
 }

@@ -17,22 +17,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.jenkins.plugins.delphix.DelphixEngine;
 import io.jenkins.plugins.delphix.DelphixEngineException;
 import io.jenkins.plugins.delphix.objects.Job;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 
 /* Used for interacting with Jobs in a Delphix Engine */
-public class JobRepository extends DelphixEngine {
+public class JobRepository {
 
   private static final String PATH_ROOT = "/resources/json/delphix/job";
-
-  @DataBoundConstructor
-  public JobRepository(String engineAddress, String engineUsername, String enginePassword) {
-    super(engineAddress, engineUsername, enginePassword);
-  }
+  private DelphixEngine delphixEngine;
 
   public JobRepository(DelphixEngine engine) {
-    super(engine);
+    delphixEngine = engine;
   }
 
   /**
@@ -43,7 +38,7 @@ public class JobRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public void cancel(String jobRef) throws IOException, DelphixEngineException {
-    enginePost(String.format(PATH_ROOT + "/%s/cancel", jobRef), "{}");
+    delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/cancel", jobRef), "{}");
   }
 
   /**
@@ -55,8 +50,8 @@ public class JobRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public Job get(String jobRef) throws IOException, DelphixEngineException {
-    JsonNode result = engineGet(String.format(PATH_ROOT + "/%s", jobRef));
-    JsonNode jobStatus = result.get(FIELD_RESULT);
+    JsonNode result = delphixEngine.engineGet(String.format(PATH_ROOT + "/%s", jobRef));
+    JsonNode jobStatus = result.get("result");
     return Job.fromJson(jobStatus);
   }
 }

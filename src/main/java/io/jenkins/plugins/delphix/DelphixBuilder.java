@@ -87,12 +87,11 @@ public abstract class DelphixBuilder extends Builder {
             "parentAction");
     Job lastStatus = status;
 
-    JobRepository jobRepo = new JobRepository(loadedEngine);
-
     // Display status of job
     while (status.getStatus().equals(Job.StatusEnum.RUNNING)) {
       try {
-        jobRepo.login();
+        loadedEngine.login();
+        JobRepository jobRepo = new JobRepository(loadedEngine);
         status = jobRepo.get(job);
       } catch (DelphixEngineException e) {
         listener.getLogger().println(e.getMessage());

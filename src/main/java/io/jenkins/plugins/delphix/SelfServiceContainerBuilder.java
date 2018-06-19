@@ -187,7 +187,6 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
 
     DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
     SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
-    UserRepository userRepo = new UserRepository(loadedEngine);
 
     // Run main operation as defined by build settings
     JsonNode action = MAPPER.createObjectNode();
@@ -217,7 +216,8 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
           action = delphixEngine.undo(selfServiceContainer, container.getLastOperation());
           break;
         case "Lock":
-          userRepo.login();
+          delphixEngine.login();
+          UserRepository userRepo = new UserRepository(delphixEngine);
           User user = userRepo.getCurrent();
           action = delphixEngine.lock(selfServiceContainer, user.getReference());
           break;

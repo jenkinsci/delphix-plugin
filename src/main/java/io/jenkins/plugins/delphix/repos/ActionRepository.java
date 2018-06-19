@@ -24,7 +24,7 @@ import java.io.IOException;
 public class ActionRepository {
 
   private static final String PATH_ROOT = "/resources/json/delphix/action";
-  public DelphixEngine delphixEngine;
+  private DelphixEngine delphixEngine;
 
   public ActionRepository(DelphixEngine engine) {
     delphixEngine = engine;
