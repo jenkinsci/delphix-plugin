@@ -31,8 +31,8 @@ public abstract class DelphixBuilder extends Builder {
       TaskListener listener, DelphixEngine engine, JsonNode action) {
     Boolean status = false;
     try {
+      engine.login();
       ActionRepository actionRepo = new ActionRepository(engine);
-      actionRepo.login();
       Action actionStatus = actionRepo.get(action.get("action").asText());
       if (actionStatus.getState().equals("COMPLETED")) {
         String message = actionStatus.getTitle() + ": " + actionStatus.getState();

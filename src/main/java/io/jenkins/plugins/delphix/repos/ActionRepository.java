@@ -17,22 +17,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.jenkins.plugins.delphix.DelphixEngine;
 import io.jenkins.plugins.delphix.DelphixEngineException;
 import io.jenkins.plugins.delphix.objects.Action;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 
 /* Used for interacting with Actions in a Delphix Engine */
-public class ActionRepository extends DelphixEngine {
+public class ActionRepository {
 
   private static final String PATH_ROOT = "/resources/json/delphix/action";
-
-  @DataBoundConstructor
-  public ActionRepository(String engineAddress, String engineUsername, String enginePassword) {
-    super(engineAddress, engineUsername, enginePassword);
-  }
+  public DelphixEngine delphixEngine;
 
   public ActionRepository(DelphixEngine engine) {
-    super(engine);
+    delphixEngine = engine;
   }
 
   /**
@@ -44,8 +39,8 @@ public class ActionRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public Action get(String action) throws IOException, DelphixEngineException {
-    JsonNode result = engineGet(String.format(PATH_ROOT + "/%s", action));
-    JsonNode actionStatus = result.get(FIELD_RESULT);
+    JsonNode result = delphixEngine.engineGet(String.format(PATH_ROOT + "/%s", action));
+    JsonNode actionStatus = result.get("result");
     return Action.fromJson(actionStatus);
   }
 }

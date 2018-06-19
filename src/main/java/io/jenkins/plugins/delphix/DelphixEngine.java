@@ -159,7 +159,7 @@ public class DelphixEngine {
    * @throws IOException [description]
    * @throws DelphixEngineException [description]
    */
-  protected JsonNode enginePost(final String path, final String content)
+  public JsonNode enginePost(final String path, final String content)
       throws IOException, DelphixEngineException {
     // Log requests
     if (!content.contains("LoginRequest")) {
@@ -199,7 +199,7 @@ public class DelphixEngine {
    * @throws IOException [description]
    * @throws DelphixEngineException [description]
    */
-  protected JsonNode engineGet(final String path) throws IOException, DelphixEngineException {
+  public JsonNode engineGet(final String path) throws IOException, DelphixEngineException {
     // Log requests
     LOGGER.log(Level.WARNING, path);
 
