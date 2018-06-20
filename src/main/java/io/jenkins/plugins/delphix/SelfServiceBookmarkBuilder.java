@@ -158,15 +158,16 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
     }
 
     DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
-    SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(loadedEngine);
-    SelfServiceRepository containerRepo = new SelfServiceRepository(loadedEngine);
+
 
     JsonNode action = MAPPER.createObjectNode();
     try {
-      bookmarkRepo.login();
+      loadedEngine.login();
+      SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(loadedEngine);
+      SelfServiceRepository containerRepo = new SelfServiceRepository(loadedEngine);
+
       switch (operationType) {
         case "Create":
-          containerRepo.login();
           SelfServiceContainer containerObj = containerRepo.get(container);
           String buildName = "Created by Jenkins: Job #" + run.number;
           action =
@@ -195,7 +196,7 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
           .getLogger()
           .println(
               Messages.getMessage(
-                  Messages.UNABLE_TO_CONNECT, new String[] {bookmarkRepo.getEngineAddress()}));
+                  Messages.UNABLE_TO_CONNECT, new String[] {loadedEngine.getEngineAddress()}));
     }
 
     // Check for Action with a Completed State

@@ -24,18 +24,13 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 
 /* Used for interacting with Self Service Bookmarks */
-public class SelfServiceBookmarkRepository extends DelphixEngine {
+public class SelfServiceBookmarkRepository {
 
   private static final String PATH_ROOT = "/resources/json/delphix/jetstream/bookmark";
-
-  @DataBoundConstructor
-  public SelfServiceBookmarkRepository(
-      String engineAddress, String engineUsername, String enginePassword) {
-    super(engineAddress, engineUsername, enginePassword);
-  }
+  private DelphixEngine delphixEngine;
 
   public SelfServiceBookmarkRepository(DelphixEngine engine) {
-    super(engine);
+    delphixEngine = engine;
   }
 
   /**
@@ -47,7 +42,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public LinkedHashMap<String, SelfServiceBookmark> listBookmarks()
-      throws ClientProtocolException, IOException, DelphixEngineException {
+      throws IOException, DelphixEngineException {
     LinkedHashMap<String, SelfServiceBookmark> bookmarks =
         new LinkedHashMap<String, SelfServiceBookmark>();
     JsonNode bookmarksJson = this.list();
@@ -69,7 +64,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public JsonNode list() throws IOException, DelphixEngineException {
-    JsonNode result = engineGet(PATH_ROOT).get(FIELD_RESULT);
+    JsonNode result = delphixEngine.engineGet(PATH_ROOT).get("result");
     return result;
   }
 
@@ -82,7 +77,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public JsonNode delete(String bookmarkRef) throws IOException, DelphixEngineException {
-    JsonNode result = enginePost(String.format(PATH_ROOT + "/%s/delete", bookmarkRef), "{}");
+    JsonNode result = delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/delete", bookmarkRef), "{}");
     return result;
   }
 
@@ -113,7 +108,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
             + sourceDataLayout
             + "\""
             + "}}";
-    JsonNode result = enginePost(PATH_ROOT, request);
+    JsonNode result = delphixEngine.enginePost(PATH_ROOT, request);
     return result;
   }
 
@@ -126,7 +121,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public JsonNode share(String bookmarkRef) throws IOException, DelphixEngineException {
-    JsonNode result = enginePost(String.format(PATH_ROOT + "/%s/share", bookmarkRef), "{}");
+    JsonNode result = delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/share", bookmarkRef), "{}");
     return result;
   }
 
@@ -139,7 +134,7 @@ public class SelfServiceBookmarkRepository extends DelphixEngine {
    * @throws DelphixEngineException [description]
    */
   public JsonNode unshare(String bookmarkRef) throws IOException, DelphixEngineException {
-    JsonNode result = enginePost(String.format(PATH_ROOT + "/%s/unshare", bookmarkRef), "{}");
+    JsonNode result = delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/unshare", bookmarkRef), "{}");
     return result;
   }
 }

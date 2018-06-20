@@ -186,12 +186,13 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
     }
 
     DelphixEngine loadedEngine = GlobalConfiguration.getPluginClassDescriptor().getEngine(engine);
-    SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
+
 
     // Run main operation as defined by build settings
     JsonNode action = MAPPER.createObjectNode();
     try {
-      delphixEngine.login();
+      loadedEngine.login();
+      SelfServiceRepository delphixEngine = new SelfServiceRepository(loadedEngine);
       switch (operationType) {
         case "Refresh":
           action = delphixEngine.refresh(selfServiceContainer);
@@ -216,8 +217,7 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
           action = delphixEngine.undo(selfServiceContainer, container.getLastOperation());
           break;
         case "Lock":
-          delphixEngine.login();
-          UserRepository userRepo = new UserRepository(delphixEngine);
+          UserRepository userRepo = new UserRepository(loadedEngine);
           User user = userRepo.getCurrent();
           action = delphixEngine.lock(selfServiceContainer, user.getReference());
           break;
@@ -236,7 +236,7 @@ public class SelfServiceContainerBuilder extends DelphixBuilder implements Simpl
           .getLogger()
           .println(
               Messages.getMessage(
-                  Messages.UNABLE_TO_CONNECT, new String[] {delphixEngine.getEngineAddress()}));
+                  Messages.UNABLE_TO_CONNECT, new String[] {loadedEngine.getEngineAddress()}));
     }
 
     // Check for Action with a Completed State

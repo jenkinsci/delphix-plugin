@@ -65,38 +65,17 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
       return new ListBoxModel(options);
     }
 
-    SelfServiceRepository engine =
-        new SelfServiceRepository(
-            GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
+    DelphixEngine loadedEngine = new DelphixEngine(GlobalConfiguration.getPluginClassDescriptor().getEngine(delphixEngine));
 
     try {
       try {
-        engine.login();
-        switch (itemType) {
-          case "SelfService":
-            LinkedHashMap<String, SelfServiceContainer> environments = engine.listSelfServices();
-            for (SelfServiceContainer environment : environments.values()) {
-              options.add(new Option(environment.getName(), environment.getReference()));
-            }
-            break;
-          case "Bookmark":
-            SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(engine);
-            bookmarkRepo.login();
-            LinkedHashMap<String, SelfServiceBookmark> bookmarks = bookmarkRepo.listBookmarks();
-            for (SelfServiceBookmark bookmark : bookmarks.values()) {
-              options.add(new Option(bookmark.getName(), bookmark.getReference()));
-            }
-            break;
-          default:
-            throw new DelphixEngineException("Invalid Self Service Item Type");
-        }
-
+        loadedEngine.login();
       } catch (DelphixEngineException e) {
         // Add message to drop down if unable to login to engine
         options.add(
             new Option(
                 Messages.getMessage(
-                    Messages.UNABLE_TO_LOGIN, new String[] {engine.getEngineAddress()}),
+                    Messages.UNABLE_TO_LOGIN, new String[] {loadedEngine.getEngineAddress()}),
                 "NULL"));
       }
     } catch (IOException e) {
@@ -104,9 +83,34 @@ public abstract class SelfServiceDescriptor extends BuildStepDescriptor<Builder>
       options.add(
           new Option(
               Messages.getMessage(
-                  Messages.UNABLE_TO_CONNECT, new String[] {engine.getEngineAddress()}),
+                  Messages.UNABLE_TO_CONNECT, new String[] {loadedEngine.getEngineAddress()}),
               "NULL"));
     }
+
+    SelfServiceRepository engine = new SelfServiceRepository(loadedEngine);
+    SelfServiceBookmarkRepository bookmarkRepo = new SelfServiceBookmarkRepository(loadedEngine);
+
+    try {
+      switch (itemType) {
+        case "SelfService":
+          LinkedHashMap<String, SelfServiceContainer> environments = engine.listSelfServices();
+          for (SelfServiceContainer environment : environments.values()) {
+            options.add(new Option(environment.getName(), environment.getReference()));
+          }
+          break;
+        case "Bookmark":
+          LinkedHashMap<String, SelfServiceBookmark> bookmarks = bookmarkRepo.listBookmarks();
+          for (SelfServiceBookmark bookmark : bookmarks.values()) {
+            options.add(new Option(bookmark.getName(), bookmark.getReference()));
+          }
+          break;
+        default:
+          throw new DelphixEngineException("Invalid Self Service Item Type");
+      }
+    } catch (DelphixEngineException e) {
+    } catch (IOException e) {
+    }
+
 
     return new ListBoxModel(options);
   }
