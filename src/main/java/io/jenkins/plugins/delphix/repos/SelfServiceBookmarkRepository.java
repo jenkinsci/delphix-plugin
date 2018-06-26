@@ -18,7 +18,6 @@ import io.jenkins.plugins.delphix.DelphixEngine;
 import io.jenkins.plugins.delphix.DelphixEngineException;
 import io.jenkins.plugins.delphix.objects.SelfServiceBookmark;
 import org.apache.http.client.ClientProtocolException;
-import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

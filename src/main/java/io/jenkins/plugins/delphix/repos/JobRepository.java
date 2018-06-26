@@ -33,12 +33,15 @@ public class JobRepository {
   /**
    * Cancel a job running on the Delphix Engine.
    *
+   * @return JsonNode
    * @param jobRef String
    * @throws IOException [description]
    * @throws DelphixEngineException [description]
    */
-  public void cancel(String jobRef) throws IOException, DelphixEngineException {
-    delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/cancel", jobRef), "{}");
+
+  public JsonNode cancel(String bookmarkRef) throws IOException, DelphixEngineException {
+    JsonNode result = delphixEngine.enginePost(String.format(PATH_ROOT + "/%s/share", bookmarkRef), "{}");
+    return result;
   }
 
   /**

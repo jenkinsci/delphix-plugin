@@ -7,6 +7,7 @@ import io.jenkins.plugins.delphix.DelphixEngineException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
@@ -15,6 +16,11 @@ public class JobRepositoryTest {
 
   DelphixEngine delphixEngine = mock(DelphixEngine.class);
   JobRepository jobRepo = new JobRepository(delphixEngine);
+
+  private JsonNode formatResult(String result) throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    return mapper.readTree(result);
+  }
 
   @Test public void canGet() throws IOException, DelphixEngineException {
     ObjectMapper mapper = new ObjectMapper();
@@ -25,6 +31,14 @@ public class JobRepositoryTest {
 
     Job job = jobRepo.get("ACTION-8468");
     assertThat(job, instanceOf(Job.class));
+  }
+
+  @Test public void canCancel() throws IOException, DelphixEngineException {
+    String result = "{\"type\":\"OKResult\",\"status\":\"OK\",\"result\":\"\",\"job\":\"JS_BOOKMARK-3\",\"action\":\"ACTION-138\"}";
+    when(delphixEngine.enginePost(anyString(), anyString())).thenReturn(formatResult(result));
+
+    JsonNode response = jobRepo.cancel("job");
+    assertEquals(response.get("action").asText(), "ACTION-138");
   }
 
 }
