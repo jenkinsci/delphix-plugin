@@ -13,12 +13,10 @@
 
 package io.jenkins.plugins.delphix;
 
-import hudson.FilePath;
 import hudson.model.TaskListener;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -39,37 +37,27 @@ public class DelphixProperties {
    * @param workspace FilePath
    * @param listener  TaskListener
    */
-  public DelphixProperties(FilePath workspace, TaskListener listener) {
+  public DelphixProperties(File file, TaskListener listener) throws IOException {
     this.properties = new Properties();
-    this.file = new File(workspace + "/delphix.properties");
+    this.file = file;
     this.listener = listener;
-    try {
-      this.file.createNewFile();
-    } catch (IOException e) {
-      this.listener.getLogger().print(e.getMessage());
-    }
+    this.file.createNewFile();
     this.loadProperties();
   }
 
-  private void loadProperties() {
-    try (FileInputStream fileInput = new FileInputStream(this.file)) {
-      this.properties.load(fileInput);
-    } catch (IOException e) {
-      this.listener.getLogger().print(e.getMessage());
-    }
+  private void loadProperties() throws IOException {
+    FileInputStream fileInput = new FileInputStream(this.file);
+    this.properties.load(fileInput);
   }
 
   private String read(String key) {
     return this.properties.getProperty(key).replaceAll("^\"|\"$", "");
   }
 
-  private void write(String key, String value) {
-    try (FileOutputStream fileOut = new FileOutputStream(this.file, false);) {
+  private void write(String key, String value) throws IOException  {
+      FileOutputStream fileOut = new FileOutputStream(this.file, false);
       this.properties.setProperty(key, value);
       this.properties.store(fileOut, "Delphix Properties");
-    } catch (IOException e) {
-      this.listener.getLogger().print(e.getMessage());
-    }
   }
 
   public String getEngine() {
@@ -92,23 +80,23 @@ public class DelphixProperties {
     return this.read(bookmarkRef);
   }
 
-  public void setEngine(String engine) {
+  public void setEngine(String engine) throws IOException {
     this.write(engineRef, engine);
   }
 
-  public void setContainerOperation(String operation) {
+  public void setContainerOperation(String operation) throws IOException {
     this.write(containerOperation, operation);
   }
 
-  public void setBookmarkOperation(String operation) {
+  public void setBookmarkOperation(String operation) throws IOException {
     this.write(bookmarkOperation, operation);
   }
 
-  public void setContainerReference(String container) {
+  public void setContainerReference(String container) throws IOException {
     this.write(containerRef, container);
   }
 
-  public void setBookmarkReference(String bookmark) {
+  public void setBookmarkReference(String bookmark) throws IOException {
     this.write(bookmarkRef, bookmark);
   }
 }
