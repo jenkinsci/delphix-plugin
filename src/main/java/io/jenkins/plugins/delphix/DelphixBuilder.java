@@ -95,12 +95,14 @@ public abstract class DelphixBuilder extends Builder {
         status = jobRepo.get(job);
       } catch (DelphixEngineException e) {
         listener.getLogger().println(e.getMessage());
+        return;
       } catch (IOException e) {
         listener
             .getLogger()
             .println(
                 Messages.getMessage(
                     Messages.UNABLE_TO_CONNECT, new String[] {loadedEngine.getEngineAddress()}));
+        return;
       }
 
       // Update status if it has changed on Engine
@@ -122,6 +124,7 @@ public abstract class DelphixBuilder extends Builder {
         Thread.sleep(1000);
       } catch (InterruptedException e) {
         listener.getLogger().println(e.getMessage());
+        return;
       }
     }
   }
