@@ -13,6 +13,7 @@
 
 package io.jenkins.plugins.delphix;
 
+import java.io.File;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.Extension;
@@ -140,7 +141,8 @@ public class SelfServiceBookmarkBuilder extends DelphixBuilder implements Simple
     }
 
     // Overwrite values from Delphix Properties
-    DelphixProperties delphixProps = new DelphixProperties(workspace, listener);
+    File file = new File(workspace + "/delphix.properties");
+    DelphixProperties delphixProps = new DelphixProperties(file, listener);
     if (this.loadFromProps) {
       try {
         // engine = delphixProps.getEngine();
