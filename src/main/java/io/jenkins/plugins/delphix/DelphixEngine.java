@@ -151,6 +151,21 @@ public class DelphixEngine {
   }
 
   /**
+   * Build engine URL based on whether or not they have
+   * http or https specified in the engineAddress
+   *
+   * @param  engineAddress String
+   * @param  path          String
+   * @return               String
+   */
+  private String buildUrl(String engineAddress, String path) {
+      if (engineAddress.startsWith("http") || engineAddress.startsWith("https")) {
+          return engineAddress + path;
+      }
+      return PROTOCOL + engineAddress + path;
+  }
+
+  /**
    * Send POST to Delphix Engine and return the result.
    *
    * @param path String
@@ -167,7 +182,7 @@ public class DelphixEngine {
     }
 
     // Build and send request
-    HttpPost request = new HttpPost(PROTOCOL + engineAddress + path);
+    HttpPost request = new HttpPost(buildUrl(engineAddress, path));
     try {
       request.setEntity(new ByteArrayEntity(content.getBytes(ENCODING)));
     } catch (UnsupportedEncodingException e) {
@@ -204,7 +219,7 @@ public class DelphixEngine {
     LOGGER.log(Level.WARNING, path);
 
     // Build and send request
-    HttpGet request = new HttpGet(PROTOCOL + engineAddress + path);
+    HttpGet request = new HttpGet(buildUrl(engineAddress, path));
     request.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
     HttpResponse response = client.execute(request);
 
