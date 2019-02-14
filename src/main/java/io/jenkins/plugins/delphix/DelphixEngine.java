@@ -13,6 +13,7 @@
 
 package io.jenkins.plugins.delphix;
 
+import org.apache.http.Header;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.util.ListBoxModel;
@@ -30,7 +31,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -90,6 +91,7 @@ public class DelphixEngine {
   protected static final String FIELD_NAME = "name";
   protected static final String FIELD_REFERENCE = "reference";
   private static final String FIELD_STATUS = "status";
+  private String JSESSIONID = "";
 
   /* Address of the Delphix Engine */
   private final String engineAddress;
@@ -165,6 +167,16 @@ public class DelphixEngine {
       return PROTOCOL + engineAddress + path;
   }
 
+  private String getCookie() {
+      return JSESSIONID;
+  }
+
+  private void checkCookie(HttpResponse response) {
+      if (response.containsHeader("Set-Cookie")) {
+          JSESSIONID = response.getFirstHeader("Set-Cookie").getValue();
+      }
+  }
+
   /**
    * Send POST to Delphix Engine and return the result.
    *
@@ -189,7 +201,10 @@ public class DelphixEngine {
       throw new IllegalStateException(e);
     }
     request.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
+    request.setHeader("Cookie", getCookie());
     HttpResponse response = client.execute(request);
+
+    checkCookie(response);
 
     // Get result of request
     String result = EntityUtils.toString(response.getEntity());
@@ -221,7 +236,10 @@ public class DelphixEngine {
     // Build and send request
     HttpGet request = new HttpGet(buildUrl(engineAddress, path));
     request.setHeader(HttpHeaders.CONTENT_TYPE, CONTENT_TYPE);
+    request.setHeader("Cookie", getCookie());
     HttpResponse response = client.execute(request);
+
+    checkCookie(response);
 
     // Get result of request
     String result = EntityUtils.toString(response.getEntity());
