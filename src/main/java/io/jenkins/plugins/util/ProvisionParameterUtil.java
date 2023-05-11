@@ -20,7 +20,6 @@ public class ProvisionParameterUtil {
                     ProvisionVDBBySnapshotParameters.class);
         } else {
             provisionVDBBySnapshotParameters = new ProvisionVDBBySnapshotParameters();
-            // provisionVDBBySnapshotParameters.setAppdataSourceParams(null);
         }
         provisionVDBBySnapshotParameters.setAutoSelectRepository(auto_select_repository);
         provisionVDBBySnapshotParameters.setSnapshotId(snapshot_id);
@@ -51,14 +50,12 @@ public class ProvisionParameterUtil {
             String jsonParam, String environmentUserId, String repositoryId, String targetGroupId,
             String databaseName, boolean vdbRestart, String snapshotPolicyId,
             String retentionPolicyId) {
-
         ProvisionVDBFromBookmarkParameters provisionVDBFromBookmarkParameters = null;
         if (jsonParam != null) {
             provisionVDBFromBookmarkParameters = new Gson().fromJson(jsonParam,
                     ProvisionVDBFromBookmarkParameters.class);
         } else {
             provisionVDBFromBookmarkParameters = new ProvisionVDBFromBookmarkParameters();
-            // provisionVDBFromBookmarkParameters.setAppdataSourceParams(null);
         }
         provisionVDBFromBookmarkParameters.setAutoSelectRepository(auto_select_repository);
         provisionVDBFromBookmarkParameters.setBookmarkId(bookmark_id);
