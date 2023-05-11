@@ -1,0 +1,73 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    
+    <f:entry title="Name" field="name" help="/plugin/delphix/help-name.html"> 
+        <f:textbox />
+    </f:entry>
+
+    <f:entry title="Bookmark ID" field="bookmarkId" help="/plugin/delphix/help-bookmarkId.html">
+        <f:textbox />
+    </f:entry>
+
+    <f:entry title="Auto Select Repository" field="autoSelectRepository" help="/plugin/delphix/help-auto_select_repository.html">
+        <f:checkbox default="true" />
+    </f:entry>
+
+     <f:optionalBlock name="dynamic" title="Use Optional Parameters" >
+
+        <f:entry title="Target Group ID" field="targetGroupId" help="/plugin/delphix/help-targetGroupId.html">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry title="Database Name" field="databaseName" help="/plugin/delphix/help-databaseName.html">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry title="Environment ID" field="environmentId" help="/plugin/delphix/help-environmentId.html">
+            <f:textbox />
+        </f:entry>
+
+        <f:entry title="Environment User ID" field="environmentUserId" help="/plugin/delphix/help-environmentUserId.html"> 
+            <f:textbox />
+        </f:entry>
+
+        <f:entry title="Repository ID" field="repositoryId" help="/plugin/delphix/help-repositoryId.html"> 
+             <f:textbox />
+        </f:entry>
+
+        <f:entry title="Snapshot Policy ID" field="snapshotPolicyId" help="/plugin/delphix/help-snapshotPolicyId.html"> 
+             <f:textbox />
+        </f:entry>
+
+        <f:entry title="Retention Policy ID" field="retentionPolicyId" help="/plugin/delphix/help-retentionPolicyId.html"> 
+             <f:textbox />
+        </f:entry>
+
+        <f:entry title="VDB Restart" field="vdbRestart" help="/plugin/delphix/help-vdbRestart.html">
+            <f:checkbox default="false" />
+        </f:entry>
+
+        <f:entry title="Tags" help="/plugin/delphix/help-tagList.html">
+            <f:repeatableProperty minimum="0" field="tagList">
+                <f:entry title="">
+                    <div align="right">
+                        <f:repeatableDeleteButton />
+                    </div>
+                </f:entry>
+            </f:repeatableProperty>
+        </f:entry>
+
+        <f:entry title="Additional Parameters" field="jsonParam" help="/plugin/delphix/help-appDataParam.html">
+            <f:textarea />
+        </f:entry>
+    </f:optionalBlock>
+
+    <f:entry title="Wait for Polling" field="waitForPolling" help="/plugin/delphix/help-waitForPolling.html">
+            <f:checkbox default="true" />
+    </f:entry>
+
+    <f:entry title="Credential" field="credentialId" help="/plugin/delphix/help-credentialId.html">
+		    <c:select/>
+	</f:entry>
+
+</j:jelly>
