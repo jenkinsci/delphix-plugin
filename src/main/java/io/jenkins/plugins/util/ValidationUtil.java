@@ -37,7 +37,7 @@ public class ValidationUtil {
     }
 
     public String validateJsonWithSnapshotProvisionParameters() {
-        if (result != null && result.keySet().size() > 0) {
+        if (result != null) {
             Field[] provisionSnapshotFields = ProvisionVDBBySnapshotParameters.class.getDeclaredFields();
             for (Field x : provisionSnapshotFields) {
                 SerializedName sName = x.getAnnotation(SerializedName.class);
@@ -56,7 +56,7 @@ public class ValidationUtil {
     }
 
     public String validateJsonWithBookmarkProvisionParameters() {
-        if (result != null && result.keySet().size() > 0) {
+        if (result != null) {
             Field[] provisionBookmarkFields = ProvisionVDBFromBookmarkParameters.class.getDeclaredFields();
             for (Field x : provisionBookmarkFields) {
                 SerializedName sName = x.getAnnotation(SerializedName.class);
