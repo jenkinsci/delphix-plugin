@@ -11,6 +11,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 public class ApiClientInit {
+    private static final String userAgent = "Jenkins-3.0.0";
+    private static final String clientName = "Jenkins";
+    private static final String clientNameHeader = "x-dct-client-name";
 
     public static ApiClient init()
             throws ApiException, NoSuchAlgorithmException, KeyManagementException {
@@ -24,6 +27,8 @@ public class ApiClientInit {
         var apiClient = new ApiClient(new OkHttpClient(
                 new OkHttpClient.Builder().hostnameVerifier(NoopHostnameVerifier.INSTANCE)
                         .sslSocketFactory(sslSocketFactory, trustManager)));
+        apiClient.setUserAgent(userAgent);
+        apiClient.addDefaultHeader(clientNameHeader, clientName);
         return apiClient;
     }
 
