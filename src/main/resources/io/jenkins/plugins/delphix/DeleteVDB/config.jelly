@@ -1,16 +1,20 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
     
-    <f:entry title="Credential" field="credentialId">
-		<c:select/>
-	</f:entry>
+    <f:entry title="Load From Property File" field="loadFromProperties">
+        <f:checkbox default="false" />
+    </f:entry>
 
     <f:entry title="VDB ID" field="vdbId">
         <f:textbox />
     </f:entry>
 
-    <f:entry title="Wait for Polling" field="waitForPolling">
-        <f:checkbox default="true" />
+    <f:entry title="Credential" field="credentialId">
+		<c:select/>
+	</f:entry>
+
+    <f:entry title="Skip Polling" field="skipPolling">
+        <f:checkbox default="false" />
     </f:entry>
 
     <f:entry title="Force" field="force">

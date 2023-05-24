@@ -13,7 +13,9 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.util.Constant;
 import io.jenkins.plugins.util.DctSdkUtil;
+import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ProvisionParameterUtil;
 import io.jenkins.plugins.util.ValidationUtil;
 
@@ -31,7 +33,7 @@ import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
 import com.delphix.dct.models.ProvisionVDBFromBookmarkParameters;
 import com.delphix.dct.models.ProvisionVDBResponse;
-
+import com.delphix.dct.models.VDB;
 import com.google.gson.JsonSyntaxException;
 
 import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxModel;
@@ -49,13 +51,13 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     return bookmarkId;
   }
 
-  @Symbol("delphix-provisionVdbFromBookmark")
+  @Symbol("provisionVDBFromBookmark")
   @Extension
   public static final class ProvisionDescriptor extends BuildStepDescriptor<Builder> {
 
     @Override
     public String getDisplayName() {
-      return "Delphix: Provison VDB From Bookmark";
+      return Messages.ProvisionVDBBookmark_DisplayName();
     }
 
     public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item item,
@@ -71,7 +73,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     public FormValidation doCheckCredentialId(@QueryParameter String value)
         throws IOException, ServletException {
       if (value.length() == 0)
-        return FormValidation.error("Please Select a credential ID");
+        return FormValidation.error(Messages.Credential_Empty());
       return FormValidation.ok();
     }
 
@@ -81,18 +83,21 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
         ValidationUtil validationUtil = new ValidationUtil();
         try {
           validationUtil.validateJsonFormat(value);
-        } catch (JsonSyntaxException e) {
-          return FormValidation.error("Invalid Json Format");
-        } catch (Exception e) {
+        }
+        catch (JsonSyntaxException e) {
+          return FormValidation.error(Messages.Json_Invalid());
+        }
+        catch (Exception e) {
           return FormValidation.error(e.getMessage());
         }
 
         try {
-          String invalidKey = validationUtil.validateJsonWithSnapshotProvisionParameters();
+          String invalidKey = validationUtil.validateJsonWithBookmarkProvisionParameters();
           if (invalidKey != null) {
-            return FormValidation.error("Invalid Provision Parameter: " + invalidKey);
+            return FormValidation.error(Messages.Json_IncorrectKey(invalidKey));
           }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
           return FormValidation.error(e.getMessage());
         }
       }
@@ -102,7 +107,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     public FormValidation doCheckBookmarkId(@QueryParameter String value)
         throws IOException, ServletException {
       if (value.length() == 0)
-        return FormValidation.error("Please Set a Bookmark ID");
+        return FormValidation.error(Messages.BookmarkId_Empty());
       return FormValidation.ok();
     }
 
@@ -115,37 +120,48 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     String buildId = run.getId();
     DctSdkUtil dctSdkUtil = new DctSdkUtil();
     ProvisionParameterUtil provisionParameterUtil = new ProvisionParameterUtil();
-    logger.println(
-        "Provison VDB From Bookmark with BuildID: " + buildId + " ,BookmarkID: " + bookmarkId);
-
+    Helper helper = new Helper(listener);
+    logger.println(Messages.ProvisionVDBBookmark_Info(buildId));
     try {
       ApiClient defaultClient = dctSdkUtil.createApiClient(run, credentialId, logger);
 
       if (defaultClient != null) {
 
-        ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter = provisionParameterUtil
-            .provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
+        ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
+            provisionParameterUtil.provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
                 tagList, name, environmentId, jsonParam, environmentUserId, repositoryId,
                 targetGroupId, databaseName, vdbRestart, snapshotPolicyId, retentionPolicyId);
 
-        ProvisionVDBResponse rs = dctSdkUtil.provisionVdbFromBookmark(defaultClient, provisionFromBookmarkParameter);
+        ProvisionVDBResponse rs =
+            dctSdkUtil.provisionVdbFromBookmark(defaultClient, provisionFromBookmarkParameter);
 
-        logger.println("Provison VDB From Bookmark Job Started for Target VDBID: " + rs.getVdbId()
-            + " with JobID: " + rs.getJob().getId());
+        logger.println(Messages.ProvisionVDB_Start(rs.getVdbId(), rs.getJob().getId()));
 
-        if (waitForPolling) {
-          logger.println("Waiting For Job to complete...");
-          String status = dctSdkUtil.waitForPolling(defaultClient, rs.getJob().getId(), logger);
-          if (status != null) {
-            logger.println("Provision Job completed.");
-          }
+        if (!skipPolling) {
+          helper.waitForPolling(dctSdkUtil, defaultClient, listener, run, rs.getJob().getId());
         }
+        VDB vdbDetails =
+            helper.displayVDBDetails(dctSdkUtil, defaultClient, rs.getVdbId(), listener);
 
-      } else {
+        if (save) {
+          String fileName = fileNameSuffix != null
+              ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
+              : Constant.FILE_NAME + Constant.PROPERTIES;
+          logger.println(Messages.ProvisionVDB_Save(fileName));
+          helper.saveToProperties(vdbDetails, workspace, listener, fileName);
+        }
+      }
+      else {
+        logger.println(Messages.Apiclient_Fail());
         run.setResult(Result.FAILURE);
       }
-    } catch (ApiException e) {
+    }
+    catch (ApiException e) {
       logger.println("Response : " + e.getResponseBody());
+      run.setResult(Result.FAILURE);
+    }
+    catch (Exception e) {
+      logger.println("Exception : " + e.getMessage());
       run.setResult(Result.FAILURE);
     }
 

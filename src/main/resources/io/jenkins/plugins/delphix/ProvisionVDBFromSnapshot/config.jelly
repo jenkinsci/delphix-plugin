@@ -13,7 +13,7 @@
         <f:checkbox default="true" />
     </f:entry>
 
-    <f:optionalBlock name="dynamic" title="Use Optional Parameters" >
+    <f:optionalBlock  title="Use Optional Parameters" inline="true">
 
         <f:entry title="Engine ID" field="engineId" help="/plugin/delphix/help-engineId.html">
             <f:textbox />
@@ -70,11 +70,18 @@
         </f:entry>
     </f:optionalBlock>
 
-    <f:entry title="Wait for Polling" field="waitForPolling" help="/plugin/delphix/help-waitForPolling.html">
-        <f:checkbox default="true" />
+    <f:entry title="Skip Polling" field="skipPolling" help="/plugin/delphix/help-waitForPolling.html">
+        <f:checkbox default="false" />
     </f:entry>
 
     <f:entry title="Credential" field="credentialId" help="/plugin/delphix/help-credentialId.html">
 		<c:select/>
 	</f:entry>
+
+     <f:optionalBlock  title="Save to Properties" inline="true" field="save">
+        <f:entry title="File Name" field="fileNameSuffix" help="/plugin/delphix/help-engineId.html">
+            <f:textbox />
+        </f:entry>
+     </f:optionalBlock >
+
 </j:jelly>

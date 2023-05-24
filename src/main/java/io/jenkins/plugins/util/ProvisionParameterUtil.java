@@ -5,9 +5,13 @@ import com.delphix.dct.models.ProvisionVDBBySnapshotParameters;
 import com.delphix.dct.models.ProvisionVDBFromBookmarkParameters;
 import com.delphix.dct.models.Tag;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.ToNumberPolicy;
 import io.jenkins.plugins.delphix.Tags;
 
 public class ProvisionParameterUtil {
+
+    Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
 
     public ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter(String snapshot_id,
             boolean auto_select_repository, List<Tags> tagList, String name, String environmentId,
@@ -16,9 +20,10 @@ public class ProvisionParameterUtil {
             boolean vdbRestart, String snapshotPolicyId, String retentionPolicyId) {
         ProvisionVDBBySnapshotParameters provisionVDBBySnapshotParameters = null;
         if (jsonParameters != null) {
-            provisionVDBBySnapshotParameters = new Gson().fromJson(jsonParameters,
-                    ProvisionVDBBySnapshotParameters.class);
-        } else {
+            provisionVDBBySnapshotParameters =
+                    gson.fromJson(jsonParameters, ProvisionVDBBySnapshotParameters.class);
+        }
+        else {
             provisionVDBBySnapshotParameters = new ProvisionVDBBySnapshotParameters();
         }
         provisionVDBBySnapshotParameters.setAutoSelectRepository(auto_select_repository);
@@ -47,14 +52,15 @@ public class ProvisionParameterUtil {
 
     public ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter(String bookmark_id,
             boolean auto_select_repository, List<Tags> tagList, String name, String environmentId,
-            String jsonParam, String environmentUserId, String repositoryId, String targetGroupId,
-            String databaseName, boolean vdbRestart, String snapshotPolicyId,
+            String jsonParameters, String environmentUserId, String repositoryId,
+            String targetGroupId, String databaseName, boolean vdbRestart, String snapshotPolicyId,
             String retentionPolicyId) {
         ProvisionVDBFromBookmarkParameters provisionVDBFromBookmarkParameters = null;
-        if (jsonParam != null) {
-            provisionVDBFromBookmarkParameters = new Gson().fromJson(jsonParam,
-                    ProvisionVDBFromBookmarkParameters.class);
-        } else {
+        if (jsonParameters != null) {
+            provisionVDBFromBookmarkParameters =
+                    gson.fromJson(jsonParameters, ProvisionVDBFromBookmarkParameters.class);
+        }
+        else {
             provisionVDBFromBookmarkParameters = new ProvisionVDBFromBookmarkParameters();
         }
         provisionVDBFromBookmarkParameters.setAutoSelectRepository(auto_select_repository);

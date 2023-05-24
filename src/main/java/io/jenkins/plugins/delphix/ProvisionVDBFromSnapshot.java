@@ -13,12 +13,13 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.util.Constant;
 import io.jenkins.plugins.util.DctSdkUtil;
+import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ProvisionParameterUtil;
 import io.jenkins.plugins.util.ValidationUtil;
 import java.io.IOException;
 import java.io.PrintStream;
-
 import javax.servlet.ServletException;
 
 import jenkins.tasks.SimpleBuildStep;
@@ -30,6 +31,7 @@ import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
 import com.delphix.dct.models.ProvisionVDBBySnapshotParameters;
 import com.delphix.dct.models.ProvisionVDBResponse;
+import com.delphix.dct.models.VDB;
 import com.google.gson.JsonSyntaxException;
 import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxModel;
 
@@ -46,13 +48,13 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
         return snapshotId;
     }
 
-    @Symbol("delphix-provisionVdbFromSnapshot")
+    @Symbol("provisionVDBFromSnapshot")
     @Extension
     public static final class ProvisionDescriptor extends BuildStepDescriptor<Builder> {
 
         @Override
         public String getDisplayName() {
-            return "Delphix: Provison VDB From Snapshot";
+            return Messages.ProvisionVDBSnapshot_DisplayName();
         }
 
         public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item item,
@@ -68,14 +70,14 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
         public FormValidation doCheckCredentialId(@QueryParameter String value)
                 throws IOException, ServletException {
             if (value.length() == 0)
-                return FormValidation.error("Please Select a Credential ID");
+                return FormValidation.error(Messages.Credential_Empty());
             return FormValidation.ok();
         }
 
         public FormValidation doCheckSnapshotId(@QueryParameter String value)
                 throws IOException, ServletException {
             if (value.length() == 0)
-                return FormValidation.error("Please Set a Snapshot ID");
+                return FormValidation.error(Messages.SnapshotId_Empty());
             return FormValidation.ok();
         }
 
@@ -85,18 +87,22 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                 ValidationUtil validationUtil = new ValidationUtil();
                 try {
                     validationUtil.validateJsonFormat(value);
-                } catch (JsonSyntaxException e) {
-                    return FormValidation.error("Invalid Json Format");
-                } catch (Exception e) {
+                }
+                catch (JsonSyntaxException e) {
+                    return FormValidation.error(Messages.Json_Invalid());
+                }
+                catch (Exception e) {
                     return FormValidation.error(e.getMessage());
                 }
 
                 try {
-                    String invalidKey = validationUtil.validateJsonWithBookmarkProvisionParameters();
+                    String invalidKey =
+                            validationUtil.validateJsonWithBookmarkProvisionParameters();
                     if (invalidKey != null) {
-                        return FormValidation.error("Invalid Provision Parameter " + invalidKey);
+                        return FormValidation.error(Messages.Json_IncorrectKey(invalidKey));
                     }
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     return FormValidation.error(e.getMessage());
                 }
             }
@@ -111,14 +117,14 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
         String buildId = run.getId();
         ProvisionParameterUtil provisionParameterUtil = new ProvisionParameterUtil();
         DctSdkUtil dctSdkUtil = new DctSdkUtil();
-        logger.println("Provison VDB From Snapshot with BuildID: " + buildId + " ,SnapshotID: "
-                + snapshotId);
+        Helper helper = new Helper(listener);
+        logger.println(Messages._ProvisionVDBSnapshot_Info(buildId));
         try {
             ApiClient defaultClient = dctSdkUtil.createApiClient(run, credentialId, logger);
             if (defaultClient != null) {
 
-                ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter = provisionParameterUtil
-                        .provisionFromSnapshotParameter(snapshotId,
+                ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter =
+                        provisionParameterUtil.provisionFromSnapshotParameter(snapshotId,
                                 autoSelectRepository, tagList, name, environmentId, jsonParam,
                                 sourceDataId, environmentUserId, repositoryId, engineId,
                                 targetGroupId, databaseName, vdbRestart, snapshotPolicyId,
@@ -127,24 +133,44 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                 ProvisionVDBResponse rs = dctSdkUtil.provisionVdbBySnapshot(defaultClient,
                         provisionFromSnapshotParameter);
 
-                logger.println("Provison VDB From Snapshot Job Started for Target VDBID: "
-                        + rs.getVdbId() + " with JobID: " + rs.getJob().getId());
+                logger.println(Messages.ProvisionVDB_Start(rs.getVdbId(), rs.getJob().getId()));
 
-                if (waitForPolling) {
-                    logger.println("Waiting For Job to complete...");
-                    String status = dctSdkUtil.waitForPolling(defaultClient, rs.getJob().getId(), logger);
-                    if (status != null) {
-                        logger.println("Provision Job completed.");
-                    }
+                // if (!skipPolling) {
+                // helper.pollingWithSave(dctSdkUtil, defaultClient, listener, run, workspace,
+                // rs.getJob().getId(), rs.getVdbId(), save, fileNameSuffix);
+                // }
+                // else {
+                // logger.println(Messages.ProvisionVDB_Complete());
+                // }
+
+                if (!skipPolling) {
+                    helper.waitForPolling(dctSdkUtil, defaultClient, listener, run,
+                            rs.getJob().getId());
                 }
-            } else {
+                VDB vdbDetails = helper.displayVDBDetails(dctSdkUtil, defaultClient, rs.getVdbId(),
+                        listener);
+
+                if (save) {
+                    String fileName = fileNameSuffix != null
+                            ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
+                            : Constant.FILE_NAME + Constant.PROPERTIES;
+                    logger.println(Messages.ProvisionVDB_Save(fileName));
+                    helper.saveToProperties(vdbDetails, workspace, listener, fileName);
+                }
+            }
+            else {
+                logger.println(Messages.Apiclient_Fail());
                 run.setResult(Result.FAILURE);
             }
-        } catch (ApiException e) {
+        }
+        catch (ApiException e) {
             logger.println("Response : " + e.getResponseBody());
+            run.setResult(Result.FAILURE);
+        }
+        catch (Exception e) {
+            logger.println("Exception : " + e.getMessage());
             run.setResult(Result.FAILURE);
         }
 
     }
-
 }

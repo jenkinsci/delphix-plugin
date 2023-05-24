@@ -1,7 +1,6 @@
 package io.jenkins.plugins.delphix;
 
 import java.util.List;
-
 import org.kohsuke.stapler.DataBoundSetter;
 
 import hudson.tasks.Builder;
@@ -9,7 +8,7 @@ import hudson.tasks.Builder;
 public abstract class ProvisonVDB extends Builder {
     public Boolean autoSelectRepository;
     public List<Tags> tagList;
-    public Boolean waitForPolling;
+    public Boolean skipPolling;
     public String credentialId;
     public String name;
     public String environmentId;
@@ -23,6 +22,9 @@ public abstract class ProvisonVDB extends Builder {
     public boolean vdbRestart;
     public String snapshotPolicyId;
     public String retentionPolicyId;
+    public String fileNameSuffix;
+    public Boolean save;
+
 
     public String getName() {
         return name;
@@ -44,8 +46,8 @@ public abstract class ProvisonVDB extends Builder {
         return autoSelectRepository;
     }
 
-    public Boolean getWaitForPolling() {
-        return waitForPolling;
+    public Boolean getSkipPolling() {
+        return skipPolling;
     }
 
     public String getJsonParam() {
@@ -88,6 +90,14 @@ public abstract class ProvisonVDB extends Builder {
         return retentionPolicyId;
     }
 
+    public Boolean getSave() {
+        return save;
+    }
+
+    public String getFileNameSuffix() {
+        return fileNameSuffix;
+    }
+
     @DataBoundSetter
     public void setJsonParam(String jsonParam) {
         this.jsonParam = !jsonParam.isEmpty() ? jsonParam : null;
@@ -114,8 +124,8 @@ public abstract class ProvisonVDB extends Builder {
     }
 
     @DataBoundSetter
-    public void setWaitForPolling(Boolean waitForPolling) {
-        this.waitForPolling = waitForPolling;
+    public void setSkipPolling(Boolean waitForPolling) {
+        this.skipPolling = waitForPolling;
     }
 
     @DataBoundSetter
@@ -140,17 +150,17 @@ public abstract class ProvisonVDB extends Builder {
 
     @DataBoundSetter
     public void setEngineId(String engineId) {
-        this.engineId = engineId;
+        this.engineId = !engineId.isEmpty() ? engineId : null;
     }
 
     @DataBoundSetter
     public void setTargetGroupId(String targetGroupId) {
-        this.targetGroupId = targetGroupId;
+        this.targetGroupId = !targetGroupId.isEmpty() ? targetGroupId : null;
     }
 
     @DataBoundSetter
     public void setDatabaseName(String databaseName) {
-        this.databaseName = databaseName;
+        this.databaseName = !databaseName.isEmpty() ? databaseName : null;
     }
 
     @DataBoundSetter
@@ -160,12 +170,22 @@ public abstract class ProvisonVDB extends Builder {
 
     @DataBoundSetter
     public void setSnapshotPolicyId(String snapshotPolicyId) {
-        this.snapshotPolicyId = snapshotPolicyId;
+        this.snapshotPolicyId = !snapshotPolicyId.isEmpty() ? snapshotPolicyId : null;
     }
 
     @DataBoundSetter
     public void setRetentionPolicyId(String retentionPolicyId) {
-        this.retentionPolicyId = retentionPolicyId;
+        this.retentionPolicyId = !retentionPolicyId.isEmpty() ? retentionPolicyId : null;
+    }
+
+    @DataBoundSetter
+    public void setSave(Boolean save) {
+        this.save = save;
+    }
+
+    @DataBoundSetter
+    public void setFileNameSuffix(String fileNameSuffix) {
+        this.fileNameSuffix = !fileNameSuffix.isEmpty() ? fileNameSuffix : null;
     }
 
 }
