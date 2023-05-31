@@ -4,7 +4,7 @@
 [![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/delphix.svg)](https://plugins.jenkins.io/delphix)
 [![License](https://img.shields.io/github/license/jenkinsci/delphix-plugin.svg)](LICENSE)
 
-The Delphix Plugin allows Jenkins to connect to multiple Delphix Engines and execute operations on Self Service Containers and Self Service Bookmarks.
+The Delphix Plugin allows Jenkins to connect to DCT and execute operations.
 
 #### Table of Contents
 1.  [Description](#description)
@@ -22,7 +22,7 @@ The Delphix Plugin allows Jenkins to connect to multiple Delphix Engines and exe
 
 ## <a id="description"></a>Description
 
-This plugin is designed to automate routine and/or triggered jobs with Delphix Self Service Containers and Bookmarks. An example automation would be during a build phase, if some automated tests failed while running in a database, that Self Service Container could have it's current state bookmarked, and that bookmark could be shared with the rest of the team. It might also be required to refresh a development database from the production source during deployment. These are just a few examples of possible automations.
+This plugin is designed to automate routine and/or triggered jobs with DCT .
 
 ## <a id="installation"></a>Installation
 
@@ -38,32 +38,11 @@ Delphix Engine v6.0.0 or higher.
 
 After the plugin has been installed, Delphix engines will need to be connected. Go to System Configuration page, scroll down to the Delphix section. Enter your Engine Address, Username, and password, then click "Test Connection". If Jenkins is able to reach the engine and log in, you will see a "Login Successful" reply message. If you wish to add multiple engines, click the "Add Engine" button for each engine you wish to connect to Jenkins.
 
-#### Self Service Container
+#### Available Operations
 
-To interact with Self Service Containers, select "Delphix - Self Service Container" from the "Add Build Step" drop down in the Build phase section. Select an engine that was configured in the global configuration, select one of the operations listed below. Depending on the operation selected, it will either depend on a specified Self Service Container or a Bookmark. Read more about [Delphix Self Service Containers](https://docs.delphix.com/docs/delphix-self-service/delphix-self-service-admin-guide/understanding-data-containers).
-
-Available Operations:
-
-*   refresh
-*   restore
-*   reset
-*   enable
-*   disable
-*   recover
-*   undo
-*   lock
-*   unlock
-
-#### Self Service Bookmark
-
-To interact with Self Service Bookmarks, select "Delphix - Self Service Bookmark" from the "Add Build Step" drop down in the Build phase section. Select an engine that was configured in the global configuration, select one of the operations listed below. Depending on the operation selected, it will either depend on a specified Self Service Container or a Bookmark. Read more about [Delphix Self Service Bookmarks](https://docs.delphix.com/docs/delphix-self-service/delphix-self-service-admin-guide/understanding-bookmarks).
-
-Available Operations:
-
-*   create
-*   delete
-*   share
-*   unshare
+*   Provision VDB by Snapshot
+*   Provision VDB by Bookmark
+*   Delete VDB
 
 #### Advanced Settings
 
