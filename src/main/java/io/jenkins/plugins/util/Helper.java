@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
 import com.delphix.dct.models.VDB;
 import com.google.gson.Gson;
@@ -31,8 +30,8 @@ public class Helper {
 
     private PrintStream logger;
 
-    public Helper(TaskListener listener) {
-        this.logger = listener.getLogger();
+    public Helper(PrintStream logger) {
+        this.logger = logger;
     }
 
     public List<String> getFileList(Path rootDir, String pattern) throws IOException {
@@ -60,29 +59,31 @@ public class Helper {
                 new TypeToken<HashMap<String, Object>>() {}.getType());
     }
 
-    public VDB displayVDBDetails(DctSdkUtil dctSdkUtil, ApiClient defaultClient, String vdbId,
-            TaskListener listener) throws ApiException {
-        VDB vdbDetails = dctSdkUtil.getVDBDetails(defaultClient, vdbId);
-        PrintStream logger = listener.getLogger();
-        logger.println(Messages.Vdb_Id(vdbDetails.getId()));
-        logger.println(Messages.Vdb_Name(vdbDetails.getName()));
-        logger.println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
-        logger.println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
-        logger.println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
-        logger.println(Messages.Vdb_Status(vdbDetails.getStatus()));
+    public VDB displayVDBDetails(DctSdkUtil dctSdkUtil, String vdbId) throws ApiException {
+        VDB vdbDetails = dctSdkUtil.getVDBDetails(vdbId);
+        this.logger.println(Messages.Vdb_Id(vdbDetails.getId()));
+        this.logger.println(Messages.Vdb_Name(vdbDetails.getName()));
+        this.logger.println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
+        this.logger.println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
+        this.logger.println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
+        this.logger.println(Messages.Vdb_Status(vdbDetails.getStatus()));
         return vdbDetails;
     }
 
     public void saveToProperties(VDB vdbDetails, FilePath workspace, TaskListener listener,
-            String fileName) {
+            String fileNameSuffix) {
+        String fileName = fileNameSuffix != null
+                ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
+                : Constant.FILE_NAME + Constant.PROPERTIES;
+        this.logger.println(Messages.ProvisionVDB_Save(fileName));
         DelphixProperties delphixProps = new DelphixProperties(workspace, fileName, listener);
         delphixProps.setVDBDetails(convertObjectToMapUsingGson(vdbDetails));
     }
 
-    public Boolean waitForPolling(DctSdkUtil dctSdkUtil, ApiClient defaultClient,
-            TaskListener listener, Run<?, ?> run, String jobId) throws ApiException {
-        logger.println(Messages.Poll_Wait());
-        boolean fail = dctSdkUtil.waitForPolling(defaultClient, jobId, logger);
+    public Boolean waitForPolling(DctSdkUtil dctSdkUtil, Run<?, ?> run, String jobId)
+            throws ApiException {
+        this.logger.println(Messages.Poll_Wait());
+        boolean fail = dctSdkUtil.waitForPolling(jobId);
         if (fail) {
             // logger.println(Messages.ProvisionVDB_Fail());
             run.setResult(Result.FAILURE);

@@ -6,9 +6,9 @@ import org.kohsuke.stapler.DataBoundSetter;
 import hudson.tasks.Builder;
 
 public abstract class ProvisonVDB extends Builder {
-    public Boolean autoSelectRepository;
+    public boolean autoSelectRepository;
     public List<Tags> tagList;
-    public Boolean skipPolling;
+    public boolean skipPolling;
     public String credentialId;
     public String name;
     public String environmentId;
@@ -23,7 +23,7 @@ public abstract class ProvisonVDB extends Builder {
     public String snapshotPolicyId;
     public String retentionPolicyId;
     public String fileNameSuffix;
-    public Boolean save;
+    // public boolean save;
 
 
     public String getName() {
@@ -42,11 +42,11 @@ public abstract class ProvisonVDB extends Builder {
         return tagList;
     }
 
-    public Boolean getAutoSelectRepository() {
+    public boolean getAutoSelectRepository() {
         return autoSelectRepository;
     }
 
-    public Boolean getSkipPolling() {
+    public boolean getSkipPolling() {
         return skipPolling;
     }
 
@@ -90,9 +90,9 @@ public abstract class ProvisonVDB extends Builder {
         return retentionPolicyId;
     }
 
-    public Boolean getSave() {
-        return save;
-    }
+    // public boolean getSave() {
+    // return save;
+    // }
 
     public String getFileNameSuffix() {
         return fileNameSuffix;
@@ -114,7 +114,7 @@ public abstract class ProvisonVDB extends Builder {
     }
 
     @DataBoundSetter
-    public void setAutoSelectRepository(Boolean auto_select_repository) {
+    public void setAutoSelectRepository(boolean auto_select_repository) {
         this.autoSelectRepository = auto_select_repository;
     }
 
@@ -124,8 +124,8 @@ public abstract class ProvisonVDB extends Builder {
     }
 
     @DataBoundSetter
-    public void setSkipPolling(Boolean waitForPolling) {
-        this.skipPolling = waitForPolling;
+    public void setSkipPolling(boolean skipPolling) {
+        this.skipPolling = skipPolling;
     }
 
     @DataBoundSetter
@@ -178,10 +178,10 @@ public abstract class ProvisonVDB extends Builder {
         this.retentionPolicyId = !retentionPolicyId.isEmpty() ? retentionPolicyId : null;
     }
 
-    @DataBoundSetter
-    public void setSave(Boolean save) {
-        this.save = save;
-    }
+    // @DataBoundSetter
+    // public void setSave(boolean save) {
+    // this.save = save;
+    // }
 
     @DataBoundSetter
     public void setFileNameSuffix(String fileNameSuffix) {

@@ -31,14 +31,16 @@ public class ValidationUtil {
         try {
             JsonReader reader = new JsonReader(new StringReader(json));
             result = strictGsonObjectAdapter.read(reader);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             throw new JsonSyntaxException(e);
         }
     }
 
     public String validateJsonWithSnapshotProvisionParameters() {
         if (result != null) {
-            Field[] provisionSnapshotFields = ProvisionVDBBySnapshotParameters.class.getDeclaredFields();
+            Field[] provisionSnapshotFields =
+                    ProvisionVDBBySnapshotParameters.class.getDeclaredFields();
             for (Field x : provisionSnapshotFields) {
                 SerializedName sName = x.getAnnotation(SerializedName.class);
                 if (sName != null) {
@@ -57,7 +59,8 @@ public class ValidationUtil {
 
     public String validateJsonWithBookmarkProvisionParameters() {
         if (result != null) {
-            Field[] provisionBookmarkFields = ProvisionVDBFromBookmarkParameters.class.getDeclaredFields();
+            Field[] provisionBookmarkFields =
+                    ProvisionVDBFromBookmarkParameters.class.getDeclaredFields();
             for (Field x : provisionBookmarkFields) {
                 SerializedName sName = x.getAnnotation(SerializedName.class);
                 if (sName != null) {

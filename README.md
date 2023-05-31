@@ -30,7 +30,7 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 ## <a id="requirements"></a>Delphix Engine Requirements
 
-Delphix Engine v5.0.0 or higher.
+Delphix Engine v6.0.0 or higher.
 
 ## <a id="usage"></a>Usage
 

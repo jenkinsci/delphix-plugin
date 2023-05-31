@@ -13,7 +13,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import io.jenkins.plugins.util.Constant;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ProvisionParameterUtil;
@@ -26,9 +25,10 @@ import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
-import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
+import com.delphix.dct.models.Job;
 import com.delphix.dct.models.ProvisionVDBBySnapshotParameters;
 import com.delphix.dct.models.ProvisionVDBResponse;
 import com.delphix.dct.models.VDB;
@@ -37,15 +37,20 @@ import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxMod
 
 public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuildStep {
 
-    private final String snapshotId;
+    private String snapshotId;
 
     @DataBoundConstructor
-    public ProvisionVDBFromSnapshot(String snapshotId) {
-        this.snapshotId = snapshotId;
+    public ProvisionVDBFromSnapshot() {
+
     }
 
     public String getSnapshotId() {
         return snapshotId;
+    }
+
+    @DataBoundSetter
+    public void setSnapshotId(String snapshotId) {
+        this.snapshotId = !snapshotId.isEmpty() ? snapshotId : null;
     }
 
     @Symbol("provisionVDBFromSnapshot")
@@ -74,12 +79,12 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckSnapshotId(@QueryParameter String value)
-                throws IOException, ServletException {
-            if (value.length() == 0)
-                return FormValidation.error(Messages.SnapshotId_Empty());
-            return FormValidation.ok();
-        }
+        // public FormValidation doCheckSnapshotId(@QueryParameter String value)
+        // throws IOException, ServletException {
+        // if (value.length() == 0)
+        // return FormValidation.error(Messages.SnapshotId_Empty());
+        // return FormValidation.ok();
+        // }
 
         public FormValidation doCheckJsonParam(@QueryParameter String value)
                 throws IOException, ServletException {
@@ -114,15 +119,12 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
             TaskListener listener) throws InterruptedException, IOException {
         PrintStream logger = listener.getLogger();
-        String buildId = run.getId();
         ProvisionParameterUtil provisionParameterUtil = new ProvisionParameterUtil();
-        DctSdkUtil dctSdkUtil = new DctSdkUtil();
-        Helper helper = new Helper(listener);
-        logger.println(Messages._ProvisionVDBSnapshot_Info(buildId));
+        Helper helper = new Helper(logger);
+        logger.println(Messages._ProvisionVDBSnapshot_Info(run.getId()));
         try {
-            ApiClient defaultClient = dctSdkUtil.createApiClient(run, credentialId, logger);
-            if (defaultClient != null) {
-
+            DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId, logger);
+            if (dctSdkUtil.getDefaultClient() != null) {
                 ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter =
                         provisionParameterUtil.provisionFromSnapshotParameter(snapshotId,
                                 autoSelectRepository, tagList, name, environmentId, jsonParam,
@@ -130,32 +132,23 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                                 targetGroupId, databaseName, vdbRestart, snapshotPolicyId,
                                 retentionPolicyId);
 
-                ProvisionVDBResponse rs = dctSdkUtil.provisionVdbBySnapshot(defaultClient,
-                        provisionFromSnapshotParameter);
+                ProvisionVDBResponse provisionResponse =
+                        dctSdkUtil.provisionVdbBySnapshot(provisionFromSnapshotParameter);
 
-                logger.println(Messages.ProvisionVDB_Start(rs.getVdbId(), rs.getJob().getId()));
+                Job job = provisionResponse.getJob();
+                if (job != null) {
+                    logger.println(
+                            Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
 
-                // if (!skipPolling) {
-                // helper.pollingWithSave(dctSdkUtil, defaultClient, listener, run, workspace,
-                // rs.getJob().getId(), rs.getVdbId(), save, fileNameSuffix);
-                // }
-                // else {
-                // logger.println(Messages.ProvisionVDB_Complete());
-                // }
-
-                if (!skipPolling) {
-                    helper.waitForPolling(dctSdkUtil, defaultClient, listener, run,
-                            rs.getJob().getId());
+                    if (!skipPolling) {
+                        helper.waitForPolling(dctSdkUtil, run, job.getId());
+                    }
+                    VDB vdbDetails =
+                            helper.displayVDBDetails(dctSdkUtil, provisionResponse.getVdbId());
+                    helper.saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
                 }
-                VDB vdbDetails = helper.displayVDBDetails(dctSdkUtil, defaultClient, rs.getVdbId(),
-                        listener);
-
-                if (save) {
-                    String fileName = fileNameSuffix != null
-                            ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
-                            : Constant.FILE_NAME + Constant.PROPERTIES;
-                    logger.println(Messages.ProvisionVDB_Save(fileName));
-                    helper.saveToProperties(vdbDetails, workspace, listener, fileName);
+                else {
+                    logger.println("Job Creation Failed");
                 }
             }
             else {
@@ -164,13 +157,12 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
             }
         }
         catch (ApiException e) {
-            logger.println("Response : " + e.getResponseBody());
+            logger.println("ApiException : " + e.getResponseBody());
             run.setResult(Result.FAILURE);
         }
         catch (Exception e) {
             logger.println("Exception : " + e.getMessage());
             run.setResult(Result.FAILURE);
         }
-
     }
 }

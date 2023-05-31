@@ -13,7 +13,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import io.jenkins.plugins.util.Constant;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ProvisionParameterUtil;
@@ -29,8 +28,8 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
+import com.delphix.dct.models.Job;
 import com.delphix.dct.models.ProvisionVDBFromBookmarkParameters;
 import com.delphix.dct.models.ProvisionVDBResponse;
 import com.delphix.dct.models.VDB;
@@ -117,38 +116,32 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
   public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
       TaskListener listener) throws InterruptedException, IOException {
     PrintStream logger = listener.getLogger();
-    String buildId = run.getId();
-    DctSdkUtil dctSdkUtil = new DctSdkUtil();
     ProvisionParameterUtil provisionParameterUtil = new ProvisionParameterUtil();
-    Helper helper = new Helper(listener);
-    logger.println(Messages.ProvisionVDBBookmark_Info(buildId));
+    Helper helper = new Helper(logger);
+    logger.println(Messages.ProvisionVDBBookmark_Info(run.getId()));
     try {
-      ApiClient defaultClient = dctSdkUtil.createApiClient(run, credentialId, logger);
-
-      if (defaultClient != null) {
+      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId, logger);
+      if (dctSdkUtil.getDefaultClient() != null) {
 
         ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
             provisionParameterUtil.provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
                 tagList, name, environmentId, jsonParam, environmentUserId, repositoryId,
                 targetGroupId, databaseName, vdbRestart, snapshotPolicyId, retentionPolicyId);
 
-        ProvisionVDBResponse rs =
-            dctSdkUtil.provisionVdbFromBookmark(defaultClient, provisionFromBookmarkParameter);
+        ProvisionVDBResponse provisionResponse =
+            dctSdkUtil.provisionVdbFromBookmark(provisionFromBookmarkParameter);
+        Job job = provisionResponse.getJob();
+        if (job != null) {
+          logger.println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
 
-        logger.println(Messages.ProvisionVDB_Start(rs.getVdbId(), rs.getJob().getId()));
-
-        if (!skipPolling) {
-          helper.waitForPolling(dctSdkUtil, defaultClient, listener, run, rs.getJob().getId());
+          if (!skipPolling) {
+            helper.waitForPolling(dctSdkUtil, run, job.getId());
+          }
+          VDB vdbDetails = helper.displayVDBDetails(dctSdkUtil, provisionResponse.getVdbId());
+          helper.saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
         }
-        VDB vdbDetails =
-            helper.displayVDBDetails(dctSdkUtil, defaultClient, rs.getVdbId(), listener);
-
-        if (save) {
-          String fileName = fileNameSuffix != null
-              ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
-              : Constant.FILE_NAME + Constant.PROPERTIES;
-          logger.println(Messages.ProvisionVDB_Save(fileName));
-          helper.saveToProperties(vdbDetails, workspace, listener, fileName);
+        else {
+          logger.println("Job Creation Failed");
         }
       }
       else {
@@ -157,7 +150,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
       }
     }
     catch (ApiException e) {
-      logger.println("Response : " + e.getResponseBody());
+      logger.println("ApiException : " + e.getResponseBody());
       run.setResult(Result.FAILURE);
     }
     catch (Exception e) {

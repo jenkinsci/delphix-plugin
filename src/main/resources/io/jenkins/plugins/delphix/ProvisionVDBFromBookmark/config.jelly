@@ -13,7 +13,7 @@
         <f:checkbox default="true" />
     </f:entry>
 
-     <f:optionalBlock name="dynamic" title="Use Optional Parameters" >
+     <f:optionalBlock name="dynamic" title="Use Optional Parameters" help="/plugin/delphix/help-optional.html">
 
         <f:entry title="Target Group ID" field="targetGroupId" help="/plugin/delphix/help-targetGroupId.html">
             <f:textbox />
@@ -62,7 +62,7 @@
         </f:entry>
     </f:optionalBlock>
 
-    <f:entry title="Skip Polling" field="skipPolling" help="/plugin/delphix/help-waitForPolling.html">
+    <f:entry title="Skip Polling" field="skipPolling" help="/plugin/delphix/help-skipPolling.html">
         <f:checkbox default="false" />
     </f:entry>
 
@@ -70,10 +70,8 @@
 		    <c:select/>
 	</f:entry>
 
-    <f:optionalBlock  title="Save to Properties" inline="true" field="save">
-        <f:entry title="File Name" field="fileNameSuffix" help="/plugin/delphix/help-engineId.html">
-            <f:textbox />
-        </f:entry>
-     </f:optionalBlock >
+    <f:entry title="File Name Suffix" field="fileNameSuffix" help="/plugin/delphix/help-fileNameSuffix.html">
+        <f:textbox />
+    </f:entry>
 
 </j:jelly>
