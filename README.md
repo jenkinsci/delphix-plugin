@@ -22,7 +22,7 @@ The Delphix Plugin allows Jenkins to connect to DCT and execute operations.
 
 ## <a id="description"></a>Description
 
-This plugin is designed to automate routine and/or triggered jobs with DCT .
+This plugin is designed to automate routine and/or trigger jobs with DCT.
 
 ## <a id="installation"></a>Installation
 
@@ -36,7 +36,12 @@ Delphix Engine v6.0.0 or higher.
 
 #### Global Configuration
 
-After the plugin has been installed, Delphix engines will need to be connected. Go to System Configuration page, scroll down to the Delphix section. Enter your Engine Address, Username, and password, then click "Test Connection". If Jenkins is able to reach the engine and log in, you will see a "Login Successful" reply message. If you wish to add multiple engines, click the "Add Engine" button for each engine you wish to connect to Jenkins.
+After the plugin has been installed, DCT will need to be connected. Go to System Configuration page, scroll down to the Delphix section. Enter your DCT URL.
+
+#### Credentials
+
+The API KEY has to be saved on Jenkins’s side as a Secret text , In Jenkins, go to Credentials > global > Add Credentials, select the Secret text type and fill in the inputs.
+Secret must contains the API KEY generated from DCT.ID input is the ID that you want for the credential, the value will be used in the Delphix Plugin to perfomr operations.
 
 #### Available Operations
 
@@ -46,7 +51,7 @@ After the plugin has been installed, Delphix engines will need to be connected. 
 
 #### Advanced Settings
 
-It is possible to share assets created between build steps. For instance, if you wanted to create a bookmark from a container and then restore a different container with the newly created bookmark. The create operation for both Self Service Containers and Bookmarks will have their output saved if the "Save to Properties" box is checked. The Self Service Container operation "restore" requires a Bookmark for reference. This Bookmark can be loaded a previous build step when "Load Bookmark from Properties" is checked. Likewise, the referenced Self Service Container in the Bookmark build step can be loaded from the properties file.
+It is possible to share assets created between build steps.The provision operation have their output saved in properties file.
 
 ## <a id="links"></a>Links
 

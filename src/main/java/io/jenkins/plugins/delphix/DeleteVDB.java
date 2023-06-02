@@ -53,8 +53,6 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
-        // public Boolean load;
-
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> aClass) {
             return true;
@@ -69,19 +67,6 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
                 @QueryParameter String credentialId) {
             return getAllCredentialsListBoxModel(item, credentialId);
         }
-
-        // public FormValidation doCheckLoadFromProperties(@QueryParameter Boolean value,
-        // @AncestorInPath AbstractProject project) throws IOException, ServletException {
-        // load = value;
-        // return FormValidation.ok();
-        // }
-
-        // public FormValidation doCheckVdbId(@QueryParameter String value)
-        // throws IOException, ServletException {
-        // if (value.length() == 0 && load == false)
-        // return FormValidation.error(Messages.VDBId_Empty());
-        // return FormValidation.ok();
-        // }
 
         public FormValidation doCheckCredentialId(@QueryParameter String value)
                 throws IOException, ServletException {
@@ -156,7 +141,6 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
 
     private void deleteVDB(Run<?, ?> run, String vdbId, TaskListener listener,
             DctSdkUtil dctSdkUtil, Helper helper) throws ApiException {
-        // Helper helper = new Helper(listener);
         DeleteVDBResponse rs = dctSdkUtil.deleteVdb(vdbId, force);
         listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
         if (!skipPolling) {

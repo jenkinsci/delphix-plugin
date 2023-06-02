@@ -23,6 +23,7 @@ import io.jenkins.plugins.delphix.DelphixGlobalConfiguration;
 
 import jenkins.model.Jenkins;
 import static io.jenkins.plugins.util.CredentialUtil.getApiKey;
+import io.jenkins.plugins.delphix.Messages;
 
 public class DctSdkUtil {
 
@@ -39,12 +40,12 @@ public class DctSdkUtil {
         this.logger = logger;
         String url = getGlobalConfig().getDctUrl();
         if (getGlobalConfig().getDctUrl() == null) {
-            this.logger.println("Delphix Global Configuration Missing");
+            this.logger.println(Messages.DctSDkUtil_Error1());
             return;
         }
         String apiKey = getApiKey(credId, run);
         if (apiKey == null) {
-            this.logger.println("Cannot find any credentials for " + credId);
+            this.logger.println(Messages.DctSDkUtil_Error2(credId));
             return;
         }
         try {
@@ -61,37 +62,6 @@ public class DctSdkUtil {
     public ApiClient getDefaultClient() {
         return defaultClient;
     }
-
-    // /**
-    // *
-    // * @param run
-    // * @param credId
-    // * @param logger
-    // * @return
-    // */
-    // public ApiClient createApiClient(Run<?, ?> run, String credId, PrintStream logger) {
-    // String url = getGlobalConfig().getDctUrl();
-    // if (url == null) {
-    // logger.println("Delphix Global Configuration Missing");
-    // return null;
-    // }
-    // String apiKey = getApiKey(credId, run);
-    // if (apiKey == null) {
-    // logger.println("Cannot find any credentials for " + credId);
-    // return null;
-    // }
-    // ApiClient defaultClient = null;
-    // try {
-    // defaultClient = ApiClientInit.init();
-    // defaultClient.setApiKey(apiKey);
-    // defaultClient.setBasePath(url);
-    // }
-    // catch (KeyManagementException | NoSuchAlgorithmException | ApiException e) {
-    // logger.println("ApiClient Creation Exception: " + e.getMessage());
-    // e.printStackTrace();
-    // }
-    // return defaultClient;
-    // }
 
     /**
      * 
@@ -155,6 +125,12 @@ public class DctSdkUtil {
         return result;
     }
 
+    /**
+     * 
+     * @param name
+     * @return
+     * @throws ApiException
+     */
     public SearchVDBsResponse searchVDB(String name) throws ApiException {
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         Integer limit = 100;
@@ -181,7 +157,6 @@ public class DctSdkUtil {
         final long WAIT_TIME = 20000;
         boolean completed = false;
         boolean fail = false;
-        // String status = null;
         JobsApi apiInstance = new JobsApi(this.defaultClient);
         while (!completed) {
             Job result = apiInstance.getJobById(jobId);

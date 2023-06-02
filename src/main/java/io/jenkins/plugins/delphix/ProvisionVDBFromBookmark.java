@@ -135,10 +135,22 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
           logger.println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
 
           if (!skipPolling) {
-            helper.waitForPolling(dctSdkUtil, run, job.getId());
+            if (helper.waitForPolling(dctSdkUtil, run, job.getId())) {
+              listener.getLogger().println(Messages.ProvisionVDB_Fail());
+            }
+            else {
+              helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
+                  fileNameSuffix);
+              listener.getLogger().println(Messages.ProvisionVDB_Complete());
+            }
           }
-          VDB vdbDetails = helper.displayVDBDetails(dctSdkUtil, provisionResponse.getVdbId());
-          helper.saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
+          else {
+            helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
+                fileNameSuffix);
+          }
+          // VDB vdbDetails =
+          // helper.displayVDBDetails(dctSdkUtil, provisionResponse.getVdbId());
+          // helper.saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
         }
         else {
           logger.println("Job Creation Failed");

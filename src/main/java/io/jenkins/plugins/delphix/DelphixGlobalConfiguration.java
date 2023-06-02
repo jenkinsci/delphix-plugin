@@ -22,7 +22,7 @@ public class DelphixGlobalConfiguration extends GlobalPluginConfiguration {
 
         @Override
         public String getDisplayName() {
-            return "Delphix Plugin Configuration";
+            return Messages.GlobalConfig_DisplayName();
         }
 
         @Override

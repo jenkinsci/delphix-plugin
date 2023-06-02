@@ -85,28 +85,14 @@ public class Helper {
         this.logger.println(Messages.Poll_Wait());
         boolean fail = dctSdkUtil.waitForPolling(jobId);
         if (fail) {
-            // logger.println(Messages.ProvisionVDB_Fail());
             run.setResult(Result.FAILURE);
-        }
-        else {
-            // logger.println(Messages.ProvisionVDB_Complete());
         }
         return fail;
     }
 
-    // public void pollingWithSave(DctSdkUtil dctSdkUtil, ApiClient defaultClient,
-    // TaskListener listener, Run<?, ?> run, FilePath workspace, String jobId, String vdbId,
-    // Boolean save, String fileNameSuffix) throws ApiException {
-    // Boolean pollResult = waitForPolling(dctSdkUtil, defaultClient, listener, run, jobId);
-    // if (!pollResult) {
-    // VDB vdbDetails = displayVDBDetails(dctSdkUtil, defaultClient, vdbId, listener);
-    // if (save) {
-    // String fileName = fileNameSuffix != null
-    // ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
-    // : Constant.FILE_NAME + Constant.PROPERTIES;
-    // logger.println(Messages.ProvisionVDB_Save(fileName));
-    // saveToProperties(vdbDetails, workspace, listener, fileName);
-    // }
-    // }
-    // }
+    public void displayAndSave(DctSdkUtil dctSdkUtil, String vdbId, FilePath workspace,
+            TaskListener listener, String fileNameSuffix) throws ApiException {
+        VDB vdbDetails = displayVDBDetails(dctSdkUtil, vdbId);
+        saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
+    }
 }
