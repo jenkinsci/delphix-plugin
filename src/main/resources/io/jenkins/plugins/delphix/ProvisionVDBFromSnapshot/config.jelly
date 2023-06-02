@@ -65,7 +65,7 @@
          </f:repeatableProperty>
         </f:entry>
 
-        <f:entry title="Additional Parameters" field="jsonParam" help="/plugin/delphix/help-appDataParam.html">
+        <f:entry title="Additional Parameters" field="jsonParam" help="/plugin/delphix/help-jsonParam.html">
             <f:textarea />
         </f:entry>
     </f:optionalBlock>
