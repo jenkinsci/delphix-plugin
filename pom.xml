@@ -104,6 +104,12 @@
             <version>2.10.1</version>
         </dependency>
 
+        <!-- <dependency>
+            <groupId>com.delphix</groupId>
+            <artifactId>dct-api</artifactId>
+            <version>0.0.5</version>
+        </dependency> -->
+
     </dependencies>
 
     <repositories>
@@ -115,6 +121,10 @@
             <id>dct-java-sdk-url</id>
             <url>https://delphix-devops-bot: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@maven.pkg.github.com/delphix/apigw-services</url>
         </repository>
+        <!-- <repository>
+            <id>dct-java-sdk-central</id>
+            <url>https://repo1.maven.org/maven2</url>
+        </repository> -->
     </repositories>
 
     <pluginRepositories>

@@ -1,4 +1,4 @@
-package io.jenkins.plugins.util;
+package io.jenkins.plugins.properties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import hudson.FilePath;
 import hudson.model.TaskListener;
+import io.jenkins.plugins.constant.Constant;
 
 public class DelphixProperties {
     private File file;

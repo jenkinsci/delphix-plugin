@@ -2,7 +2,6 @@ package io.jenkins.plugins.delphix;
 
 import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxModel;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +28,11 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import io.jenkins.plugins.util.Constant;
+import io.jenkins.plugins.constant.Constant;
+import io.jenkins.plugins.job.JobHelper;
+import io.jenkins.plugins.logger.Logger;
+import io.jenkins.plugins.properties.DelphixProperties;
 import io.jenkins.plugins.util.DctSdkUtil;
-import io.jenkins.plugins.util.DelphixProperties;
 import io.jenkins.plugins.util.Helper;
 import jenkins.tasks.SimpleBuildStep;
 
@@ -77,42 +78,46 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
 
     }
 
-
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
             TaskListener listener) throws InterruptedException, IOException {
-        PrintStream logger = listener.getLogger();
-        Helper helper = new Helper(logger);
-        logger.println(Messages.Delete_Start(run.getId()));
+        Logger logger = new Logger(listener);
+        Helper helper = new Helper();
+        Logger.println(Messages.Delete_Start(run.getId()));
         try {
-            DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId, logger);
+            DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId);
             if (dctSdkUtil.getDefaultClient() != null) {
                 if (loadFromProperties) {
-                    logger.println(Messages.Delete_Message1());
+                    Logger.println(Messages.Delete_Message1());
                     List<String> fileList =
                             helper.getFileList(Paths.get(workspace.toURI()), Constant.FILE_PATTERN);
 
                     for (String file : fileList) {
                         DelphixProperties x = new DelphixProperties(workspace, file, listener);
                         String vdbId = x.getVDB();
-                        logger.println(Messages.Delete_Message2(vdbId, file));
+                        Logger.println(Messages.Delete_Message2(vdbId, file));
                         deleteVDB(run, vdbId, listener, dctSdkUtil, helper);
                     }
                 }
                 else if (vdbId != null) {
                     List<String> vdbList = Arrays.asList(vdbId.split(","));
                     for (String vdb : vdbList) {
-                        logger.println(Messages.Delete_Message3(vdb));
+                        Logger.println(Messages.Delete_Message3(vdb));
                         deleteVDB(run, vdb, listener, dctSdkUtil, helper);
                     }
                 }
                 else if (name != null) {
                     List<String> nameList = Arrays.asList(name.split(","));
                     for (String name : nameList) {
-                        logger.println(Messages.Delete_Message5(name));
+                        Logger.println(Messages.Delete_Message5(name));
                         SearchVDBsResponse result = dctSdkUtil.searchVDB(name);
-                        if (result.getItems().size() > 0) {
-                            logger.println(Messages.Delete_Error2(name));
+                        if (result.getItems().size() == 0) {
+                            Logger.println(Messages.Delete_Error3(name));
+                            run.setResult(Result.FAILURE);
+                        }
+                        else if (result.getItems().size() > 1) {
+                            Logger.println(Messages.Delete_Error2(name));
+                            run.setResult(Result.FAILURE);
                         }
                         else {
                             VDB vdb = result.getItems().get(0);
@@ -121,20 +126,20 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
                     }
                 }
                 else {
-                    logger.println(Messages.Delete_Error1());
+                    Logger.println(Messages.Delete_Error1());
                 }
             }
             else {
-                logger.println(Messages.Apiclient_Fail());
+                Logger.println(Messages.Apiclient_Fail());
                 run.setResult(Result.FAILURE);
             }
         }
         catch (ApiException e) {
-            listener.getLogger().println("ApiException : " + e.getResponseBody());
+            Logger.println("ApiException : " + e.getResponseBody());
             run.setResult(Result.FAILURE);
         }
         catch (Exception e) {
-            logger.println("Exception : " + e.getMessage());
+            Logger.println("Exception : " + e.getMessage());
             run.setResult(Result.FAILURE);
         }
     }
@@ -142,13 +147,15 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     private void deleteVDB(Run<?, ?> run, String vdbId, TaskListener listener,
             DctSdkUtil dctSdkUtil, Helper helper) throws ApiException {
         DeleteVDBResponse rs = dctSdkUtil.deleteVdb(vdbId, force);
-        listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
-        if (!skipPolling) {
-            if (helper.waitForPolling(dctSdkUtil, run, rs.getJob().getId())) {
-                listener.getLogger().println(Messages.Delete_Fail());
-            }
+        Logger.println(Messages.Delete_Message4(rs.getJob().getId()));
+        JobHelper jh = new JobHelper(rs.getJob().getId());
+        boolean jobStatus = jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
+        if (jobStatus) {
+            Logger.println(Messages.Delete_Fail());
         }
-        listener.getLogger().println(Messages.Delete_Complete());
+        else {
+            Logger.println(Messages.Delete_Complete());
+        }
     }
 
     public String getCredentialId() {

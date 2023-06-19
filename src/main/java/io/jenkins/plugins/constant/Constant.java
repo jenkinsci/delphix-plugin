@@ -1,4 +1,4 @@
-package io.jenkins.plugins.util;
+package io.jenkins.plugins.constant;
 
 public class Constant {
     public static final String FILE_PATTERN = "glob:delphix-VDB*.{properties}";

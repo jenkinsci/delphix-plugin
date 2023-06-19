@@ -13,13 +13,13 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import io.jenkins.plugins.job.JobHelper;
+import io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
-import io.jenkins.plugins.util.ProvisionParameterUtil;
 import io.jenkins.plugins.util.ValidationUtil;
-
+import io.jenkins.plugins.vdb.VDBParameterBuilder;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import javax.servlet.ServletException;
 
@@ -32,7 +32,6 @@ import com.delphix.dct.ApiException;
 import com.delphix.dct.models.Job;
 import com.delphix.dct.models.ProvisionVDBFromBookmarkParameters;
 import com.delphix.dct.models.ProvisionVDBResponse;
-import com.delphix.dct.models.VDB;
 import com.google.gson.JsonSyntaxException;
 
 import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxModel;
@@ -115,16 +114,16 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
   @Override
   public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
       TaskListener listener) throws InterruptedException, IOException {
-    PrintStream logger = listener.getLogger();
-    ProvisionParameterUtil provisionParameterUtil = new ProvisionParameterUtil();
-    Helper helper = new Helper(logger);
-    logger.println(Messages.ProvisionVDBBookmark_Info(run.getId()));
+    Logger logger = new Logger(listener);
+    VDBParameterBuilder vdbParamBuilder = new VDBParameterBuilder();
+    Helper helper = new Helper();
+    Logger.println(Messages._ProvisionVDBBookmark_Info(run.getId()));
     try {
-      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId, logger);
+      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId);
       if (dctSdkUtil.getDefaultClient() != null) {
 
         ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
-            provisionParameterUtil.provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
+            vdbParamBuilder.provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
                 tagList, name, environmentId, jsonParam, environmentUserId, repositoryId,
                 targetGroupId, databaseName, vdbRestart, snapshotPolicyId, retentionPolicyId);
 
@@ -132,41 +131,32 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
             dctSdkUtil.provisionVdbFromBookmark(provisionFromBookmarkParameter);
         Job job = provisionResponse.getJob();
         if (job != null) {
-          logger.println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
-
-          if (!skipPolling) {
-            if (helper.waitForPolling(dctSdkUtil, run, job.getId())) {
-              listener.getLogger().println(Messages.ProvisionVDB_Fail());
-            }
-            else {
-              helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
-                  fileNameSuffix);
-              listener.getLogger().println(Messages.ProvisionVDB_Complete());
-            }
+          Logger.println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
+          JobHelper jh = new JobHelper(job.getId());
+          boolean jobStatus = jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
+          if (jobStatus) {
+            Logger.println(Messages.ProvisionVDB_Fail());
           }
           else {
             helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
                 fileNameSuffix);
           }
-          // VDB vdbDetails =
-          // helper.displayVDBDetails(dctSdkUtil, provisionResponse.getVdbId());
-          // helper.saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
         }
         else {
-          logger.println("Job Creation Failed");
+          Logger.println("Job Creation Failed");
         }
       }
       else {
-        logger.println(Messages.Apiclient_Fail());
+        Logger.println(Messages.Apiclient_Fail());
         run.setResult(Result.FAILURE);
       }
     }
     catch (ApiException e) {
-      logger.println("ApiException : " + e.getResponseBody());
+      Logger.println("ApiException : " + e.getResponseBody());
       run.setResult(Result.FAILURE);
     }
     catch (Exception e) {
-      logger.println("Exception : " + e.getMessage());
+      Logger.println("Exception : " + e.getMessage());
       run.setResult(Result.FAILURE);
     }
 

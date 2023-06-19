@@ -23,8 +23,6 @@ public abstract class ProvisonVDB extends Builder {
     public String snapshotPolicyId;
     public String retentionPolicyId;
     public String fileNameSuffix;
-    // public boolean save;
-
 
     public String getName() {
         return name;
@@ -89,10 +87,6 @@ public abstract class ProvisonVDB extends Builder {
     public String getRetentionPolicyId() {
         return retentionPolicyId;
     }
-
-    // public boolean getSave() {
-    // return save;
-    // }
 
     public String getFileNameSuffix() {
         return fileNameSuffix;
@@ -177,11 +171,6 @@ public abstract class ProvisonVDB extends Builder {
     public void setRetentionPolicyId(String retentionPolicyId) {
         this.retentionPolicyId = !retentionPolicyId.isEmpty() ? retentionPolicyId : null;
     }
-
-    // @DataBoundSetter
-    // public void setSave(boolean save) {
-    // this.save = save;
-    // }
 
     @DataBoundSetter
     public void setFileNameSuffix(String fileNameSuffix) {

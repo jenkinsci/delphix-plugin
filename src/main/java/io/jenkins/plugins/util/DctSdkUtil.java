@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 
 import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
+import com.delphix.dct.Configuration;
 import com.delphix.dct.api.JobsApi;
 import com.delphix.dct.api.VdbsApi;
 import com.delphix.dct.models.DeleteVDBParameters;
@@ -19,44 +20,36 @@ import com.delphix.dct.models.SearchBody;
 import com.delphix.dct.models.SearchVDBsResponse;
 import com.delphix.dct.models.VDB;
 import hudson.model.Run;
+import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.delphix.DelphixGlobalConfiguration;
-
-import jenkins.model.Jenkins;
 import static io.jenkins.plugins.util.CredentialUtil.getApiKey;
 import io.jenkins.plugins.delphix.Messages;
+import io.jenkins.plugins.logger.Logger;
+
 
 public class DctSdkUtil {
 
     private ApiClient defaultClient;
-    private PrintStream logger;
 
-    /**
-     * 
-     * @param run
-     * @param credId
-     * @param logger
-     */
-    public DctSdkUtil(Run<?, ?> run, String credId, PrintStream logger) {
-        this.logger = logger;
-        String url = getGlobalConfig().getDctUrl();
-        if (getGlobalConfig().getDctUrl() == null) {
-            this.logger.println(Messages.DctSDkUtil_Error1());
+    public DctSdkUtil(Run<?, ?> run, String credId) {
+        String url = DelphixGlobalConfiguration.get().getDctUrl();
+        if (url == null) {
+            Logger.println(Messages.DctSDkUtil_Error1());
             return;
         }
         String apiKey = getApiKey(credId, run);
         if (apiKey == null) {
-            this.logger.println(Messages.DctSDkUtil_Error2(credId));
+            Logger.println(Messages.DctSDkUtil_Error2(credId));
             return;
         }
-        try {
-            this.defaultClient = ApiClientInit.init();
-            this.defaultClient.setApiKey(apiKey);
-            this.defaultClient.setBasePath(url);
+        this.defaultClient = Configuration.getDefaultApiClient();
+        if (!DelphixGlobalConfiguration.get().getSslCheck()) {
+            this.defaultClient.setVerifyingSsl(false);
         }
-        catch (KeyManagementException | NoSuchAlgorithmException | ApiException e) {
-            this.defaultClient = null;
-            this.logger.println("ApiClient Creation Exception: " + e.getMessage());
-        }
+        this.defaultClient.setUserAgent(Constant.USER_AGENT);
+        this.defaultClient.addDefaultHeader(Constant.CLIENT_NAME_HEADER, Constant.CLIENT_NAME);
+        this.defaultClient.setApiKey(apiKey);
+        this.defaultClient.setBasePath(url);
     }
 
     public ApiClient getDefaultClient() {
@@ -143,51 +136,5 @@ public class DctSdkUtil {
         SearchVDBsResponse result =
                 apiInstance.searchVdbs(limit, cursor, sort, permission, searchBody);
         return result;
-    }
-
-    /**
-     * 
-     * @param defaultClient
-     * @param jobId
-     * @param logger
-     * @return
-     * @throws ApiException
-     */
-    public boolean waitForPolling(String jobId) throws ApiException {
-        final long WAIT_TIME = 20000;
-        boolean completed = false;
-        boolean fail = false;
-        JobsApi apiInstance = new JobsApi(this.defaultClient);
-        while (!completed) {
-            Job result = apiInstance.getJobById(jobId);
-
-            this.logger.println("Current Job Status: " + result.getStatus());
-            if (!result.getStatus().toString().equals("STARTED")) {
-                completed = true;
-                if (!result.getStatus().toString().equals("COMPLETED")) {
-                    fail = true;
-                    this.logger.println("Error Details: " + result.getErrorDetails());
-                }
-            }
-
-            if (completed) {
-                break;
-            }
-            try {
-                Thread.sleep(WAIT_TIME);
-            }
-            catch (InterruptedException ex) {
-                this.logger.println("Wait interrupted!");
-                this.logger.println(ex.getMessage());
-                completed = true; // bail out of wait loop
-            }
-        }
-        return fail;
-    }
-
-    private DelphixGlobalConfiguration.DescriptorImpl getGlobalConfig() {
-        DelphixGlobalConfiguration.DescriptorImpl delphixGlobalConfig =
-                Jenkins.get().getDescriptorByType(DelphixGlobalConfiguration.DescriptorImpl.class);
-        return delphixGlobalConfig;
     }
 }

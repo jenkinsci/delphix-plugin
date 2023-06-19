@@ -1,39 +1,41 @@
 package io.jenkins.plugins.delphix;
 
-import javax.annotation.CheckForNull;
-import org.kohsuke.stapler.StaplerRequest;
 import hudson.Extension;
-import hudson.model.Descriptor;
 import jenkins.model.GlobalConfiguration;
-import jenkins.model.GlobalPluginConfiguration;
-import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundSetter;
 
-public class DelphixGlobalConfiguration extends GlobalPluginConfiguration {
 
-    @Extension
-    public static final class DescriptorImpl extends Descriptor<GlobalConfiguration> {
-        @CheckForNull
-        private String dctUrl;
+@Extension
+public class DelphixGlobalConfiguration extends GlobalConfiguration {
 
-        public DescriptorImpl() {
-            load();
-            dctUrl = this.getDctUrl();
-        }
+    public static DelphixGlobalConfiguration get() {
+        return GlobalConfiguration.all().get(DelphixGlobalConfiguration.class);
+    }
 
-        @Override
-        public String getDisplayName() {
-            return Messages.GlobalConfig_DisplayName();
-        }
+    private String dctUrl;
+    private boolean sslCheck;
 
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            dctUrl = formData.getString("dctUrl");
-            save();
-            return super.configure(req, formData);
-        }
+    public DelphixGlobalConfiguration() {
+        load();
+    }
 
-        public String getDctUrl() {
-            return dctUrl != null && !dctUrl.isEmpty() ? dctUrl : null;
-        }
+    public String getDctUrl() {
+        return dctUrl;
+    }
+
+    @DataBoundSetter
+    public void setDctUrl(String dctUrl) {
+        this.dctUrl = dctUrl;
+        save();
+    }
+
+    public boolean getSslCheck() {
+        return sslCheck;
+    }
+
+    @DataBoundSetter
+    public void setSslCheck(boolean sslCertificate) {
+        this.sslCheck = sslCertificate;
+        save();
     }
 }

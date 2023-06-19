@@ -1,4 +1,4 @@
-package io.jenkins.plugins.util;
+package io.jenkins.plugins.vdb;
 
 import java.util.List;
 import com.delphix.dct.models.ProvisionVDBBySnapshotParameters;
@@ -9,7 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import io.jenkins.plugins.delphix.Tags;
 
-public class ProvisionParameterUtil {
+public class VDBParameterBuilder {
 
     Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
 
