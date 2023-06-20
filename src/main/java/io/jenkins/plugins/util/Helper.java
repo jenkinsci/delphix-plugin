@@ -24,10 +24,16 @@ import hudson.FilePath;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.delphix.Messages;
-import io.jenkins.plugins.logger.Logger;
+// import io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.properties.DelphixProperties;
 
 public class Helper {
+
+    private TaskListener listener;
+
+    public Helper(TaskListener listener) {
+        this.listener = listener;
+    }
 
     public List<String> getFileList(Path rootDir, String pattern) throws IOException {
         List<String> matchesList = new ArrayList<String>();
@@ -56,12 +62,14 @@ public class Helper {
 
     public VDB displayVDBDetails(DctSdkUtil dctSdkUtil, String vdbId) throws ApiException {
         VDB vdbDetails = dctSdkUtil.getVDBDetails(vdbId);
-        Logger.println(Messages.Vdb_Id(vdbDetails.getId()));
-        Logger.println(Messages.Vdb_Name(vdbDetails.getName()));
-        Logger.println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
-        Logger.println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
-        Logger.println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
-        Logger.println(Messages.Vdb_Status(vdbDetails.getStatus()));
+        this.listener.getLogger().println(Messages.Vdb_Id(vdbDetails.getId()));
+        this.listener.getLogger().println(Messages.Vdb_Name(vdbDetails.getName()));
+        this.listener.getLogger().println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
+        this.listener.getLogger()
+
+                .println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
+        this.listener.getLogger().println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
+        this.listener.getLogger().println(Messages.Vdb_Status(vdbDetails.getStatus()));
         return vdbDetails;
     }
 
@@ -70,7 +78,7 @@ public class Helper {
         String fileName = fileNameSuffix != null
                 ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
                 : Constant.FILE_NAME + Constant.PROPERTIES;
-        Logger.println(Messages.ProvisionVDB_Save(fileName));
+        this.listener.getLogger().println(Messages.ProvisionVDB_Save(fileName));
         DelphixProperties delphixProps = new DelphixProperties(workspace, fileName, listener);
         delphixProps.setVDBDetails(convertObjectToMapUsingGson(vdbDetails));
     }

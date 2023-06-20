@@ -6,15 +6,19 @@ import com.delphix.dct.api.JobsApi;
 import com.delphix.dct.models.Job;
 import hudson.model.Result;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import io.jenkins.plugins.delphix.Messages;
-import io.jenkins.plugins.logger.Logger;
+// import io.jenkins.plugins.logger.Logger;
 
 public class JobHelper {
 
     private String jobId;
 
-    public JobHelper(String jobId) {
+    private TaskListener listener;
+
+    public JobHelper(TaskListener listener, String jobId) {
         this.jobId = jobId;
+        this.listener = listener;
     }
 
     public boolean processJob(boolean skipPolling, ApiClient defaultClient, Run<?, ?> run)
@@ -28,7 +32,7 @@ public class JobHelper {
     }
 
     public boolean waitForPolling(ApiClient defaultClient, Run<?, ?> run) throws ApiException {
-        Logger.println(Messages.Poll_Wait());
+        this.listener.getLogger().println(Messages.Poll_Wait());
         boolean fail = waitForPolling(defaultClient);
         if (fail) {
             run.setResult(Result.FAILURE);
@@ -42,14 +46,14 @@ public class JobHelper {
         boolean fail = false;
         JobsApi apiInstance = new JobsApi(defaultClient);
         while (!completed) {
-            Job result = apiInstance.getJobById(jobId);
+            Job result = apiInstance.getJobById(this.jobId);
 
-            Logger.println("Current Job Status: " + result.getStatus());
+            listener.getLogger().println("Current Job Status: " + result.getStatus());
             if (!result.getStatus().toString().equals("STARTED")) {
                 completed = true;
                 if (!result.getStatus().toString().equals("COMPLETED")) {
                     fail = true;
-                    Logger.println("Error Details: " + result.getErrorDetails());
+                    listener.getLogger().println("Error Details: " + result.getErrorDetails());
                 }
             }
 
@@ -60,8 +64,8 @@ public class JobHelper {
                 Thread.sleep(WAIT_TIME);
             }
             catch (InterruptedException ex) {
-                Logger.println("Wait interrupted!");
-                Logger.println(ex.getMessage());
+                listener.getLogger().println("Wait interrupted!");
+                listener.getLogger().println(ex.getMessage());
                 completed = true; // bail out of wait loop
             }
         }

@@ -30,7 +30,7 @@ public class ValidationUtil {
     public void validateJsonFormat(String json) {
         try {
             JsonReader reader = new JsonReader(new StringReader(json));
-            result = strictGsonObjectAdapter.read(reader);
+            result = strictGsonObjectAdapter.read(reader); 
         }
         catch (IOException e) {
             throw new JsonSyntaxException(e);

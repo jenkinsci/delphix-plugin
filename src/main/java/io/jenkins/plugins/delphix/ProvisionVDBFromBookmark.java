@@ -14,7 +14,7 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.job.JobHelper;
-import io.jenkins.plugins.logger.Logger;
+// mport io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ValidationUtil;
@@ -114,12 +114,12 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
   @Override
   public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
       TaskListener listener) throws InterruptedException, IOException {
-    Logger logger = new Logger(listener);
+    // new Logger(listener);
     VDBParameterBuilder vdbParamBuilder = new VDBParameterBuilder();
-    Helper helper = new Helper();
-    Logger.println(Messages._ProvisionVDBBookmark_Info(run.getId()));
+    Helper helper = new Helper(listener);
+    listener.getLogger().println(Messages._ProvisionVDBBookmark_Info(run.getId()));
     try {
-      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, credentialId);
+      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, listener, credentialId);
       if (dctSdkUtil.getDefaultClient() != null) {
 
         ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
@@ -131,11 +131,12 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
             dctSdkUtil.provisionVdbFromBookmark(provisionFromBookmarkParameter);
         Job job = provisionResponse.getJob();
         if (job != null) {
-          Logger.println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
-          JobHelper jh = new JobHelper(job.getId());
+          listener.getLogger()
+              .println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
+          JobHelper jh = new JobHelper(listener, job.getId());
           boolean jobStatus = jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
           if (jobStatus) {
-            Logger.println(Messages.ProvisionVDB_Fail());
+            listener.getLogger().println(Messages.ProvisionVDB_Fail());
           }
           else {
             helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
@@ -143,20 +144,20 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
           }
         }
         else {
-          Logger.println("Job Creation Failed");
+          listener.getLogger().println("Job Creation Failed");
         }
       }
       else {
-        Logger.println(Messages.Apiclient_Fail());
+        listener.getLogger().println(Messages.Apiclient_Fail());
         run.setResult(Result.FAILURE);
       }
     }
     catch (ApiException e) {
-      Logger.println("ApiException : " + e.getResponseBody());
+      listener.getLogger().println("ApiException : " + e.getResponseBody());
       run.setResult(Result.FAILURE);
     }
     catch (Exception e) {
-      Logger.println("Exception : " + e.getMessage());
+      listener.getLogger().println("Exception : " + e.getMessage());
       run.setResult(Result.FAILURE);
     }
 

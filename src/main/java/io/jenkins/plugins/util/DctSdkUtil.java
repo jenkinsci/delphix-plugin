@@ -20,26 +20,27 @@ import com.delphix.dct.models.SearchBody;
 import com.delphix.dct.models.SearchVDBsResponse;
 import com.delphix.dct.models.VDB;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.delphix.DelphixGlobalConfiguration;
 import static io.jenkins.plugins.util.CredentialUtil.getApiKey;
 import io.jenkins.plugins.delphix.Messages;
-import io.jenkins.plugins.logger.Logger;
+// import io.jenkins.plugins.logger.Logger;
 
 
 public class DctSdkUtil {
 
     private ApiClient defaultClient;
 
-    public DctSdkUtil(Run<?, ?> run, String credId) {
+    public DctSdkUtil(Run<?, ?> run, TaskListener listener, String credId) {
         String url = DelphixGlobalConfiguration.get().getDctUrl();
         if (url == null) {
-            Logger.println(Messages.DctSDkUtil_Error1());
+            listener.getLogger().println(Messages.DctSDkUtil_Error1());
             return;
         }
         String apiKey = getApiKey(credId, run);
         if (apiKey == null) {
-            Logger.println(Messages.DctSDkUtil_Error2(credId));
+            listener.getLogger().println(Messages.DctSDkUtil_Error2(credId));
             return;
         }
         this.defaultClient = Configuration.getDefaultApiClient();
