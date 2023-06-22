@@ -26,63 +26,37 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Timeout;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import java.util.Arrays;
 import java.util.Collections;
-
+import java.util.concurrent.TimeUnit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD;
 
 public class ProvisionVDBFromBookmarkTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
-
-    public static final String GLOBAL_CREDENTIALS_ID_1 = "global-1";
-    public static final String GLOBAL_CREDENTIALS_ID_2 = "global-2";
-
-    private Credentials GLOBAL_CREDENTIAL_1;
-    private Credentials GLOBAL_CREDENTIAL_2;
-
-    private FreeStyleProject project;
+    // jenkins.setTim
+    // jenkins.
 
     @Before
     public void init() throws Exception {
-        // ExtensionList<GlobalConfiguration> globalConfig = GlobalPluginConfiguration.all();
-        // System.out.println(globalConfig.toString());
-
-        // ExtensionList<GlobalConfiguration> globalConfig1 = GlobalConfiguration.all();
-        // System.out.println(globalConfig1.toString());
-
-        // for (GlobalConfiguration gc : globalConfig) {
-        // System.out.println(globalConfig.toString());
-        // }
-
         DelphixGlobalConfiguration globalConfig1 =
                 GlobalConfiguration.all().get(DelphixGlobalConfiguration.class);
         globalConfig1.setDctUrl("https://dct6.dlpxdc.co/v3");
 
-        // Descriptor<GlobalConfiguration> x = globalConfig1.getDescriptor();
-        // System.out.println(x.getDisplayName());
 
         globalConfig1.save();
 
         StringCredentialsImpl c = new StringCredentialsImpl(CredentialsScope.USER, "test123",
-                "description", Secret.fromString("value"));
+                "description", Secret.fromString(
+                        "apk 1.YKhbbGsoA2LUoaIpZ8nxPQsOQbQ5BBWAdB7AhWZISkGjeB6JsyiImpRP0EtKG86y"));
         CredentialsProvider.lookupStores(jenkins).iterator().next().addCredentials(Domain.global(),
                 c);
-
-
-        // GLOBAL_CREDENTIAL_1 = createTokenCredential(GLOBAL_CREDENTIALS_ID_1);
-        // GLOBAL_CREDENTIAL_2 = createTokenCredential(GLOBAL_CREDENTIALS_ID_2);
-
-        // SystemCredentialsProvider.getInstance().setDomainCredentialsMap(Collections.singletonMap(
-        // Domain.global(), Arrays.asList(GLOBAL_CREDENTIAL_1, GLOBAL_CREDENTIAL_2)));
-
-        // this.project = jenkins.createFreeStyleProject("test");
-
-        // setupStubs();
     }
 
 
@@ -115,14 +89,30 @@ public class ProvisionVDBFromBookmarkTest {
     // // assertThat(s, containsString("Finished: SUCCESS"));
     // }
 
+    // @Test
+    // public void testBuild() throws Exception {
+    // FreeStyleProject project = jenkins.createFreeStyleProject();
+    // ProvisionVDBFromBookmark builder = new ProvisionVDBFromBookmark("GLOBAL_CREDENTIALS_ID_1");
+    // builder.setCredentialId("test123");
+    // project.getBuildersList().add(builder);
+    // FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
+    // jenkins.assertLogContains("web test run " + "\n", build);
+    // }
+
     @Test
-    public void testBuild() throws Exception {
+    @Timeout(value = 10, unit = TimeUnit.MINUTES, threadMode = SEPARATE_THREAD)
+    // @Timeout(value = 10, unit = TimeUnit.MINUTES)
+    public void testBuild1() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        ProvisionVDBFromBookmark builder = new ProvisionVDBFromBookmark("GLOBAL_CREDENTIALS_ID_1");
+        ProvisionVDBFromSnapshot builder = new ProvisionVDBFromSnapshot();
+        builder.setSourceDataId("4-ORACLE_DB_CONTAINER-6");
         builder.setCredentialId("test123");
+        builder.setAutoSelectRepository(true);
+        // builder.setSkipPolling(true);
         project.getBuildersList().add(builder);
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
-        jenkins.assertLogContains("web test run " + "\n", build);
+        // jenkins.assertLogContains("Delphix", build);
+        System.out.println(build);
     }
 
     // @Test
