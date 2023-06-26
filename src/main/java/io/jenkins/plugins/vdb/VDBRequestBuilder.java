@@ -9,7 +9,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import io.jenkins.plugins.delphix.Tags;
 
-public class VDBParameterBuilder {
+public class VDBRequestBuilder {
 
     Gson gson = new GsonBuilder().setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
 

@@ -9,4 +9,5 @@ public class Constant {
     public static final String USER_AGENT = "Jenkins-3.0.0";
     public static final String CLIENT_NAME = "Jenkins";
     public static final String CLIENT_NAME_HEADER = "x-dct-client-name";
+    public static final long WAIT_TIME = 20000;
 }

@@ -14,11 +14,10 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.job.JobHelper;
-// mport io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ValidationUtil;
-import io.jenkins.plugins.vdb.VDBParameterBuilder;
+import io.jenkins.plugins.vdb.VDBRequestBuilder;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -38,129 +37,139 @@ import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxMod
 
 public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuildStep {
 
-  private final String bookmarkId;
+    private final String bookmarkId;
 
-  @DataBoundConstructor
-  public ProvisionVDBFromBookmark(String bookmarkId) {
-    this.bookmarkId = bookmarkId;
-  }
+    @DataBoundConstructor
+    public ProvisionVDBFromBookmark(String bookmarkId) {
+        this.bookmarkId = bookmarkId;
+    }
 
-  public String getBookmarkId() {
-    return bookmarkId;
-  }
+    public String getBookmarkId() {
+        return bookmarkId;
+    }
 
-  @Symbol("provisionVDBFromBookmark")
-  @Extension
-  public static final class ProvisionDescriptor extends BuildStepDescriptor<Builder> {
+    @Symbol("provisionVDBFromBookmark")
+    @Extension
+    public static final class ProvisionDescriptor extends BuildStepDescriptor<Builder> {
+
+        @Override
+        public String getDisplayName() {
+            return Messages.ProvisionVDBBookmark_DisplayName();
+        }
+
+        public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item item,
+                @QueryParameter String credentialId) {
+            return getAllCredentialsListBoxModel(item, credentialId);
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            return true;
+        }
+
+        public FormValidation doCheckCredentialId(@QueryParameter String value)
+                throws IOException, ServletException {
+            if (value.length() == 0)
+                return FormValidation.error(Messages.Credential_Empty());
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckJsonParam(@QueryParameter String value)
+                throws IOException, ServletException {
+            if (!value.isEmpty()) {
+                ValidationUtil validationUtil = new ValidationUtil();
+                try {
+                    validationUtil.validateJsonFormat(value);
+                }
+                catch (JsonSyntaxException e) {
+                    return FormValidation.error(Messages.Json_Invalid());
+                }
+                catch (Exception e) {
+                    return FormValidation.error(e.getMessage());
+                }
+
+                try {
+                    String invalidKey =
+                            validationUtil.validateJsonWithBookmarkProvisionParameters();
+                    if (invalidKey != null) {
+                        return FormValidation.error(Messages.Json_IncorrectKey(invalidKey));
+                    }
+                }
+                catch (Exception e) {
+                    return FormValidation.error(e.getMessage());
+                }
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckBookmarkId(@QueryParameter String value)
+                throws IOException, ServletException {
+            if (value.length() == 0)
+                return FormValidation.error(Messages.BookmarkId_Empty());
+            return FormValidation.ok();
+        }
+
+    }
 
     @Override
-    public String getDisplayName() {
-      return Messages.ProvisionVDBBookmark_DisplayName();
-    }
-
-    public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item item,
-        @QueryParameter String credentialId) {
-      return getAllCredentialsListBoxModel(item, credentialId);
-    }
-
-    @Override
-    public boolean isApplicable(Class<? extends AbstractProject> jobType) {
-      return true;
-    }
-
-    public FormValidation doCheckCredentialId(@QueryParameter String value)
-        throws IOException, ServletException {
-      if (value.length() == 0)
-        return FormValidation.error(Messages.Credential_Empty());
-      return FormValidation.ok();
-    }
-
-    public FormValidation doCheckJsonParam(@QueryParameter String value)
-        throws IOException, ServletException {
-      if (!value.isEmpty()) {
-        ValidationUtil validationUtil = new ValidationUtil();
+    public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
+            TaskListener listener) throws InterruptedException, IOException {
+        VDBRequestBuilder vdbRequestBuilder = new VDBRequestBuilder();
+        Helper helper = new Helper(listener);
+        listener.getLogger().println(Messages._ProvisionVDBBookmark_Info(run.getId()));
         try {
-          validationUtil.validateJsonFormat(value);
+            DctSdkUtil dctSdkUtil = new DctSdkUtil(run, listener, credentialId);
+            if (dctSdkUtil.getDefaultClient() != null) {
+
+                ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
+                        vdbRequestBuilder.provisionFromBookmarkParameter(bookmarkId,
+                                autoSelectRepository, tagList, name, environmentId, jsonParam,
+                                environmentUserId, repositoryId, targetGroupId, databaseName,
+                                vdbRestart, snapshotPolicyId, retentionPolicyId);
+
+                ProvisionVDBResponse provisionResponse =
+                        dctSdkUtil.provisionVdbFromBookmark(provisionFromBookmarkParameter);
+                Job job = provisionResponse.getJob();
+                if (job != null) {
+                    listener.getLogger().println(
+                            Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
+                    JobHelper jobHelper = new JobHelper(dctSdkUtil, listener, job.getId());
+                    boolean status = false;
+                    if (skipPolling) {
+                        status = jobHelper.waitForGetVDB(dctSdkUtil.getDefaultClient(), run,
+                                provisionResponse.getVdbId());
+                    }
+                    else {
+                        status = jobHelper.waitForPolling(dctSdkUtil.getDefaultClient(), run);
+                    }
+                    if (status) {
+                        listener.getLogger().println(Messages.ProvisionVDB_Fail());
+                    }
+                    else {
+                        helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace,
+                                listener, fileNameSuffix);
+                    }
+                }
+                else {
+                    listener.getLogger().println("Job Creation Failed");
+                    run.setResult(Result.FAILURE);
+                }
+            }
+            else {
+                listener.getLogger().println(Messages.Apiclient_Fail());
+                run.setResult(Result.FAILURE);
+            }
         }
-        catch (JsonSyntaxException e) {
-          return FormValidation.error(Messages.Json_Invalid());
+        catch (ApiException e) {
+            listener.getLogger().println("ApiException : " + e.getResponseBody());
+            listener.getLogger().println("ApiException : " + e.getMessage());
+            run.setResult(Result.FAILURE);
         }
         catch (Exception e) {
-          return FormValidation.error(e.getMessage());
+            listener.getLogger().println("Exception : " + e.getMessage());
+            run.setResult(Result.FAILURE);
         }
 
-        try {
-          String invalidKey = validationUtil.validateJsonWithBookmarkProvisionParameters();
-          if (invalidKey != null) {
-            return FormValidation.error(Messages.Json_IncorrectKey(invalidKey));
-          }
-        }
-        catch (Exception e) {
-          return FormValidation.error(e.getMessage());
-        }
-      }
-      return FormValidation.ok();
     }
-
-    public FormValidation doCheckBookmarkId(@QueryParameter String value)
-        throws IOException, ServletException {
-      if (value.length() == 0)
-        return FormValidation.error(Messages.BookmarkId_Empty());
-      return FormValidation.ok();
-    }
-
-  }
-
-  @Override
-  public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
-      TaskListener listener) throws InterruptedException, IOException {
-    // new Logger(listener);
-    VDBParameterBuilder vdbParamBuilder = new VDBParameterBuilder();
-    Helper helper = new Helper(listener);
-    listener.getLogger().println(Messages._ProvisionVDBBookmark_Info(run.getId()));
-    try {
-      DctSdkUtil dctSdkUtil = new DctSdkUtil(run, listener, credentialId);
-      if (dctSdkUtil.getDefaultClient() != null) {
-
-        ProvisionVDBFromBookmarkParameters provisionFromBookmarkParameter =
-            vdbParamBuilder.provisionFromBookmarkParameter(bookmarkId, autoSelectRepository,
-                tagList, name, environmentId, jsonParam, environmentUserId, repositoryId,
-                targetGroupId, databaseName, vdbRestart, snapshotPolicyId, retentionPolicyId);
-
-        ProvisionVDBResponse provisionResponse =
-            dctSdkUtil.provisionVdbFromBookmark(provisionFromBookmarkParameter);
-        Job job = provisionResponse.getJob();
-        if (job != null) {
-          listener.getLogger()
-              .println(Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
-          JobHelper jh = new JobHelper(listener, job.getId());
-          boolean jobStatus = jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
-          if (jobStatus) {
-            listener.getLogger().println(Messages.ProvisionVDB_Fail());
-          }
-          else {
-            helper.displayAndSave(dctSdkUtil, provisionResponse.getVdbId(), workspace, listener,
-                fileNameSuffix);
-          }
-        }
-        else {
-          listener.getLogger().println("Job Creation Failed");
-        }
-      }
-      else {
-        listener.getLogger().println(Messages.Apiclient_Fail());
-        run.setResult(Result.FAILURE);
-      }
-    }
-    catch (ApiException e) {
-      listener.getLogger().println("ApiException : " + e.getResponseBody());
-      run.setResult(Result.FAILURE);
-    }
-    catch (Exception e) {
-      listener.getLogger().println("Exception : " + e.getMessage());
-      run.setResult(Result.FAILURE);
-    }
-
-  }
 
 }

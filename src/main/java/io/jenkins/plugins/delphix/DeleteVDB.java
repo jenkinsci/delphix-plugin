@@ -30,7 +30,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.job.JobHelper;
-// import io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.properties.DelphixProperties;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
@@ -81,7 +80,6 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
             TaskListener listener) throws InterruptedException, IOException {
-        // new Logger(listener);
         Helper helper = new Helper(listener);
         listener.getLogger().println(Messages.Delete_Start(run.getId()));
         try {
@@ -136,6 +134,7 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
         }
         catch (ApiException e) {
             listener.getLogger().println("ApiException : " + e.getResponseBody());
+            listener.getLogger().println("ApiException : " + e.getMessage());
             run.setResult(Result.FAILURE);
         }
         catch (Exception e) {
@@ -145,17 +144,18 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     }
 
     private void deleteVDB(Run<?, ?> run, String vdbId, TaskListener listener,
-            DctSdkUtil dctSdkUtil, Helper helper) throws ApiException {
+            DctSdkUtil dctSdkUtil, Helper helper) throws ApiException, Exception {
         DeleteVDBResponse rs = dctSdkUtil.deleteVdb(vdbId, force);
         listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
-        // JobHelper jh = new JobHelper(rs.getJob().getId());
-        JobHelper jh = new JobHelper(listener, rs.getJob().getId());
-        boolean jobStatus = jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
-        if (jobStatus) {
-            listener.getLogger().println(Messages.Delete_Fail());
-        }
-        else {
-            listener.getLogger().println(Messages.Delete_Complete());
+        if (!skipPolling) {
+            JobHelper jh = new JobHelper(dctSdkUtil, listener, rs.getJob().getId());
+            boolean jobStatus = jh.waitForPolling(dctSdkUtil.getDefaultClient(), run);
+            if (jobStatus) {
+                listener.getLogger().println(Messages.Delete_Fail());
+            }
+            else {
+                listener.getLogger().println(Messages.Delete_Complete());
+            }
         }
     }
 

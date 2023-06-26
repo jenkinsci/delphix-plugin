@@ -1,7 +1,6 @@
 package io.jenkins.plugins.util;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -24,7 +23,6 @@ import hudson.FilePath;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.delphix.Messages;
-// import io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.properties.DelphixProperties;
 
 public class Helper {
@@ -60,33 +58,45 @@ public class Helper {
                 new TypeToken<HashMap<String, Object>>() {}.getType());
     }
 
-    public VDB displayVDBDetails(DctSdkUtil dctSdkUtil, String vdbId) throws ApiException {
+    public VDB displayVDBDetails(DctSdkUtil dctSdkUtil, String vdbId)
+            throws ApiException, Exception {
         VDB vdbDetails = dctSdkUtil.getVDBDetails(vdbId);
-        this.listener.getLogger().println(Messages.Vdb_Id(vdbDetails.getId()));
-        this.listener.getLogger().println(Messages.Vdb_Name(vdbDetails.getName()));
-        this.listener.getLogger().println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
-        this.listener.getLogger()
-
-                .println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
-        this.listener.getLogger().println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
-        this.listener.getLogger().println(Messages.Vdb_Status(vdbDetails.getStatus()));
+        if (vdbDetails == null) {
+            throw new Exception("VDB " + vdbId + " Not Found");
+        }
+        else {
+            this.listener.getLogger().println(Messages.Vdb_Id(vdbDetails.getId()));
+            this.listener.getLogger().println(Messages.Vdb_Name(vdbDetails.getName()));
+            this.listener.getLogger()
+                    .println(Messages.Vdb_DatabaseType(vdbDetails.getDatabaseType()));
+            this.listener.getLogger()
+                    .println(Messages.Vdb_DatabaseVersion(vdbDetails.getDatabaseVersion()));
+            this.listener.getLogger().println(Messages.Vdb_IpAdress(vdbDetails.getIpAddress()));
+            this.listener.getLogger().println(Messages.Vdb_Status(vdbDetails.getStatus()));
+        }
         return vdbDetails;
     }
 
     public void saveToProperties(VDB vdbDetails, FilePath workspace, TaskListener listener,
             String fileNameSuffix) {
-        String fileName = fileNameSuffix != null
-                ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
-                : Constant.FILE_NAME + Constant.PROPERTIES;
-        this.listener.getLogger().println(Messages.ProvisionVDB_Save(fileName));
-        DelphixProperties delphixProps = new DelphixProperties(workspace, fileName, listener);
-        delphixProps.setVDBDetails(convertObjectToMapUsingGson(vdbDetails));
+        try {
+            String fileName = fileNameSuffix != null
+                    ? Constant.UNIQUE_FILE_NAME + fileNameSuffix + Constant.PROPERTIES
+                    : Constant.FILE_NAME + Constant.PROPERTIES;
+            this.listener.getLogger().println(Messages.ProvisionVDB_Save(fileName));
+            DelphixProperties delphixProps = new DelphixProperties(workspace, fileName, listener);
+            delphixProps.setVDBDetails(convertObjectToMapUsingGson(vdbDetails));
+        }
+        catch (Exception e) {
+            this.listener.getLogger().println("Error writing results to properties file");
+            throw e;
+        }
     }
 
-
     public void displayAndSave(DctSdkUtil dctSdkUtil, String vdbId, FilePath workspace,
-            TaskListener listener, String fileNameSuffix) throws ApiException {
+            TaskListener listener, String fileNameSuffix) throws ApiException, Exception {
         VDB vdbDetails = displayVDBDetails(dctSdkUtil, vdbId);
-        saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
+        if (vdbDetails != null)
+            saveToProperties(vdbDetails, workspace, listener, fileNameSuffix);
     }
 }

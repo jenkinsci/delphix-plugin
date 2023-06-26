@@ -1,8 +1,5 @@
 package io.jenkins.plugins.util;
 
-import java.io.PrintStream;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
@@ -25,8 +22,6 @@ import io.jenkins.plugins.constant.Constant;
 import io.jenkins.plugins.delphix.DelphixGlobalConfiguration;
 import static io.jenkins.plugins.util.CredentialUtil.getApiKey;
 import io.jenkins.plugins.delphix.Messages;
-// import io.jenkins.plugins.logger.Logger;
-
 
 public class DctSdkUtil {
 
@@ -101,7 +96,6 @@ public class DctSdkUtil {
         DeleteVDBParameters deleteVDBParameters = new DeleteVDBParameters();
         deleteVDBParameters.setForce(force);
         DeleteVDBResponse result = apiInstance.deleteVdb(vdbId, deleteVDBParameters);
-        System.out.println(result);
         return result;
 
     }
@@ -116,6 +110,18 @@ public class DctSdkUtil {
     public VDB getVDBDetails(String vdbId) throws ApiException {
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         VDB result = apiInstance.getVdbById(vdbId);
+        return result;
+    }
+
+    /***
+     * 
+     * @param jobId
+     * @return
+     * @throws ApiException
+     */
+    public Job getJobStatus(String jobId) throws ApiException {
+        JobsApi apiInstance = new JobsApi(defaultClient);
+        Job result = apiInstance.getJobById(jobId);
         return result;
     }
 

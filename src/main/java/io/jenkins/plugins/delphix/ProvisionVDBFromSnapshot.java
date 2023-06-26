@@ -14,13 +14,11 @@ import hudson.tasks.Builder;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.job.JobHelper;
-// import io.jenkins.plugins.logger.Logger;
 import io.jenkins.plugins.util.DctSdkUtil;
 import io.jenkins.plugins.util.Helper;
 import io.jenkins.plugins.util.ValidationUtil;
-import io.jenkins.plugins.vdb.VDBParameterBuilder;
+import io.jenkins.plugins.vdb.VDBRequestBuilder;
 import java.io.IOException;
-import java.io.PrintStream;
 import javax.servlet.ServletException;
 
 import jenkins.tasks.SimpleBuildStep;
@@ -112,15 +110,13 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
     @Override
     public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
             TaskListener listener) throws InterruptedException, IOException {
-        // new Logger(listener);
-        // PrintStream logger = listener.getLogger();
-        VDBParameterBuilder vdbParamBuilder = new VDBParameterBuilder();
+        VDBRequestBuilder vdbRequestBuilder = new VDBRequestBuilder();
         Helper helper = new Helper(listener);
         listener.getLogger().println(Messages._ProvisionVDBSnapshot_Info(run.getId()));
         try {
             DctSdkUtil dctSdkUtil = new DctSdkUtil(run, listener, credentialId);
             if (dctSdkUtil.getDefaultClient() != null) {
-                ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter = vdbParamBuilder
+                ProvisionVDBBySnapshotParameters provisionFromSnapshotParameter = vdbRequestBuilder
                         .provisionFromSnapshotParameter(snapshotId, autoSelectRepository, tagList,
                                 name, environmentId, jsonParam, sourceDataId, environmentUserId,
                                 repositoryId, engineId, targetGroupId, databaseName, vdbRestart,
@@ -133,11 +129,16 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                 if (job != null) {
                     listener.getLogger().println(
                             Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
-
-                    JobHelper jh = new JobHelper(listener, job.getId()); 
-                    boolean jobStatus =
-                            jh.processJob(skipPolling, dctSdkUtil.getDefaultClient(), run);
-                    if (jobStatus) {
+                    JobHelper jobHelper = new JobHelper(dctSdkUtil, listener, job.getId());
+                    boolean status = false;
+                    if (skipPolling) {
+                        status = jobHelper.waitForGetVDB(dctSdkUtil.getDefaultClient(), run,
+                                provisionResponse.getVdbId());
+                    }
+                    else {
+                        status = jobHelper.waitForPolling(dctSdkUtil.getDefaultClient(), run);
+                    }
+                    if (status) {
                         listener.getLogger().println(Messages.ProvisionVDB_Fail());
                     }
                     else {
@@ -147,6 +148,7 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                 }
                 else {
                     listener.getLogger().println("Job Creation Failed");
+                    run.setResult(Result.FAILURE);
                 }
             }
             else {
