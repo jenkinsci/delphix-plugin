@@ -45,7 +45,7 @@ public class DctSdkUtil {
         this.defaultClient.setUserAgent(Constant.USER_AGENT);
         this.defaultClient.addDefaultHeader(Constant.CLIENT_NAME_HEADER, Constant.CLIENT_NAME);
         this.defaultClient.setApiKey(apiKey);
-        this.defaultClient.setBasePath(url);
+        this.defaultClient.setBasePath(url + Constant.API_VERSION);
     }
 
     public ApiClient getDefaultClient() {
