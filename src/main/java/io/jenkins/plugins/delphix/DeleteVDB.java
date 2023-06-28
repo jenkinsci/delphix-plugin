@@ -146,16 +146,22 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     private void deleteVDB(Run<?, ?> run, String vdbId, TaskListener listener,
             DctSdkUtil dctSdkUtil, Helper helper) throws ApiException, Exception {
         DeleteVDBResponse rs = dctSdkUtil.deleteVdb(vdbId, force);
-        listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
-        if (!skipPolling) {
-            JobHelper jh = new JobHelper(dctSdkUtil, listener, rs.getJob().getId());
-            boolean jobStatus = jh.waitForPolling(dctSdkUtil.getDefaultClient(), run);
-            if (jobStatus) {
-                listener.getLogger().println(Messages.Delete_Fail());
+        if (rs != null && rs.getJob() != null) {
+            listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
+            if (!skipPolling) {
+                JobHelper jh = new JobHelper(dctSdkUtil, listener, rs.getJob().getId());
+                boolean jobStatus = jh.waitForPolling(dctSdkUtil.getDefaultClient(), run);
+                if (jobStatus) {
+                    listener.getLogger().println(Messages.Delete_Fail());
+                }
+                else {
+                    listener.getLogger().println(Messages.Delete_Complete());
+                }
             }
-            else {
-                listener.getLogger().println(Messages.Delete_Complete());
-            }
+        }
+        else {
+            listener.getLogger().println("Job Creation Failed");
+            run.setResult(Result.FAILURE);
         }
     }
 

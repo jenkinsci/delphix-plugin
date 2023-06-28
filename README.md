@@ -4,7 +4,7 @@
 [![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/delphix.svg)](https://plugins.jenkins.io/delphix)
 [![License](https://img.shields.io/github/license/jenkinsci/delphix-plugin.svg)](LICENSE)
 
-The Delphix Plugin allows Jenkins to connect to DCT and execute operations.
+The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and execute operations.
 
 #### Table of Contents
 1.  [Description](#description)
@@ -30,7 +30,7 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 ## <a id="requirements"></a>Delphix Engine Requirements
 
-Delphix Engine v6.0.0 or higher.
+Delphix Engine v6.0.14.2+ or higher.
 
 ## <a id="usage"></a>Usage
 
@@ -40,7 +40,7 @@ After the plugin has been installed, DCT will need to be connected. Go to System
 
 #### Credentials
 
-The API KEY has to be saved on Jenkins’s side as a Secret text , In Jenkins, go to Credentials > global > Add Credentials, select the Secret text type and fill in the inputs.
+The API KEY has to be saved on Jenkins’s side as a Secret text. In Jenkins, go to Credentials > Global > Add Credentials, select the Secret text type, and fill in the inputs.
 Secret must contains the API KEY generated from DCT.ID input is the ID that you want for the credential, the value will be used in the Delphix Plugin to perfomr operations.
 
 #### Available Operations
@@ -51,7 +51,7 @@ Secret must contains the API KEY generated from DCT.ID input is the ID that yo
 
 #### Advanced Settings
 
-It is possible to share assets created between build steps.The provision operation have their output saved in properties file.
+It is possible to share assets created between build steps. The provision operation has its output saved in a properties file.
 
 ## <a id="links"></a>Links
 

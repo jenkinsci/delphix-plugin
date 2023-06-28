@@ -17,6 +17,7 @@ import hudson.tasks.BatchFile;
 import hudson.tasks.Builder;
 import hudson.tasks.Shell;
 import hudson.util.Secret;
+import io.jenkins.plugins.constant.Constant;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.GlobalPluginConfiguration;
 import org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl;
@@ -40,7 +41,7 @@ public class ProvisionVDBFromSnapshotTest {
     public void init() throws Exception {
         DelphixGlobalConfiguration globalConfig1 =
                 GlobalConfiguration.all().get(DelphixGlobalConfiguration.class);
-        globalConfig1.setDctUrl("https://dct6.dlpxdc.co/v3");
+        globalConfig1.setDctUrl("https://dct6.dlpxdc.co" + Constant.API_VERSION);
 
 
         globalConfig1.save();
