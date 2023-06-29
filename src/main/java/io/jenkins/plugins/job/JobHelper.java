@@ -2,7 +2,6 @@ package io.jenkins.plugins.job;
 
 import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
-import com.delphix.dct.api.JobsApi;
 import com.delphix.dct.models.Job;
 import com.delphix.dct.models.VDB;
 import hudson.model.Result;

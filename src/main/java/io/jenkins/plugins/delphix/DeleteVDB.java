@@ -13,6 +13,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import com.delphix.dct.ApiException;
 import com.delphix.dct.models.DeleteVDBResponse;
+import com.delphix.dct.models.Job;
 import com.delphix.dct.models.SearchVDBsResponse;
 import com.delphix.dct.models.VDB;
 import hudson.EnvVars;
@@ -146,10 +147,11 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     private void deleteVDB(Run<?, ?> run, String vdbId, TaskListener listener,
             DctSdkUtil dctSdkUtil, Helper helper) throws ApiException, Exception {
         DeleteVDBResponse rs = dctSdkUtil.deleteVdb(vdbId, force);
-        if (rs != null && rs.getJob() != null) {
-            listener.getLogger().println(Messages.Delete_Message4(rs.getJob().getId()));
+        Job job = rs.getJob();
+        if (job != null) {
+            listener.getLogger().println(Messages.Delete_Message4(job.getId()));
             if (!skipPolling) {
-                JobHelper jh = new JobHelper(dctSdkUtil, listener, rs.getJob().getId());
+                JobHelper jh = new JobHelper(dctSdkUtil, listener, job.getId());
                 boolean jobStatus = jh.waitForPolling(dctSdkUtil.getDefaultClient(), run);
                 if (jobStatus) {
                     listener.getLogger().println(Messages.Delete_Fail());
