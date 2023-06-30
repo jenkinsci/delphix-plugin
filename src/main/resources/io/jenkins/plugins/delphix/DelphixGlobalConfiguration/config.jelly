@@ -5,7 +5,7 @@
       <f:textbox />
     </f:entry>
 
-    <f:entry title="SSL certificate check" field="sslCheck" help="/plugin/delphix/help-vdbRestart.html">
+    <f:entry title="SSL certificate check" field="sslCheck" help="/plugin/delphix/help-sslCheck.html">
         <f:checkbox default="false" />
     </f:entry>
   </f:section>
