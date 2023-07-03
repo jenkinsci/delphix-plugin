@@ -7,7 +7,7 @@
 The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and execute operations.
 
 #### Table of Contents
-1.  [Description](#description)
+1.  [Introduction](#Introduction)
 2.  [Installation](#installation)
 3.  [Delphix Engine Requirements](#requirements)
 4.  [Usage](#usage)
@@ -20,9 +20,16 @@ The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and exe
 8.  [Statement of Support](#statement-of-support)
 9.  [License](#license)
 
-## <a id="description"></a>Description
+## <a id="Introduction"></a>Introduction
 
-This plugin is designed to automate routine and/or trigger jobs with DCT.
+The Jenkins Plugin enables teams to integrate the Delphix DevOps Data Platform within their automated pipelines. With Jenkins and Delphix, customers can automatically provision and destroy ephemeral data environments quickly to improve automated testing and automatically resolve common IT requests. Teams who successfully integrate the solution within their pipelines have experienced improved application quality, faster delivery cycles, and ultimately happier teams and customers. The plugin leverages the Data Control Tower (DCT)’s APIs to communicate with the Delphix Engines. 
+
+Common Use Cases
+Provision an Oracle database and send the connectivity information to a Quality Assurance team member via email, Slack, or Teams.
+Provision a PostgreSQL database, attach a test Application, run a Selenium or JUnit testing plan, report the results, and then destroy the database.
+Provision Oracle and MySQL databases simultaneously to complete manual integration testing.
+Destroy all Microsoft SQL Server databases each Friday at 5 pm.
+
 
 ## <a id="installation"></a>Installation
 
@@ -30,28 +37,66 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 ## <a id="requirements"></a>Delphix Engine Requirements
 
-Delphix Engine v6.0.14.2+ or higher.
+Data Control Tower v7.0.1 and greater with one or more connected Delphix Continuous Data Engines v6.0.14.2 and greater.
+[Consult our DCT documentation for more information](https://dct.delphix.com/docs).
+
 
 ## <a id="usage"></a>Usage
 
-#### Global Configuration
+#### **Global Configuration**
 
-After the plugin has been installed, DCT will need to be connected. Go to System Configuration page, scroll down to the Delphix section. Enter your DCT URL.
+After the plugin has been installed, DCT will need to be connected. Go to Manage Jenkins > Configure System, scroll down to the Delphix section, and enter your DCT URL. This URL will be automatically used for every plugin step on the Jenkins server.
 
-#### Credentials
+Select the SSL certificate check checkbox if the DCT server has an insecure SSL Certificate. We do not recommend this for production usage.
 
-The API KEY has to be saved on Jenkins’s side as a Secret text. In Jenkins, go to Credentials > Global > Add Credentials, select the Secret text type, and fill in the inputs.
-Secret must contains the API KEY generated from DCT.ID input is the ID that you want for the credential, the value will be used in the Delphix Plugin to perfomr operations.
+![Alt text](images/configuration.png)
 
-#### Available Operations
+#### **Credentials**
 
-*   Provision VDB by Snapshot
-*   Provision VDB by Bookmark
-*   Delete VDB
+The Delphix Plugin uses an API Key to run commands against the DCT server. We commend granting this key access to only the Objects and Actions that it requires using the Principle of Least Privilege. The API Key is created and managed directly within the DCT server. More information can be found in DCT’s documentation.
+[More information can be found in DCT’s documentation](https://dct.delphix.com/docs).
 
-#### Advanced Settings
+Once the DCT API Key has been generated and configured, it should be saved on the Jenkins server as a Secret text. In Jenkins, go to Credentials > Global, and select Add Credentials. Here you can define your Secret text Credentials. From the dropdown, select the “Secret text” Kind, and fill in the input fields. Specify the DCT’s API Key in the “Secret” field’s value. Ensure you record the ID’s value as it will be used to retrieve the underlying API Key dynamically. [More information can be found in Jenkins’ Credentials documentation](https://www.jenkins.io/doc/book/using/using-credentials/).
 
-It is possible to share assets created between build steps. The provision operation has its output saved in a properties file.
+![Alt text](images/credentials.png)
+
+More than one set of API Keys can be specified within your Jenkins server. Simply call the desired Credential ID in your Jenkins jobs. We recommend creating keys for specific teams, individuals, or purposes.
+
+#### **Plugin Steps**
+
+We offer a handful of steps in the Delphix plugin. All steps can be configured through the Freestyle Project UI builder or Pipeline scripting.
+
+*   Provision VDB From Snapshot (provisionVDBFromSnapshot) - Create an Oracle, Microsoft SQL Server, PostgreSQL, and other databases from a Delphix Snapshot.
+*   Provision VDB From Bookmark (provisionVDBFromBookmark)- Create an Oracle, Microsoft SQL Server, PostgreSQL, and other databases from a Data Control Tower Bookmark.
+*   Delete VDB (deleteVDB) - Shutdown and destroy a provisioned VDB.
+
+![Alt text](images/build_step.png)
+
+All steps leverage DCT APIs. Many advanced properties can be configured by identifying the matching DCT API and specifying the values in the “Additional Values” field.
+
+#### **Advanced Settings**
+
+*   Jenkinsfile Script - All steps can be run through the Jenkins pipeline. We highly recommend using the [Snippet Generator] (https://www.jenkins.io/doc/book/pipeline/getting-started/#snippet-generator) to help construct your commands. Below we’ve presented a few samples to help you get started. 
+
+Provision VDB from Bookmark Example
+
+provisionVDBFromBookmark  name: 'BMKSAMP', bookmarkId: "<Input Bookmark ID>", autoSelectRepository: true, credentialId: "<Input DCT Key 1.abc1234567890>"
+
+Provision VDB From Bookmark and dynamically resolve API Key Example
+
+withCredentials([string(credentialsId: 'DCT_API_KEY', variable: 'KEY')]) {
+      	provisionVDBFromBookmark  name: 'KEYSAMP', bookmarkId: '<Input Bookmark ID>', autoSelectRepository: true, credentialId: '${KEY}',
+}
+
+Provision VDB From dSource Example
+
+provisionVDBFromSnapshot  name: 'dSrcSAMP', sourceDataId: "<Input dSource ID>", autoSelectRepository: true, credentialId: "<Input DCT Key 1.abc1234567890>"
+
+*   Properties File - This file allows the sharing values between build steps. The provision operation has its output saved in a properties file and the name this file can be updated to maintain multiple within a single Jenkins job. The Delete VDB step can call upon this properties file automatically. [Additional details about Properties File usage can be found in this video] (https://www.youtube.com/watch?v=qQS7Idaq_ME).
+
+Delete VDB From Properties File Example
+
+deleteVDB loadFromProperties: true, credentialId: '<Input DCT Key 1.abc1234567890>' 
 
 ## <a id="links"></a>Links
 
