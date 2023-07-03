@@ -78,25 +78,33 @@ All steps leverage DCT APIs. Many advanced properties can be configured by ident
 
 *   Jenkinsfile Script - All steps can be run through the Jenkins pipeline. We highly recommend using the [Snippet Generator] (https://www.jenkins.io/doc/book/pipeline/getting-started/#snippet-generator) to help construct your commands. Below we’ve presented a few samples to help you get started. 
 
-Provision VDB from Bookmark Example
+Provision VDB from Bookmark Example:-
 
-provisionVDBFromBookmark  name: 'BMKSAMP', bookmarkId: "<Input Bookmark ID>", autoSelectRepository: true, credentialId: "<Input DCT Key 1.abc1234567890>"
+```  
+provisionVDBFromBookmark  name: 'BMKSAMP', bookmarkId: '<Input Bookmark ID>', autoSelectRepository: true, credentialId: '<Input DCT Key 1.abc1234567890>'
+```  
 
-Provision VDB From Bookmark and dynamically resolve API Key Example
+Provision VDB From Bookmark and dynamically resolve API Key Example:-
 
+```  
 withCredentials([string(credentialsId: 'DCT_API_KEY', variable: 'KEY')]) {
       	provisionVDBFromBookmark  name: 'KEYSAMP', bookmarkId: '<Input Bookmark ID>', autoSelectRepository: true, credentialId: '${KEY}',
-}
+} 
+```  
 
-Provision VDB From dSource Example
-
-provisionVDBFromSnapshot  name: 'dSrcSAMP', sourceDataId: "<Input dSource ID>", autoSelectRepository: true, credentialId: "<Input DCT Key 1.abc1234567890>"
+Provision VDB From dSource Example:-
+```  
+provisionVDBFromSnapshot  name: 'dSrcSAMP', sourceDataId: '<Input dSource ID>', autoSelectRepository: true, credentialId: '<Input DCT Key 1.abc1234567890>'  
+```  
 
 *   Properties File - This file allows the sharing values between build steps. The provision operation has its output saved in a properties file and the name this file can be updated to maintain multiple within a single Jenkins job. The Delete VDB step can call upon this properties file automatically. [Additional details about Properties File usage can be found in this video] (https://www.youtube.com/watch?v=qQS7Idaq_ME).
 
-Delete VDB From Properties File Example
+Delete VDB From Properties File Example:-
 
+```  
 deleteVDB loadFromProperties: true, credentialId: '<Input DCT Key 1.abc1234567890>' 
+```  
+ 
 
 ## <a id="links"></a>Links
 
