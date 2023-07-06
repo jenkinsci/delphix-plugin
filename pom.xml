@@ -18,7 +18,7 @@
     </properties>
 
     <name>Delphix Plugin</name>
-    <description>Connect Jenkins Jobs to the Delphix Engine</description>
+    <description>The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and execute operations.</description>
 
     <licenses>
         <license>
@@ -31,7 +31,7 @@
         <developer>
             <id>arunskurian</id>
             <name>Delphix Hubs Engineering</name>
-            <email>hubs@delphix.com</email>
+            <email>ask-integrations@delphix.com</email>
         </developer>
     </developers>
 
