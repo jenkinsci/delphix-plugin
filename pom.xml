@@ -27,6 +27,13 @@
         </license>
     </licenses>
 
+    <developers>
+        <developer>
+            <id>arunskurian</id>
+            <name>Delphix Hubs Engineering</name>
+            <email>hubs@delphix.com</email>
+        </developer>
+    </developers>
 
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Delphix+Plugin</url>
     <scm>

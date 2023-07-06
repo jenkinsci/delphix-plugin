@@ -35,9 +35,11 @@ Destroy all Microsoft SQL Server databases each Friday at 5 pm.
 
 Install through Jenkins Plugin Manager or download [here](https://plugins.jenkins.io/delphix).
 
-## <a id="requirements"></a>Delphix Engine Requirements
+## <a id="requirements"></a>Delphix Requirements
 
-Data Control Tower v7.0.1 and greater with one or more connected Delphix Continuous Data Engines v6.0.14.2 and greater.
+- Data Control Tower v7.0.1 and greater
+- One or more connected Delphix Continuous Data Engines v6.0.14.2 and greater.
+
 [Consult our DCT documentation for more information](https://dct.delphix.com/docs).
 
 
@@ -56,7 +58,7 @@ Select the SSL certificate check checkbox if the DCT server has an insecure SSL 
 The Delphix Plugin uses an API Key to run commands against the DCT server. We commend granting this key access to only the Objects and Actions that it requires using the Principle of Least Privilege. The API Key is created and managed directly within the DCT server. More information can be found in DCT’s documentation.
 [More information can be found in DCT’s documentation](https://dct.delphix.com/docs).
 
-Once the DCT API Key has been generated and configured, it should be saved on the Jenkins server as a Secret text. In Jenkins, go to Credentials > Global, and select Add Credentials. Here you can define your Secret text Credentials. From the dropdown, select the “Secret text” Kind, and fill in the input fields. Specify the DCT’s API Key in the “Secret” field’s value. Ensure you record the ID’s value as it will be used to retrieve the underlying API Key dynamically. [More information can be found in Jenkins’ Credentials documentation](https://www.jenkins.io/doc/book/using/using-credentials/).
+The API KEY has to be saved on Jenkins’s side as a Secret text. In Jenkins, go to Credentials > Global > Add Credentials, select the Secret text type, and fill in the inputs
 
 ![Alt text](images/credentials.png)
 
@@ -75,6 +77,7 @@ We offer a handful of steps in the Delphix plugin. All steps can be configured t
 All steps leverage DCT APIs. Many advanced properties can be configured by identifying the matching DCT API and specifying the values in the “Additional Values” field.
 
 #### **Advanced Settings**
+It is possible to share assets created between build steps. The provision operation has its output saved in a properties file.
 
 *   Jenkinsfile Script - All steps can be run through the Jenkins pipeline. We highly recommend using the [Snippet Generator] (https://www.jenkins.io/doc/book/pipeline/getting-started/#snippet-generator) to help construct your commands. Below we’ve presented a few samples to help you get started. 
 
