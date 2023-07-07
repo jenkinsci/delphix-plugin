@@ -4,12 +4,12 @@
 [![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/delphix.svg)](https://plugins.jenkins.io/delphix)
 [![License](https://img.shields.io/github/license/jenkinsci/delphix-plugin.svg)](LICENSE)
 
-The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and execute operations.
+The Delphix plugin allows Jenkins to connect to Delphix DevOps Data Platform(s) and execute data operations using the Data Control Tower (DCT) APIs.
 
 #### Table of Contents
 1.  [Introduction](#Introduction)
 2.  [Installation](#installation)
-3.  [Delphix Engine Requirements](#requirements)
+3.  [Pre-Requisites](#requirements)
 4.  [Usage](#usage)
 5.  [Links](#links)
 6.  [Contribute](#contribute)
@@ -24,23 +24,24 @@ The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and exe
 
 The Jenkins Plugin enables teams to integrate the Delphix DevOps Data Platform within their automated pipelines. With Jenkins and Delphix, customers can automatically provision and destroy ephemeral data environments quickly to improve automated testing and automatically resolve common IT requests. Teams who successfully integrate the solution within their pipelines have experienced improved application quality, faster delivery cycles, and ultimately happier teams and customers. The plugin leverages the Data Control Tower (DCT)’s APIs to communicate with the Delphix Engines. 
 
-Common Use Cases
-Provision an Oracle database and send the connectivity information to a Quality Assurance team member via email, Slack, or Teams.
-Provision a PostgreSQL database, attach a test Application, run a Selenium or JUnit testing plan, report the results, and then destroy the database.
-Provision Oracle and MySQL databases simultaneously to complete manual integration testing.
-Destroy all Microsoft SQL Server databases each Friday at 5 pm.
+### Example Use Cases
+- Provision an Oracle database and send the connectivity information to a Quality Assurance team member via email, Slack, or Teams.
+- Provision a PostgreSQL database, attach a test Application, run a Selenium or JUnit testing plan, report the results, and then destroy the database.
+- Provision Oracle and MySQL databases simultaneously to complete manual integration testing.
+- Destroy all Microsoft SQL Server databases at a specific time on a specific day every, week.
 
 
 ## <a id="installation"></a>Installation
 
 Install through Jenkins Plugin Manager or download [here](https://plugins.jenkins.io/delphix).
 
-## <a id="requirements"></a>Delphix Requirements
+## <a id="requirements"></a>Pre-Requisites
 
-- Data Control Tower v7.0.1 and greater
-- One or more connected Delphix Continuous Data Engines v6.0.14.2 and greater.
-
+- Jenkins server version 2.361.4 or greater.
+- Delphix Data Control Tower v7.0.1 or greater
+- One or more connected Delphix Continuous Data Engines v6.0.14.2 or greater.
 [Consult our DCT documentation for more information](https://dct.delphix.com/docs).
+  
 
 
 ## <a id="usage"></a>Usage
@@ -49,13 +50,15 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 After the plugin has been installed, DCT will need to be connected. Go to Manage Jenkins > Configure System, scroll down to the Delphix section, and enter your DCT URL. This URL will be automatically used for every plugin step on the Jenkins server.
 
-Select the SSL certificate check checkbox if the DCT server has an insecure SSL Certificate. We do not recommend this for production usage.
+Select the `SSL certificate check` checkbox if the DCT server has an insecure SSL Certificate. 
+<br/>*We recommend configuring your DCT server with an SSL certificate for production usage.
 
 ![Alt text](images/configuration.png)
 
 #### **Credentials**
 
-The Delphix Plugin uses an API Key to run commands against the DCT server. We commend granting this key access to only the Objects and Actions that it requires using the Principle of Least Privilege. The API Key is created and managed directly within the DCT server. More information can be found in DCT’s documentation.
+The Delphix Plugin uses an API Key to run commands against the DCT server. We recommend granting this key access to only the Objects and Actions that it requires using the Principle of Least Privilege. The API Key is created and managed directly within the DCT server. More information can be found in DCT’s documentation.
+
 [More information can be found in DCT’s documentation](https://dct.delphix.com/docs).
 
 The API KEY has to be saved on Jenkins’s side as a Secret text. In Jenkins, go to Credentials > Global > Add Credentials, select the Secret text type, and fill in the inputs
