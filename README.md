@@ -58,6 +58,7 @@ Select the `SSL certificate check` checkbox if the DCT server has an insecure SS
 #### **Credentials**
 
 The Delphix Plugin uses an API Key to run commands against the DCT server. We recommend granting this key access to only the Objects and Actions that it requires using the Principle of Least Privilege. The API Key is created and managed directly within the DCT server. More information can be found in DCT’s documentation.
+
 [More information can be found in DCT’s documentation](https://dct.delphix.com/docs).
 
 The API KEY has to be saved on Jenkins’s side as a Secret text. In Jenkins, go to Credentials > Global > Add Credentials, select the Secret text type, and fill in the inputs
