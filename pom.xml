@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>delphix</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.361.4</jenkins.version>
@@ -18,7 +18,7 @@
     </properties>
 
     <name>Delphix Plugin</name>
-    <description>The Delphix plugin allows Jenkins to connect to Data Control Tower (DCT) and execute operations.</description>
+    <description>Integrate Jenkins with Delphix DevOps Data Platform(s).</description>
 
     <licenses>
         <license>
