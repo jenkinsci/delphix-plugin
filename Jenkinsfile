@@ -11,5 +11,6 @@ buildPlugin(
     [platform: 'linux',   jdk: '11'], // Linux first for coverage report on ci.jenkins.io
     [platform: 'linux',   jdk: '17'],
     [platform: 'windows', jdk: '17'],
+    [platform: 'windows', jdk: '11']
   ]
 )
