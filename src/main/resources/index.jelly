@@ -1,4 +1,5 @@
 <?jelly escape-by-default='true'?>
 <div>
-    Delphix
-</div>
+     The Delphix Plugin enables application teams to integrate the power of Delphix's DevOps Data Platform within their automated Jenkins Pipelines to enhance DevOps Test Data Management practices.
+</div> 
+ 

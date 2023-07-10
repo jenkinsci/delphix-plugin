@@ -1,1 +1,4 @@
-buildPlugin(jenkinsVersions: [null, '2.121.1'])
+buildPlugin(useContainerAgent: true, configurations: [
+  [ platform: 'linux', jdk: '11' ],
+  [ platform: 'windows', jdk: '11' ]
+])
