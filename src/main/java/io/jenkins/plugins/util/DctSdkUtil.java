@@ -1,6 +1,5 @@
 package io.jenkins.plugins.util;
 
-
 import com.delphix.dct.ApiClient;
 import com.delphix.dct.ApiException;
 import com.delphix.dct.Configuration;
@@ -54,7 +53,6 @@ public class DctSdkUtil {
 
     /**
      * 
-     * @param defaultClient
      * @param provisionVDBFromBookmarkParameters
      * @return
      * @throws ApiException
@@ -70,7 +68,6 @@ public class DctSdkUtil {
 
     /**
      * 
-     * @param defaultClient
      * @param provisionVDBBySnapshotParameters
      * @return
      * @throws ApiException
@@ -85,7 +82,6 @@ public class DctSdkUtil {
 
     /**
      * 
-     * @param defaultClient
      * @param vdbId
      * @param force
      * @return
@@ -100,37 +96,18 @@ public class DctSdkUtil {
 
     }
 
-    /**
-     * 
-     * @param defaultClient
-     * @param vdbId
-     * @return
-     * @throws ApiException
-     */
     public VDB getVDBDetails(String vdbId) throws ApiException {
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         VDB result = apiInstance.getVdbById(vdbId);
         return result;
     }
 
-    /***
-     * 
-     * @param jobId
-     * @return
-     * @throws ApiException
-     */
     public Job getJobStatus(String jobId) throws ApiException {
         JobsApi apiInstance = new JobsApi(defaultClient);
         Job result = apiInstance.getJobById(jobId);
         return result;
     }
 
-    /**
-     * 
-     * @param name
-     * @return
-     * @throws ApiException
-     */
     public SearchVDBsResponse searchVDB(String name) throws ApiException {
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         Integer limit = 100;
@@ -140,8 +117,7 @@ public class DctSdkUtil {
         SearchBody searchBody = new SearchBody();
         String filterExpr = "name EQ \'" + name + "\'";
         searchBody.setFilterExpression(filterExpr);
-        SearchVDBsResponse result =
-                apiInstance.searchVdbs(limit, cursor, sort, permission, searchBody);
+        SearchVDBsResponse result = apiInstance.searchVdbs(limit, cursor, sort, permission, searchBody);
         return result;
     }
 }
