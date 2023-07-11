@@ -30,10 +30,12 @@ The Jenkins Plugin enables teams to integrate the Delphix DevOps Data Platform w
 - Provision Oracle and MySQL databases simultaneously to complete manual integration testing.
 - Destroy all Microsoft SQL Server databases at a specific time on a specific day every, week.
 
-
 ## <a id="installation"></a>Installation
 
 Install through Jenkins Plugin Manager or download [here](https://plugins.jenkins.io/delphix).
+> **WARNING:**
+>The v3.0.0+ versions of the Delphix Plugin leverage Delphix's Data Control Tower APIs which is a different approach from prior versions. There is no supported upgrade path from v1.x and v2.x to v3.x+
+
 
 ## <a id="requirements"></a>Pre-Requisites
 
@@ -42,7 +44,6 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 - One or more connected Delphix Continuous Data Engines v6.0.14.2 or greater.
 [Consult our DCT documentation for more information](https://dct.delphix.com/docs).
   
-
 
 ## <a id="usage"></a>Usage
 
