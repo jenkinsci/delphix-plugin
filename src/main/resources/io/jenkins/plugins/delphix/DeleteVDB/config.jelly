@@ -1,0 +1,28 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    
+    <f:entry title="Load From Property File" field="loadFromProperties" help="/plugin/delphix/help-loadFromProperties.html">
+        <f:checkbox default="false" />
+    </f:entry>
+
+    <f:entry title="VDB ID" field="vdbId" help="/plugin/delphix/help-deletevdbId.html">
+        <f:textbox />
+    </f:entry>
+
+    <f:entry title="Name" field="name" help="/plugin/delphix/help-deleteName.html">
+        <f:textbox />
+    </f:entry>
+
+    <f:entry title="Credential" field="credentialId" help="/plugin/delphix/help-credentialId.html">
+		<c:select/>
+	</f:entry>
+
+    <f:entry title="Skip Polling" field="skipPolling" help="/plugin/delphix/help-skipPolling.html">
+        <f:checkbox default="false" />
+    </f:entry>
+
+    <f:entry title="Force" field="force" help="/plugin/delphix/help-force.html">
+        <f:checkbox default="false" />
+    </f:entry>
+
+</j:jelly>
