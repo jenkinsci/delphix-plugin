@@ -14,7 +14,6 @@
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.361.4</jenkins.version>
-        <!-- <java.level>8</java.level> -->
         <hpi.compatibleSinceVersion>3.0.0</hpi.compatibleSinceVersion>
     </properties>
 
@@ -35,30 +34,6 @@
             <email>ask-integrations@delphix.com</email>
         </developer>
     </developers>
-
-    <!-- <profiles>
-        <profile>
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>display-info</id>
-                                <configuration>
-                                    <rules>
-                                        <enforceBytecodeVersion>
-                                            <maxJdkVersion>11</maxJdkVersion>
-                                        </enforceBytecodeVersion>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles> -->
 
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Delphix+Plugin</url>
     <scm>
