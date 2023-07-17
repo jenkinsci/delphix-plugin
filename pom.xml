@@ -117,6 +117,10 @@
             <url>https://repo.jenkins-ci.org/releases/</url>
         </repository>
         <repository>
+            <id>repo.jenkins-ci.org</id>
+            <url>https://repo.jenkins-ci.org/public/</url>
+        </repository>
+        <repository>
             <id>dct-java-sdk</id>
             <url>https://repo1.maven.org/maven2</url>
         </repository>
