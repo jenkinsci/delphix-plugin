@@ -13,7 +13,7 @@
         <f:checkbox default="true" />
     </f:entry>
 
-     <f:optionalBlock name="dynamic" title="Use Optional Parameters" help="/plugin/delphix/help-optional.html">
+     <f:optionalBlock name="dynamic" title="Use Optional Parameters" inline="true" help="/plugin/delphix/help-optional.html">
 
         <f:entry title="Target Group ID" field="targetGroupId" help="/plugin/delphix/help-targetGroupId.html">
             <f:textbox />
