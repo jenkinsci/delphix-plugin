@@ -11,4 +11,5 @@ public class Constant {
     public static final String CLIENT_NAME_HEADER = "x-dct-client-name";
     public static final long WAIT_TIME = 20000;
     public static final String API_VERSION = "/v3";
+    public static final int TIMEOUT = 120000;
 }
