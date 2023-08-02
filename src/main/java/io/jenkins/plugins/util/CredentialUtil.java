@@ -1,52 +1,38 @@
 package io.jenkins.plugins.util;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.StandardCredentials;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
-import com.google.common.collect.Lists;
 import hudson.model.Item;
 import hudson.model.Run;
+import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
-import java.util.List;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 public class CredentialUtil {
 
     private CredentialUtil() {}
 
-    public static List<StandardCredentials> getAllSystemCredentials(@Nullable final Item item) {
-        List<StandardCredentials> credentials = Lists.newArrayList();
-        credentials.addAll(getStandardCredentials(item));
-        return Collections.unmodifiableList(credentials);
-    }
-
     public static ListBoxModel getAllCredentialsListBoxModel(@Nullable final Item item,
             final String credentialId) {
-        return getCredentialsListBoxModel(credentialId, getAllSystemCredentials(item));
-    }
-
-    private static ListBoxModel getCredentialsListBoxModel(final String credentialId,
-            final List<StandardCredentials> credentials) {
-        final StandardListBoxModel result = new StandardListBoxModel();
-
-        result.includeEmptyValue();
-        for (StandardCredentials credential : credentials) {
-            result.with(credential);
+        StandardListBoxModel result = new StandardListBoxModel();
+        if (item == null) {
+            return result;
         }
-
-        return result.includeCurrentValue(credentialId);
-    }
-
-    private static List<StringCredentials> getStandardCredentials(@Nullable Item item) {
-
-        List<StringCredentials> credList = CredentialsProvider
-                .lookupCredentials(StringCredentials.class, item, null, Collections.emptyList());
-
-        return credList;
+        else {
+            if (!item.hasPermission(Item.EXTENDED_READ)
+                    && !item.hasPermission(CredentialsProvider.USE_ITEM)) {
+                return result.includeCurrentValue(credentialId);
+            }
+        }
+        return result.includeEmptyValue()
+                .includeMatchingAs(ACL.SYSTEM, item, StringCredentials.class,
+                        Collections.emptyList(), CredentialsMatchers.always())
+                .includeCurrentValue(credentialId);
     }
 
     public static String getApiKey(String credentialsId, Run<?, ?> run) {
