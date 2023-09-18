@@ -35,6 +35,7 @@ public class Tags extends AbstractDescribableImpl<Tags> {
      */
     @Extension
     public static class DescriptorImpl extends Descriptor<Tags> {
+        @Override
         public String getDisplayName() {
             return "";
         }
