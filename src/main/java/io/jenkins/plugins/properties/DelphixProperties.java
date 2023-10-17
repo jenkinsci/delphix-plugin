@@ -44,7 +44,11 @@ public class DelphixProperties {
 
     private void writeMap(Map<String, Object> vdbDetails) {
         try {
-            this.file.createNewFile();
+            // boolean fileCreated = this.file.createNewFile();
+            if (this.file.createNewFile())
+                this.listener.getLogger().print("Properties file created");
+            else
+                this.listener.getLogger().print("Properties file already exists");
         }
         catch (IOException e) {
             this.listener.getLogger().print(e.getMessage());

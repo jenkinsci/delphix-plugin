@@ -23,7 +23,7 @@ public class JobHelper {
         this.dctSdkUtil = dctSdkUtil;
     }
 
-    public boolean waitForPolling(ApiClient defaultClient, Run<?, ?> run)
+    public boolean waitForPolling(Run<?, ?> run)
             throws ApiException, Exception {
         this.listener.getLogger().println(Messages.Poll_Wait());
         boolean completed = false;
@@ -65,7 +65,7 @@ public class JobHelper {
         return fail;
     }
 
-    public boolean waitForGetVDB(ApiClient defaultClient, Run<?, ?> run, String vdbId)
+    public boolean waitForGetVDB(Run<?, ?> run, String vdbId)
             throws InterruptedException {
         this.listener.getLogger().println(Messages.Vdb_Get());
         boolean completed = false;

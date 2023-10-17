@@ -132,11 +132,11 @@ public class ProvisionVDBFromSnapshot extends ProvisonVDB implements SimpleBuild
                     JobHelper jobHelper = new JobHelper(dctSdkUtil, listener, job.getId());
                     boolean status = false;
                     if (skipPolling) {
-                        status = jobHelper.waitForGetVDB(dctSdkUtil.getDefaultClient(), run,
+                        status = jobHelper.waitForGetVDB( run,
                                 provisionResponse.getVdbId());
                     }
                     else {
-                        status = jobHelper.waitForPolling(dctSdkUtil.getDefaultClient(), run);
+                        status = jobHelper.waitForPolling( run);
                     }
                     if (status) {
                         listener.getLogger().println(Messages.ProvisionVDB_Fail());
