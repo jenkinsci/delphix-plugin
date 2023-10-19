@@ -39,7 +39,7 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 ## <a id="requirements"></a>Pre-Requisites
 
-- Jenkins server version 2.361.4 or greater.
+- Jenkins server or CloudBees CI v2.346.1 and greater
 - Delphix Data Control Tower v7.0.1 or greater
 - One or more connected Delphix Continuous Data Engines v6.0.14.2 or greater.
 [Consult our DCT documentation for more information](https://dct.delphix.com/docs).
