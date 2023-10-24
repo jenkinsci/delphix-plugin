@@ -1,10 +1,10 @@
-# Delphix Jenkins Plugin
+# Delphix Plugin for Jenkins
 
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/delphix-plugin/master)](https://ci.jenkins.io/job/Plugins/job/delphix-plugin/)
 [![Jenkins Plugins](https://img.shields.io/jenkins/plugin/v/delphix.svg)](https://plugins.jenkins.io/delphix)
 [![License](https://img.shields.io/github/license/jenkinsci/delphix-plugin.svg)](LICENSE)
 
-The Delphix Jenkins Plugin allows Jenkins to connect to Delphix DevOps Data Platform(s) and execute data operations using the Data Control Tower (DCT) APIs.
+The Delphix Plugin for Jenkins allows Jenkins to connect to Delphix DevOps Data Platform(s) and execute data operations using the Data Control Tower (DCT) APIs.
 
 #### Table of Contents
 1.  [Introduction](#Introduction)
@@ -22,7 +22,7 @@ The Delphix Jenkins Plugin allows Jenkins to connect to Delphix DevOps Data Plat
 
 ## <a id="Introduction"></a>Introduction
 
-The Jenkins Plugin enables teams to integrate the Delphix DevOps Data Platform within their automated pipelines. With Jenkins and Delphix, customers can automatically provision and destroy ephemeral data environments quickly to improve automated testing and automatically resolve common IT requests. Teams who successfully integrate the solution within their pipelines have experienced improved application quality, faster delivery cycles, and ultimately happier teams and customers. The plugin leverages the Data Control Tower (DCT)’s APIs to communicate with the Delphix Engines. 
+The Delphix Plugin for Jenkins enables teams to integrate the Delphix DevOps Data Platform within their automated pipelines. With Jenkins and Delphix, customers can automatically provision and destroy ephemeral data environments quickly to improve automated testing and automatically resolve common IT requests. Teams who successfully integrate the solution within their pipelines have experienced improved application quality, faster delivery cycles, and ultimately happier teams and customers. The plugin leverages the Data Control Tower (DCT)’s APIs to communicate with the Delphix Engines. 
 
 ### Example Use Cases
 - Provision an Oracle database and send the connectivity information to a Quality Assurance team member via email, Slack, or Teams.
@@ -115,8 +115,8 @@ deleteVDB loadFromProperties: true, credentialId: '<Input DCT Key 1.abc123456789
 
 ## <a id="links"></a>Links
 
-*   [Delphix Plugin Jenkins Wiki Page](https://wiki.jenkins.io/display/JENKINS/Delphix+Plugin)
-*   [Jenkins Plugin Delphix Page](https://plugins.jenkins.io/delphix)
+*   [Delphix Ecosystem Documentation](https://ecosystem.delphix.com/docs/main/jenkins)
+*   [Jenkins Wiki Page](https://plugins.jenkins.io/delphix)
 
 ## <a id="contribute"></a>Contribute
 
@@ -135,14 +135,13 @@ This project operates under the [Delphix Code of Conduct](https://delphix.github
 
 All contributors are required to sign the Delphix Contributor agreement prior to contributing code to an open source repository. This process is handled automatically by [cla-assistant](https://cla-assistant.io/). Simply open a pull request and a bot will automatically check to see if you have signed the latest agreement. If not, you will be prompted to do so as part of the pull request process. Read the full [Delphix Contributor License Agreement](https://delphix.github.io/contributor-agreement.html).
 
-## <a id="reporting_issues"></a>Reporting Issues
-
-
-Please submit bug reports, suggestions and pull requests to the [GitHub issue tracker](https://github.com/jenkinsci/delphix-plugin/issues).
 
 ## <a id="statement-of-support"></a>Statement of Support
 
-This software is provided as-is, without warranty of any kind or commercial support through Delphix. See the associated license for additional details. Questions, issues, feature requests, and contributions should be directed to the community as outlined in the [Delphix Community Guidelines](https://delphix.github.io/community-guidelines.html).
+Delphix Plugin for Jenkins support is included within the standard Delphix License Agreement. For any questions, bugs, or feature requests, contact us via [Delphix Support](https://support.delphix.com/) or the [Delphix Community Portal](https://community.delphix.com/home).
+
+All users can submit bug reports, suggestions, and pull requests to the [GitHub issue tracker](https://github.com/jenkinsci/delphix-plugin/issues).
+
 
 ## <a id="license"></a>License
 
