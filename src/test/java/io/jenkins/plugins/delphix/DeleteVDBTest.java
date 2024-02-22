@@ -21,14 +21,14 @@ public class DeleteVDBTest {
         public void init() throws Exception {
                 DelphixGlobalConfiguration globalConfig1 =
                                 GlobalConfiguration.all().get(DelphixGlobalConfiguration.class);
-                globalConfig1.setDctUrl("https://dct6.dlpxdc.co/v3");
+                globalConfig1.setDctUrl("HOST");
 
 
                 globalConfig1.save();
 
                 StringCredentialsImpl c = new StringCredentialsImpl(CredentialsScope.USER,
                                 "test123", "description", Secret.fromString(
-                                                "apk 1.YKhbbGsoA2LUoaIpZ8nxPQsOQbQ5BBWAdB7AhWZISkGjeB6JsyiImpRP0EtKG86y"));
+                                                "KEY"));
                 CredentialsProvider.lookupStores(jenkins).iterator().next()
                                 .addCredentials(Domain.global(), c);
         }
