@@ -29,7 +29,7 @@ public class DelphixGlobalConfiguration extends GlobalConfiguration {
         save();
     }
 
-    public boolean getSslCheck() {
+    public boolean isSslDisabled() {
         return sslCheck;
     }
 
