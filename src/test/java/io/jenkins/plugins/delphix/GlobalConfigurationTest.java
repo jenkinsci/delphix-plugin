@@ -23,7 +23,7 @@ public class GlobalConfigurationTest {
     DelphixGlobalConfiguration globalConfig1 =
         GlobalConfiguration.all().get(DelphixGlobalConfiguration.class);
     globalConfig1.setDctUrl("https://self-signed.badssl.com");
-    globalConfig1.setSslCheck(true); //disable ssl
+    globalConfig1.setDisableSsl(true); //disable ssl
     globalConfig1.save();
 
     StringCredentialsImpl c =
