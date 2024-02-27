@@ -38,9 +38,7 @@ public class DctSdkUtil {
             return;
         }
         this.defaultClient = Configuration.getDefaultApiClient();
-        if (DelphixGlobalConfiguration.get().getSslCheck()) {
-            this.defaultClient.setVerifyingSsl(false);
-        }
+        this.defaultClient.setVerifyingSsl(!DelphixGlobalConfiguration.get().getDisableSsl()); 
         this.defaultClient.setConnectTimeout(Constant.TIMEOUT);
         this.defaultClient.setReadTimeout(Constant.TIMEOUT);
         this.defaultClient.setWriteTimeout(Constant.TIMEOUT);

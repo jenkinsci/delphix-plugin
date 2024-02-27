@@ -13,7 +13,7 @@ public class DelphixGlobalConfiguration extends GlobalConfiguration {
     }
 
     private String dctUrl;
-    private boolean sslCheck;
+    private boolean disableSsl;
 
     public DelphixGlobalConfiguration() {
         load();
@@ -29,13 +29,13 @@ public class DelphixGlobalConfiguration extends GlobalConfiguration {
         save();
     }
 
-    public boolean getSslCheck() {
-        return sslCheck;
+    public boolean getDisableSsl() {
+        return disableSsl;
     }
 
     @DataBoundSetter
-    public void setSslCheck(boolean sslCertificate) {
-        this.sslCheck = sslCertificate;
+    public void setDisableSsl(boolean disableSsl) {
+        this.disableSsl = disableSsl;
         save();
     }
 }
