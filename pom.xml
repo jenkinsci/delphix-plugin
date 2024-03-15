@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.delphix</groupId>
             <artifactId>dct-api</artifactId>
-            <version>8.0.1-sdk</version>
+            <version>9.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -122,8 +122,9 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </repository>
         <repository>
-            <id>localrepository</id>
-            <url>file://${project.basedir}/lib</url>
+            <id>project.local</id>
+            <name>project</name>
+            <url>file:${project.basedir}/repo</url>
         </repository>
     </repositories>
 
