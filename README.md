@@ -51,10 +51,10 @@ Install through Jenkins Plugin Manager or download [here](https://plugins.jenkin
 
 After the plugin has been installed, DCT will need to be connected. Go to Manage Jenkins > Configure System, scroll down to the Delphix section, and enter your DCT URL. This URL will be automatically used for every plugin step on the Jenkins server.
 
-Select the `SSL certificate check` checkbox if the DCT server has an insecure SSL Certificate. 
+Select the `Disable SSL certificate check` checkbox if the DCT server has an insecure SSL Certificate. 
 <br/>*We recommend configuring your DCT server with an SSL certificate for production usage.
 
-![Alt text](images/configuration.png)
+![Alt text](images/updated_configuration.png)
 
 #### **Credentials**
 
