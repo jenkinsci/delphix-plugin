@@ -115,7 +115,7 @@ deleteVDB loadFromProperties: true, credentialId: '<Input DCT Key 1.abc123456789
 
 ## <a id="links"></a>Links
 
-*   [Delphix Ecosystem Documentation](https://ecosystem.delphix.com/docs/main/jenkins)
+*   [Delphix Ecosystem Documentation](https://help.delphix.com/eh/current/Content/Ecoystem/Jenkins.htm)
 *   [Jenkins Plugin Site Page](https://plugins.jenkins.io/delphix)
 
 ## <a id="contribute"></a>Contribute
