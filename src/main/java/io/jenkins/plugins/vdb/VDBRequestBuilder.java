@@ -22,9 +22,22 @@ public class VDBRequestBuilder {
         if (jsonParameters != null) {
             provisionVDBBySnapshotParameters =
                     gson.fromJson(jsonParameters, ProvisionVDBBySnapshotParameters.class);
+
+            if (provisionVDBBySnapshotParameters != null
+                    && provisionVDBBySnapshotParameters.getAppdataSourceParams() != null &&
+                    provisionVDBBySnapshotParameters.getAppdataSourceParams().isEmpty()) {
+                provisionVDBBySnapshotParameters.setAppdataSourceParams(null);
+            }
+            if (provisionVDBBySnapshotParameters != null &&
+                    provisionVDBBySnapshotParameters.getCustomEnvVars() != null &&
+                    provisionVDBBySnapshotParameters.getCustomEnvVars().isEmpty()) {
+                provisionVDBBySnapshotParameters.setCustomEnvVars(null);
+            }
         }
         else {
             provisionVDBBySnapshotParameters = new ProvisionVDBBySnapshotParameters();
+            provisionVDBBySnapshotParameters.setCustomEnvVars(null);
+            provisionVDBBySnapshotParameters.setAppdataSourceParams(null);
         }
         provisionVDBBySnapshotParameters.setAutoSelectRepository(auto_select_repository);
         provisionVDBBySnapshotParameters.setSnapshotId(snapshot_id);
@@ -60,8 +73,20 @@ public class VDBRequestBuilder {
             provisionVDBFromBookmarkParameters =
                     gson.fromJson(jsonParameters, ProvisionVDBFromBookmarkParameters.class);
         }
+        if (provisionVDBFromBookmarkParameters != null &&
+                provisionVDBFromBookmarkParameters.getAppdataSourceParams() != null &&
+                provisionVDBFromBookmarkParameters.getAppdataSourceParams().isEmpty()) {
+            provisionVDBFromBookmarkParameters.setAppdataSourceParams(null);
+        }
+        if (provisionVDBFromBookmarkParameters != null &&
+                provisionVDBFromBookmarkParameters.getCustomEnvVars() != null &&
+                provisionVDBFromBookmarkParameters.getCustomEnvVars().isEmpty()) {
+            provisionVDBFromBookmarkParameters.setCustomEnvVars(null);
+        }
         else {
             provisionVDBFromBookmarkParameters = new ProvisionVDBFromBookmarkParameters();
+            provisionVDBFromBookmarkParameters.setCustomEnvVars(null);
+            provisionVDBFromBookmarkParameters.setAppdataSourceParams(null);
         }
         provisionVDBFromBookmarkParameters.setAutoSelectRepository(auto_select_repository);
         provisionVDBFromBookmarkParameters.setBookmarkId(bookmark_id);
