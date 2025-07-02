@@ -3,13 +3,13 @@ package io.jenkins.plugins.util;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.model.Item;
 import hudson.model.Run;
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
@@ -30,7 +30,7 @@ public class CredentialUtil {
             }
         }
         return result.includeEmptyValue()
-                .includeMatchingAs(ACL.SYSTEM, item, StringCredentials.class,
+                .includeMatchingAs(ACL.SYSTEM2, item, StringCredentials.class,
                         Collections.emptyList(), CredentialsMatchers.always())
                 .includeCurrentValue(credentialId);
     }

@@ -1,5 +1,6 @@
 package io.jenkins.plugins.delphix;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
@@ -20,7 +21,7 @@ import io.jenkins.plugins.util.ValidationUtil;
 import io.jenkins.plugins.vdb.VDBRequestBuilder;
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
@@ -52,6 +53,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     @Extension
     public static final class ProvisionDescriptor extends BuildStepDescriptor<Builder> {
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.ProvisionVDBBookmark_DisplayName();
@@ -69,7 +71,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
 
         public FormValidation doCheckCredentialId(@QueryParameter String value)
                 throws IOException, ServletException {
-            if (value.length() == 0)
+            if (value.isEmpty())
                 return FormValidation.error(Messages.Credential_Empty());
             return FormValidation.ok();
         }
@@ -104,7 +106,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
 
         public FormValidation doCheckBookmarkId(@QueryParameter String value)
                 throws IOException, ServletException {
-            if (value.length() == 0)
+            if (value.isEmpty())
                 return FormValidation.error(Messages.BookmarkId_Empty());
             return FormValidation.ok();
         }
@@ -112,8 +114,8 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
     }
 
     @Override
-    public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
-            TaskListener listener) throws InterruptedException, IOException {
+    public void perform(Run<?, ?> run, @NonNull FilePath workspace, @NonNull EnvVars env, @NonNull Launcher launcher,
+                        @NonNull TaskListener listener) throws InterruptedException, IOException {
         VDBRequestBuilder vdbRequestBuilder = new VDBRequestBuilder();
         Helper helper = new Helper(listener);
         listener.getLogger().println(Messages._ProvisionVDBBookmark_Info(run.getId()));
@@ -134,7 +136,7 @@ public class ProvisionVDBFromBookmark extends ProvisonVDB implements SimpleBuild
                     listener.getLogger().println(
                             Messages.ProvisionVDB_Start(provisionResponse.getVdbId(), job.getId()));
                     JobHelper jobHelper = new JobHelper(dctSdkUtil, listener, job.getId());
-                    boolean status = false;
+                    boolean status;
                     if (skipPolling) {
                         status = jobHelper.waitForGetVDB( run,
                                 provisionResponse.getVdbId());

@@ -38,7 +38,7 @@ public class DctSdkUtil {
             return;
         }
         this.defaultClient = Configuration.getDefaultApiClient();
-        this.defaultClient.setVerifyingSsl(!DelphixGlobalConfiguration.get().getDisableSsl()); 
+        this.defaultClient.setVerifyingSsl(!DelphixGlobalConfiguration.get().getDisableSsl());
         this.defaultClient.setConnectTimeout(Constant.TIMEOUT);
         this.defaultClient.setReadTimeout(Constant.TIMEOUT);
         this.defaultClient.setWriteTimeout(Constant.TIMEOUT);
@@ -53,7 +53,7 @@ public class DctSdkUtil {
     }
 
     /**
-     * 
+     *
      * @param provisionVDBFromBookmarkParameters
      * @return
      * @throws ApiException
@@ -61,28 +61,28 @@ public class DctSdkUtil {
     public ProvisionVDBResponse provisionVdbFromBookmark(
             ProvisionVDBFromBookmarkParameters provisionVDBFromBookmarkParameters)
             throws ApiException {
-        ProvisionVDBResponse result = null;
+        ProvisionVDBResponse result;
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         result = apiInstance.provisionVdbFromBookmark(provisionVDBFromBookmarkParameters);
         return result;
     }
 
     /**
-     * 
+     *
      * @param provisionVDBBySnapshotParameters
      * @return
      * @throws ApiException
      */
     public ProvisionVDBResponse provisionVdbBySnapshot(
             ProvisionVDBBySnapshotParameters provisionVDBBySnapshotParameters) throws ApiException {
-        ProvisionVDBResponse result = null;
+        ProvisionVDBResponse result;
         VdbsApi apiInstance = new VdbsApi(this.defaultClient);
         result = apiInstance.provisionVdbBySnapshot(provisionVDBBySnapshotParameters);
         return result;
     }
 
     /**
-     * 
+     *
      * @param vdbId
      * @param force
      * @return
@@ -116,7 +116,7 @@ public class DctSdkUtil {
         String sort = "id";
         PermissionEnum permission = PermissionEnum.fromValue("READ");
         SearchBody searchBody = new SearchBody();
-        String filterExpr = "name EQ \'" + name + "\'";
+        String filterExpr = "name EQ '" + name + "'";
         searchBody.setFilterExpression(filterExpr);
         SearchVDBsResponse result = apiInstance.searchVdbs(limit, cursor, sort, permission, searchBody);
         return result;

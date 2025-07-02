@@ -3,9 +3,10 @@ package io.jenkins.plugins.delphix;
 import static io.jenkins.plugins.util.CredentialUtil.getAllCredentialsListBoxModel;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
-import javax.servlet.ServletException;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import jakarta.servlet.ServletException;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -59,6 +60,7 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
             return true;
         }
 
+        @NonNull
         @Override
         public String getDisplayName() {
             return Messages.Delete_DisplayName();
@@ -71,7 +73,7 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
 
         public FormValidation doCheckCredentialId(@QueryParameter String value)
                 throws IOException, ServletException {
-            if (value.length() == 0)
+            if (value.isEmpty())
                 return FormValidation.error(Messages.Credential_Empty());
             return FormValidation.ok();
         }
@@ -79,8 +81,8 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
     }
 
     @Override
-    public void perform(Run<?, ?> run, FilePath workspace, EnvVars env, Launcher launcher,
-            TaskListener listener) throws InterruptedException, IOException {
+    public void perform(Run<?, ?> run, @NonNull FilePath workspace, @NonNull EnvVars env, @NonNull Launcher launcher,
+                        @NonNull TaskListener listener) throws InterruptedException, IOException {
         Helper helper = new Helper(listener);
         listener.getLogger().println(Messages.Delete_Start(run.getId()));
         try {
@@ -99,18 +101,18 @@ public class DeleteVDB extends Builder implements SimpleBuildStep {
                     }
                 }
                 else if (vdbId != null) {
-                    List<String> vdbList = Arrays.asList(vdbId.split(","));
+                    String[] vdbList = vdbId.split(",");
                     for (String vdb : vdbList) {
                         listener.getLogger().println(Messages.Delete_Message3(vdb));
                         deleteVDB(run, vdb, listener, dctSdkUtil);
                     }
                 }
                 else if (name != null) {
-                    List<String> nameList = Arrays.asList(name.split(","));
+                    String[] nameList = name.split(",");
                     for (String vdbname : nameList) {
                         listener.getLogger().println(Messages.Delete_Message5(vdbname));
                         SearchVDBsResponse result = dctSdkUtil.searchVDB(vdbname);
-                        if (result.getItems().size() == 0) {
+                        if (result.getItems().isEmpty()) {
                             listener.getLogger().println(Messages.Delete_Error3(vdbname));
                             run.setResult(Result.FAILURE);
                         }

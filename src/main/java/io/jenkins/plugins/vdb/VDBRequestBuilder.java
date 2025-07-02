@@ -18,7 +18,7 @@ public class VDBRequestBuilder {
             String jsonParameters, String sourceDataId, String environmentUserId,
             String repositoryId, String engineId, String targetGroupId, String databaseName,
             boolean vdbRestart, String snapshotPolicyId, String retentionPolicyId) {
-        ProvisionVDBBySnapshotParameters provisionVDBBySnapshotParameters = null;
+        ProvisionVDBBySnapshotParameters provisionVDBBySnapshotParameters;
         if (jsonParameters != null) {
             provisionVDBBySnapshotParameters =
                     gson.fromJson(jsonParameters, ProvisionVDBBySnapshotParameters.class);
@@ -55,7 +55,7 @@ public class VDBRequestBuilder {
             String jsonParameters, String environmentUserId, String repositoryId,
             String targetGroupId, String databaseName, boolean vdbRestart, String snapshotPolicyId,
             String retentionPolicyId) {
-        ProvisionVDBFromBookmarkParameters provisionVDBFromBookmarkParameters = null;
+        ProvisionVDBFromBookmarkParameters provisionVDBFromBookmarkParameters;
         if (jsonParameters != null) {
             provisionVDBFromBookmarkParameters =
                     gson.fromJson(jsonParameters, ProvisionVDBFromBookmarkParameters.class);

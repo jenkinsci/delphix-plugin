@@ -1,6 +1,7 @@
 
 package io.jenkins.plugins.delphix;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.kohsuke.stapler.DataBoundConstructor;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -35,6 +36,7 @@ public class Tags extends AbstractDescribableImpl<Tags> {
      */
     @Extension
     public static class DescriptorImpl extends Descriptor<Tags> {
+        @NonNull
         @Override
         public String getDisplayName() {
             return "";

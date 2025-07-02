@@ -53,7 +53,7 @@ public class DelphixProperties {
         catch (IOException e) {
             this.listener.getLogger().print(e.getMessage());
         }
-        try (FileOutputStream fileOut = new FileOutputStream(this.file, false);) {
+        try (FileOutputStream fileOut = new FileOutputStream(this.file, false)) {
             for (Map.Entry<String, Object> entry : vdbDetails.entrySet()) {
                 this.properties.put(entry.getKey(), entry.getValue().toString());
             }

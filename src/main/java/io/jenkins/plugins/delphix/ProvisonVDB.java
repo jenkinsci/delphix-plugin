@@ -1,10 +1,13 @@
 package io.jenkins.plugins.delphix;
 
 import java.util.List;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import hudson.tasks.Builder;
 
+@SuppressFBWarnings(value = "PA_PUBLIC_PRIMITIVE_ATTRIBUTE", justification = "legacy code")
 public abstract class ProvisonVDB extends Builder {
     public boolean autoSelectRepository;
     public List<Tags> tagList;
