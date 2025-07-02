@@ -20,7 +20,7 @@ import io.jenkins.plugins.util.ValidationUtil;
 import io.jenkins.plugins.vdb.VDBRequestBuilder;
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import jenkins.tasks.SimpleBuildStep;
 import org.jenkinsci.Symbol;
