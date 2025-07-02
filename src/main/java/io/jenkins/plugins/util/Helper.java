@@ -19,6 +19,7 @@ import com.delphix.dct.ApiException;
 import com.delphix.dct.models.VDB;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.FilePath;
 import hudson.model.TaskListener;
 import io.jenkins.plugins.constant.Constant;
@@ -34,10 +35,11 @@ public class Helper {
     }
 
     public List<String> getFileList(Path rootDir, String pattern) throws IOException {
-        List<String> matchesList = new ArrayList<String>();
-        FileVisitor<Path> matcherVisitor = new SimpleFileVisitor<Path>() {
+        List<String> matchesList = new ArrayList<>();
+        FileVisitor<Path> matcherVisitor = new SimpleFileVisitor<>() {
+            @NonNull
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attribs)
+            public FileVisitResult visitFile(Path file, @NonNull BasicFileAttributes attribs)
                     throws IOException {
                 FileSystem fs = FileSystems.getDefault();
                 PathMatcher matcher = fs.getPathMatcher(pattern);

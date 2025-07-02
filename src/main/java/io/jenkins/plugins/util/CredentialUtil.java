@@ -30,7 +30,7 @@ public class CredentialUtil {
             }
         }
         return result.includeEmptyValue()
-                .includeMatchingAs(ACL.SYSTEM, item, StringCredentials.class,
+                .includeMatchingAs(ACL.SYSTEM2, item, StringCredentials.class,
                         Collections.emptyList(), CredentialsMatchers.always())
                 .includeCurrentValue(credentialId);
     }

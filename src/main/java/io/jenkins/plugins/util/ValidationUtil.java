@@ -23,8 +23,8 @@ public class ValidationUtil {
     public ValidationUtil() {
         strictGsonObjectAdapter = new Gson().getAdapter(JsonObject.class);
         result = null;
-        snapshotFieldSet = new HashSet<String>();
-        bookmarkFieldSet = new HashSet<String>();
+        snapshotFieldSet = new HashSet<>();
+        bookmarkFieldSet = new HashSet<>();
     }
 
     public void validateJsonFormat(String json) {
